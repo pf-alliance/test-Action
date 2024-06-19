@@ -34,7 +34,7 @@ jobs:
           restore-keys: ${{ runner.os }}-composer-
 
       - name: Composer install
-        node-version: '20'
+        using: 'node20'
         run: composer install --prefer-dist --no-progress --no-suggest
 
       # - name: Setup Node.js
