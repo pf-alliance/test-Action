@@ -29,7 +29,7 @@ jobs:
       - name: Cache Composer dependencies
         uses: actions/cache@v3
         with:
-          node-version: '20'
+          using: 'node20'
           path: ${{ github.workspace }}/vendor
           key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
           restore-keys: ${{ runner.os }}-composer-
