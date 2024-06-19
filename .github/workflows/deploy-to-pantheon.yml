@@ -16,7 +16,7 @@ jobs:
     name: Build and Deploy to Pantheon D10 Multidev Environment
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
