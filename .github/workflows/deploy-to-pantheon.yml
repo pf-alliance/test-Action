@@ -27,8 +27,8 @@ jobs:
           tools: composer:v2
 
       - name: Cache Composer dependencies
-        uses: actions/cache@v3
-        uses: actions/setup-node@v4
+        - uses: actions/cache@v3
+        - uses: actions/setup-node@v4
         with:
           node-version: '20'
           path: ${{ github.workspace }}/vendor
