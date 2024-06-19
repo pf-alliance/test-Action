@@ -29,12 +29,12 @@ jobs:
       - name: Cache Composer dependencies
         uses: actions/cache@v3
         with:
+          node-version: '20'
           path: ${{ github.workspace }}/vendor
           key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
           restore-keys: ${{ runner.os }}-composer-
 
       - name: Composer install
-        using: 'node20'
         run: composer install --prefer-dist --no-progress --no-suggest
 
       # - name: Setup Node.js
