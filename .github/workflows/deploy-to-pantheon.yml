@@ -17,8 +17,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
           fetch-depth: 0
+          node-version: '20'
 
       - name: Setup PHP with Composer
         uses: shivammathur/setup-php@v2
@@ -28,7 +30,6 @@ jobs:
 
       - name: Cache Composer dependencies
         - uses: actions/cache@v3
-        - uses: actions/setup-node@v4
           with:
             node-version: '20'
             path: ${{ github.workspace }}/vendor
