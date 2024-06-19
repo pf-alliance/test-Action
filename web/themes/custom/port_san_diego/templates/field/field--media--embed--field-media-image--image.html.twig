@@ -1,0 +1,29 @@
+{#
+/**
+ * @file
+ * Theme override for a field.
+ */
+#}
+{%
+  set classes = [
+    'field',
+    'field--name-' ~ field_name|clean_class,
+    'field--type-' ~ field_type|clean_class,
+    'field--label-' ~ label_display,
+  ]
+%}
+{%
+  set title_classes = [
+    'field__label',
+    label_display == 'visually_hidden' ? 'visually-hidden',
+  ]
+%}
+{% for item in items %}
+  <div{{ attributes.addClass(classes, 'field__item') }}>
+    <div class="zoom-container">
+      {{ item.content }}
+      <svg class="icon icon-zoom" alt="zoom icon"><use xlink:href="#icon-zoom"></use></svg>
+    </div>
+  </div>
+  <span class="download"><a href="{{ item.content['#url'] }}" download>{{ 'Download full size image'|t }} <svg class="icon icon-download"><use xlink:href="#icon-download"></use></svg></a></span>
+{% endfor %}

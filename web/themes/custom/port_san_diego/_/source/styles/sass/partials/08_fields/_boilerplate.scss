@@ -1,0 +1,16 @@
+.boilerplates {
+  &__boilerplate {
+    @include global-spacing;
+    margin-bottom: 0 !important;
+  }
+
+  ul {
+    @include list-bullets-color;
+  }
+
+  p + dl,
+  p + ol,
+  p + ul {
+    margin-top: rem-calc(-18);
+  }
+}

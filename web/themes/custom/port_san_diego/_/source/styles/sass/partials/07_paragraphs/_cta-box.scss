@@ -1,0 +1,81 @@
+.paragraph--type--cta-box {
+  background-color: $blue-dark;
+
+  form {
+    @include flex-grid-row(nest);
+  }
+}
+
+.cta-box {
+  @include flex-grid-row;
+  flex-direction: column;
+  padding: rem-calc(40) rem-calc(35);
+  color: $white;
+
+  a {
+    @include white-link-on-dark;
+  }
+}
+
+.cta-box__body,
+.cta-box__container {
+  @include flex-grid-column(12);
+  flex: 1 1 auto;
+}
+
+.cta-box__body {
+  margin-left: auto;
+  margin-right: auto;
+  padding-bottom: rem-calc(30);
+  text-align: center;
+  @include breakpoint(large) {
+    @include flex-grid-size(10)
+  }
+  flex: 1 1 auto;
+}
+
+.cta-box__container {
+  margin-left: auto;
+  margin-right: auto;
+  @include breakpoint(large) {
+    @include flex-grid-size(8);
+    align-self: center;
+    flex: 1 1 auto;
+    min-width: 66.66%;
+  }
+
+  input {
+    &[type='submit'] {
+      background: $white;
+      color: $blue;
+      display: block;
+      margin: auto;
+
+      &:hover {
+        color: $white;
+        background: transparent;
+      }
+    }
+
+    &[type='text'] {
+      border: none;
+    }
+  }
+
+  textarea,
+  select {
+    border: none;
+  }
+
+  .form-required {
+    &::after {
+      color: $sand;
+    }
+  }
+}
+
+.cta-box__heading {
+  color: $white;
+  flex: 1 1 auto;
+  text-align: center;
+}

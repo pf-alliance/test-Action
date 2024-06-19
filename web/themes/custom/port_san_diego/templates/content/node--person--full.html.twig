@@ -1,0 +1,23 @@
+{% extends 'node.html.twig' %}
+{#
+/**
+ * @file
+ * Theme override to display a node.
+ */
+#}
+{% block content %}
+  <header>
+    <div class="header-wrapper">
+      {{ content.field_headshot }}
+      <div class="header-info">
+        {{ title_prefix }}
+        <h1{{ title_attributes.addClass('person-title', 'h3') }}>{{ label }}</h1>
+        {{ title_suffix }}
+        {{ content.field_title }}
+        {{ content.field_email }}
+      </div>
+    </div>
+  </header>
+
+  {{ content|without('field_email', 'field_headshot', 'field_title') }}
+{% endblock %}

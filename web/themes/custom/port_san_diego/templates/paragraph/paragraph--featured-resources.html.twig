@@ -1,0 +1,14 @@
+{% extends 'paragraph.html.twig' %}
+{#
+/**
+ * @file
+ * Theme override for a field.
+ */
+#}
+{% block content %}
+  <div class="basic-text__container">
+    <h2 class="basic-text__heading">{{ content.field_title }}</h2>
+    <div class="basic-text__content">{{ content.field_body }}</div>
+  </div>
+  {{ content.field_resources }}
+{% endblock %}

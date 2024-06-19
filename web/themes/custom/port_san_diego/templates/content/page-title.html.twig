@@ -1,0 +1,12 @@
+{#
+/**
+ * @file
+ * Theme override for page titles.
+ */
+#}
+{% set tag = element ? element : 'h1' %}
+{{ title_prefix }}
+{% if title %}
+  <{{ tag }}{{ title_attributes.addClass('hero__heading') }}>{{ title }}</{{ tag }}>
+{% endif %}
+{{ title_suffix }}

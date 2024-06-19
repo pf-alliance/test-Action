@@ -1,0 +1,36 @@
+.view-display-id-search_page {
+  @include flex-grid-column(12);
+
+  .search__items {
+    overflow: hidden;
+
+    .views-row {
+      border-top: 1px solid $sand;
+      margin-top: rem-calc(20);
+      margin-bottom: rem-calc(20);
+      padding-top: rem-calc(20);
+      @include breakpoint(large) {
+        margin-top: rem-calc(30);
+        margin-bottom: rem-calc(30);
+        padding-top: rem-calc(30);
+      }
+
+      &:first-child {
+        border-top: none;
+        padding-top: 0;
+      }
+
+      &:last-child {
+        margin-bottom: 0;
+      }
+    }
+
+    .pagination__row {
+      @include flex-grid-row(nest, expand);
+    }
+
+    .pagination__container {
+      @include flex-grid-column;
+    }
+  }
+}

@@ -1,0 +1,133 @@
+{#
+/**
+ * @file
+ * Theme override to display a block.
+ */
+#}
+{%
+  set classes = [
+    'block',
+    'block-' ~ configuration.provider|clean_class,
+    'block-' ~ plugin_id|clean_class,
+    'footer__stay-informed',
+  ]
+%}
+<div{{ attributes.addClass(classes) }}>
+  {{ title_prefix }}
+  {% if label %}
+    <h4{{ title_attributes.addClass('footer__stay-informed-title') }}>{{ label }}</h4>
+  {% endif %}
+  {{ title_suffix }}
+  {% block content %}
+    <ul class="footer__social-links">
+      {% if content.twitter_url %}
+        <li>
+          <a target="_blank" href="{{ content.twitter_url }}" class="footer__social-link icon-twitter">
+            <span class="screen-reader-text">Twitter</span>
+            <svg class="icon icon--social-twitter" alt="twitter icon">
+              <use xlink:href="#icon-social-twitter" overflow="visible" />
+            </svg>
+          </a>
+        </li>
+      {% endif %}
+      {% if content.facebook_url %}
+        <li>
+          <a target="_blank" href="{{ content.facebook_url }}" class="footer__social-link icon-facebook">
+            <span class="screen-reader-text">Facebook</span>
+            <svg class="icon icon--social-facebook" alt="facebook icon">
+              <use xlink:href="#icon-social-facebook" overflow="visible" />
+            </svg>
+          </a>
+        </li>
+      {% endif %}
+      {% if content.youtube_url %}
+        <li>
+          <a target="_blank" href="{{ content.youtube_url }}" class="footer__social-link icon-youtube">
+            <span class="screen-reader-text">YouTube</span>
+            <svg class="icon icon--social-youtube" alt="youtube icon">
+              <use xlink:href="#icon-social-youtube" overflow="visible" />
+            </svg>
+          </a>
+        </li>
+      {% endif %}
+      {% if content.linkedin_url %}
+        <li>
+          <a target="_blank" href="{{ content.linkedin_url }}" class="footer__social-link icon-linkedin">
+            <span class="screen-reader-text">LinkedIn</span>
+            <svg class="icon icon--social-linkedin" alt="linkedin icon">
+              <use xlink:href="#icon-social-linkedin" overflow="visible" />
+            </svg>
+          </a>
+        </li>
+      {% endif %}
+      {% if content.instagram_url %}
+        <li>
+          <a target="_blank" href="{{ content.instagram_url }}" class="footer__social-link icon-instagram">
+            <span class="screen-reader-text">Instagram</span>
+            <svg class="icon icon--social-instagram" alt="instagram icon">
+              <use xlink:href="#icon-social-instagram" overflow="visible" />
+            </svg>
+          </a>
+        </li>
+      {% endif %}
+      {% if content.pinterest_url %}
+        <li>
+          <a target="_blank" href="{{ content.pinterest_url }}" class="footer__social-link icon-pinterest">
+            <span class="screen-reader-text">Pinterest</span>
+            <svg class="icon icon--social-pinterest" alt="pinterest icon">
+              <use xlink:href="#icon-social-pinterest" overflow="visible" />
+            </svg>
+          </a>
+        </li>
+      {% endif %}
+      {% if content.flickr_url %}
+        <li>
+          <a target="_blank" href="{{ content.flickr_url }}" class="footer__social-link icon-flickr">
+            <span class="screen-reader-text">Flickr</span>
+            <svg class="icon icon--social-flickr" alt="flickr icon">
+              <use xlink:href="#icon-social-flickr" overflow="visible" />
+            </svg>
+          </a>
+        </li>
+      {% endif %}
+      {% if content.rss_url %}
+        <li>
+          <a target="_blank" href="{{ content.rss_url }}" class="footer__social-link icon-rss">
+            <span class="screen-reader-text">RSS</span>
+            <svg class="icon icon--social-rss" alt="rss icon">
+              <use xlink:href="#icon-social-rss" overflow="visible" />
+            </svg>
+          </a>
+        </li>
+      {% endif %}
+    </ul>
+  {% endblock %}
+</div>
+
+<div class="footer__get-notified">
+  <p class="footer__get-notified-title">{{ 'Get notified of upcoming news and events.'|t }}<br>
+    {{ 'Fields indicated by an asterisk (*) are required.'|t }}</p>
+  <!-- Begin MailChimp Signup Form -->
+  <div id="mc_embed_signup">
+    <form action="https://portofsandiego.us1.list-manage.com/subscribe/post?u=c967ee09784f80c30022f0b95&amp;id=841160dac0" method="post" id="mc-embedded-subscribe-form" name="mc-embedded-subscribe-form" class="validate footer__sign-up" target="_blank" novalidate>
+      <label for="mce-FNAME">First Name
+        <input type="text" value="" name="FNAME" class="" id="mce-FNAME">
+      </label>
+      <label for="mce-LNAME">Last Name
+        <input type="text" value="" name="LNAME" class="" id="mce-LNAME">
+      </label>
+      <label for="mce-EMAIL">Email <span class="asterisk">*</span>
+        <input type="email" value="" name="EMAIL" class="required email" id="mce-EMAIL">
+      </label>
+      <div class="submit">
+        <input type="submit" value="Sign Up" name="subscribe" id="mc-embedded-subscribe">
+      </div>
+      <div id="mce-responses">
+        <div class="response" id="mce-error-response" style="display:none"></div>
+        <div class="response" id="mce-success-response" style="display:none"></div>
+      </div>
+      <div style="position: absolute; left: -5000px;" aria-hidden="true"><input type="text" name="b_c967ee09784f80c30022f0b95_841160dac0" tabindex="-1" value=""></div>
+    </form>
+  </div>
+  <!--End mc_embed_signup-->
+</div>

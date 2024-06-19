@@ -1,0 +1,47 @@
+{% extends "node.html.twig" %}
+{#
+/**
+ * @file
+ * Theme override to display a node teaser.
+ */
+#}
+{% block content %}
+  <div class="content-wrapper">
+    {% if content.field_hero_image|render is not empty %}
+      <a href="{{ url }}" class="teaser-link">
+        {{ content.field_hero_image }}
+      </a>
+    {% endif %}
+    <div class="content">
+      {% if content.field_date %}
+        {{ content.field_date }}
+      {% endif %}
+      {{ title_prefix }}
+      <div{{ title_attributes.addClass('title') }}>
+        <a href="{{ url }}">{{ label }}</a>
+      </div>
+      {{ title_suffix }}
+      {% if eyebrow %}
+        <p class="category">{{ eyebrow }}</p>
+      {% endif %}
+      <div class="body">
+        {% if content.field_intro|render|striptags|trim is not empty %}
+          {{ content.field_intro }}
+        {% endif %}
+        {% if content.body|render|striptags|trim is not empty %}
+          {{ content.body }}
+        {% endif %}
+        <a href="{{ url }}" class="call-to-action">Read More
+          <span class="screen-reader-text">About {{ label }}</span>
+          <svg class="icon icon--chevron-right" alt="right chevron">
+            <use xlink:href="#icon-chevron-right"></use>
+          </svg>
+          <svg class="icon icon--chevron-right" alt="right chevron">
+            <use xlink:href="#icon-chevron-right"></use>
+          </svg>
+        </a>
+      </div>
+      {{ content.links }}
+    </div>
+  </div>
+{% endblock %}

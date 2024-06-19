@@ -1,0 +1,35 @@
+{#
+/**
+ * @file
+ * Theme override to display a media item.
+ */
+#}
+{%
+  set classes = [
+    'media',
+    'media--type-' ~ media.bundle()|clean_class,
+    not media.isPublished() ? 'media--unpublished',
+    view_mode ? 'media--view-mode-' ~ view_mode|clean_class,
+    'resources__resource',
+  ]
+%}
+<a{{ attributes.setAttribute('href', url).addClass(classes) }}>
+  {{ title_prefix }}
+  <h3 class="resources__title">{{ name }}</h3>
+  {{ title_suffix }}
+  <div class="resources__info">
+    <span class="resources__link call-to-action">View
+      <span class="screen-reader-text"> {{ name }}</span>
+      <svg class="icon icon--chevron-right" alt="right icon">
+        <use xlink:href="#icon-chevron-right"></use>
+      </svg>
+      <svg class="icon icon--chevron-right" alt="right chevron">
+        <use xlink:href="#icon-chevron-right"></use>
+      </svg>
+    </span> <span class="resources__type resources__type--{{ icon }}">
+      <svg class="icon icon--{{ icon }}" alt="{{ icon }} icon">
+        <use xlink:href="#icon-{{ icon }}"></use>
+      </svg>
+    </span>
+  </div>
+</a>

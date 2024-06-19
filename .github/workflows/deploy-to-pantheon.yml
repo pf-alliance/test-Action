@@ -31,7 +31,6 @@ jobs:
       - name: Cache Composer dependencies
         - uses: actions/cache@v3
           with:
-            node-version: '20'
             path: ${{ github.workspace }}/vendor
             key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
             restore-keys: ${{ runner.os }}-composer-
@@ -39,19 +38,22 @@ jobs:
       - name: Composer install
         run: composer install --prefer-dist --no-progress --no-suggest
 
-      # - name: Setup Node.js
-      #   uses: actions/setup-node@v4
-      #   with:
-      #     node-version: '20'
-      #     cache: 'npm'
-      #     cache-dependency-path: 'web/themes/custom/port_san_diego/package-lock.json'
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: 'web/themes/custom/port_san_diego/package-lock.json'
 
 
-      # - name: Install Node dependencies and Build CSS
-      #   run: |
-      #     cd web/themes/custom/port_san_diego
-      #     npm install
-      #     npm run build
+      - name: Install Node dependencies and Build CSS
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+        run: |
+          cd web/themes/custom/port_san_diego
+          npm install
+          npm run build
 
       # - uses: shimataro/ssh-key-action@v2
       #   with:

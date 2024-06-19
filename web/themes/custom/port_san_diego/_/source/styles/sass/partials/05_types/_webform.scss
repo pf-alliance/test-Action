@@ -1,0 +1,10 @@
+.path-webform {
+  .region--content {
+    @include flex-grid-row;
+    @include global-spacing;
+  }
+
+  .block-system-main-block {
+    @include flex-grid-column(100%);
+  }
+}

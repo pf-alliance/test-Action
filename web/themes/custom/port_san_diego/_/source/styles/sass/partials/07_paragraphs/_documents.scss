@@ -1,0 +1,132 @@
+.documents {
+  background-color: $morning-clay-light;
+}
+
+.documents__heading-section {
+  background-color: transparentize($morning-clay, 0.8);
+}
+
+.documents__heading-container,
+.documents__document-container {
+  @include flex-grid-row;
+}
+
+.documents__heading,
+.documents__document-title {
+  @include flex-grid-column(100%);
+}
+
+.documents__heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: rem-calc(15);
+  padding-bottom: rem-calc(15);
+  cursor: pointer;
+  color: $black;
+}
+
+.documents__status-icon {
+  font-size: rem-calc(18);
+  transition: transform $transition-time ease;
+}
+
+.documents__heading--open {
+  .documents__status-icon {
+    transform: rotateX(180deg);
+  }
+}
+
+.no-js {
+  .documents__heading {
+    cursor: default;
+  }
+
+  .documents__status-icon {
+    display: none;
+  }
+}
+
+.documents__document {
+  &:nth-child(even) {
+    background-color: transparentize($morning-clay, 0.95);
+  }
+
+  .resources__link {
+    &.call-to-action {
+      display: none;
+    }
+  }
+
+  .resources__title {
+    @extend h4;
+    @include flex-grid-column(100%);
+
+    color: $blue;
+    display: flex;
+    flex: auto;
+    font-weight: bold;
+    justify-content: space-between;
+    align-items: center;
+    margin: 0;
+    padding-top: rem-calc(20);
+    padding-bottom: rem-calc(20);
+    transition: color $transition-time;
+  }
+
+  .resources__info {
+    background-color: transparent;
+    padding: 0 rem-calc(8);
+  }
+
+  .resources__resource {
+    border: none;
+    flex-direction: row;
+
+    &:hover {
+      .resources__title {
+        color: $blue-light;
+        text-decoration: underline;
+      }
+    }
+  }
+}
+
+
+.documents__document-title {
+  @extend h4;
+
+  a {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: rem-calc(20);
+    padding-bottom: rem-calc(20);
+  }
+}
+
+.documents__icon {
+  font-size: 2.125rem;
+}
+
+
+.field--name-field-documents-title.field--type-string.field--label-hidden.field__item {
+  color: #006298;
+  margin-bottom: 1.25rem;
+  font-size: 1.75rem;
+  font-weight: normal;
+  line-height: 1.1428571429em;
+  text-align: center;
+  font-size: 2.1875rem;
+}
+
+.clearfix.text-formatted.field.field--name-field-documents-description.field--type-text-long.field--label-hidden.field__item {
+  max-width: 80.625rem;
+  margin-right: auto;
+  margin-left: auto;
+  display: flex;
+  flex-flow: row wrap;
+  p {
+    padding: rem-calc(15)
+  }
+}

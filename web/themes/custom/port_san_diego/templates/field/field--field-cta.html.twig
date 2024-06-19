@@ -1,0 +1,26 @@
+{#
+/**
+ * @file
+ * Custom theme template.
+ */
+#}
+{%
+  set classes = [
+  'field',
+  'field--name-' ~ field_name|clean_class,
+  'field--type-' ~ field_type|clean_class,
+  'field--label-' ~ label_display,
+]
+%}
+{% for item in items %}
+  <span{{ item.attributes.addClass(classes, 'field__item') }}>
+    <a href="{{ item.content['#url'] }}" {{ item.link_attributes.addClass('call-to-action') }}>{{ item.content['#title'] }}
+      <svg class="icon icon--chevron-right" alt="right chevron">
+        <use xlink:href="#icon-chevron-right"></use>
+      </svg>
+      <svg class="icon icon--chevron-right" alt="right chevron">
+        <use xlink:href="#icon-chevron-right"></use>
+      </svg>
+    </a>
+  </span>
+{% endfor %}

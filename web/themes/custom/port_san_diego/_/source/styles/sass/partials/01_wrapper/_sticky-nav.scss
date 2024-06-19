@@ -1,0 +1,35 @@
+body {
+  &:not(.user-logged-in) {
+    padding-top: rem-calc(60); // For the fixed nav
+    @include breakpoint(large) {
+      //padding-top: rem-calc(140);
+      padding-top: 0;
+    }
+  }
+
+  &.menu-open {
+    @include breakpoint(medium down) {
+      height: 100vh;
+      overflow: hidden;
+    }
+  }
+}
+
+.header {
+  @include anonymous {
+    @include breakpoint(medium down) {
+      position: fixed;
+      top: 0;
+      width: 100%;
+      z-index: 100;
+    }
+
+    //@include breakpoint(large) {
+    //  transition: top $transition-time;
+    //
+    //  &.header-locked {
+    //    top: -$header-secondary-size;
+    //  }
+    //}
+  }
+}

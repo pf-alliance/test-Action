@@ -1,0 +1,1944 @@
+<?php
+
+/**
+ * @file
+ * Functions to support theming in the port_san_diego theme.
+ */
+
+use Drupal\block\Entity\Block;
+use Drupal\Component\Utility\Html;
+use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Link;
+use Drupal\Core\Menu\MenuTreeParameters;
+use Drupal\Core\Render\Markup;
+use Drupal\Core\StringTranslation\TranslatableMarkup;
+use Drupal\Core\Template\Attribute;
+use Drupal\Core\Url;
+use Drupal\crop\Entity\Crop;
+use Drupal\emptyparagraphkiller\Plugin\Filter\EmptyParagraphKiller;
+use Drupal\file\Entity\File;
+use Drupal\image\Entity\ImageStyle;
+use Drupal\media\Entity\Media;
+use Drupal\node\Entity\Node;
+use Drupal\paragraphs\Entity\Paragraph;
+use Drupal\taxonomy\Entity\Term;
+use Drupal\views\Views;
+
+/**
+ * Implements hook_theme().
+ */
+function port_san_diego_theme() {
+  return [
+    'port_boilerplate' => [
+      'variables' => [
+        'boilerplates' => NULL,
+      ],
+      'template' => 'custom/boilerplate',
+    ],
+    'port_hero_image' => [
+      'variables' => [
+        'hero_images' => NULL,
+        'position' => NULL,
+        'alt' => NULL,
+      ],
+      'template' => 'custom/hero-image-responsive',
+    ],
+  ];
+}
+
+/**
+ * Custom function to return rendered responsive hero image.
+ *
+ * @param \Drupal\media\Entity\Media $hero_media
+ *   The media entity.
+ *
+ * @return array|null
+ *   Rendered hero images.
+ */
+function port_san_diego_hero_images(Media $hero_media) {
+  /* @var \Drupal\media\Entity\Media $hero_media */
+  if ($hero_media->hasField('field_media_image') && !$hero_media->get('field_media_image')->isEmpty()) {
+    /* @var \Drupal\file\Entity\File $file */
+    $file = _port_get_referenced_entity($hero_media, 'field_media_image');
+
+    if (!$file) {
+      return NULL;
+    }
+
+    $position = port_san_diego_get_focal_point_position($file, $hero_media);
+
+    $image_styles = array(
+      'small' => 'hero_480',
+      'medium' => 'hero_768',
+      'large' => 'hero_1080',
+    );
+
+    foreach ($image_styles as $key => $image_style) {
+      $styles[$key] = ImageStyle::load($image_style)->buildUrl($file->getFileUri());
+    }
+
+    if (isset($styles) && count($styles)) {
+      $hero_images = $styles;
+    }
+
+    $alt = $hero_media->get('field_media_image')->first()->get('alt')->getString();
+  }
+
+  if (isset($hero_images) && !empty($hero_images)) {
+    return array(
+      '#theme' => 'port_hero_image',
+      '#hero_images' => $hero_images,
+      '#position' => (isset($position)) ? $position : NULL,
+      '#alt' => (isset($alt) && !empty($alt)) ? $alt : $hero_media->getName(),
+      '#cache' => array(
+        'tags' => $hero_media->getCacheTags(),
+      ),
+    );
+  }
+
+  return NULL;
+}
+
+/**
+ * Helper function to return background position string based on focal point.
+ *
+ * @param \Drupal\file\Entity\File $file
+ *   The image file entity.
+ * @param \Drupal\media\Entity\Media $media
+ *   The parent Media entity.
+ *
+ * @return null|string
+ *   The CSS background position string.
+ */
+function port_san_diego_get_focal_point_position(File $file, Media $media) {
+  /* @var \Drupal\crop\Entity\Crop $crop */
+  $crop_type = \Drupal::config('focal_point.settings')->get('crop_type');
+  if (Crop::cropExists($file->getFileUri(), $crop_type)) {
+    $crop = Crop::findCrop($file->getFileUri(), $crop_type)->position();
+    /* @var \Drupal\file\Plugin\Field\FieldType\FileFieldItemList $file_field */
+    $file_field = $media->get('field_media_image');
+    /* @var \Drupal\image\Plugin\Field\FieldType\ImageItem $original_image */
+    $original_image = $file_field->first();
+    $original_image = $original_image->toArray();
+    $x = ($crop['x'] / $original_image['width']) * 100;
+    $y = ($crop['y'] / $original_image['height']) * 100;
+
+    $position = 'background-position: ' . $x . '% ' . $y . '%;';
+  }
+
+  return (isset($position)) ? $position : NULL;
+}
+
+/**
+ * Implements hook_preprocess_HOOK() for html.html.twig.
+ */
+function port_san_diego_preprocess_html(array &$vars) {
+  /* Add class to html tag */
+  $vars['html_attributes']->addClass('no-js');
+
+  // Don't display the site name twice on the front page.
+  if (isset($vars['head_title_array']['title']) && isset($vars['head_title_array']['name']) && ($vars['head_title_array']['title'] == $vars['head_title_array']['name'])) {
+    $vars['head_title'] = $vars['head_title_array']['name'];
+  }
+
+  // Add a body class for the current url alias.
+  $current_path = \Drupal::service('path.current')->getPath();
+  $path_alias = \Drupal::service('path_alias.manager')->getAliasByPath($current_path);
+  $path_alias = ltrim($path_alias, '/');
+  $vars['attributes']['class'][] = 'alias-' . Html::cleanCssIdentifier($path_alias);
+
+  $node = _port_get_current_entity();
+  if (isset($node)) {
+    switch ($node->bundle()) {
+      case 'article':
+        $vars['attributes']['class'][] = 'node--type-post';
+        break;
+    }
+  }
+}
+
+/**
+ * Implements hook_page_attachments_alter().
+ */
+function port_san_diego_page_attachments_alter(array &$page) {
+  // Tell IE to use latest rendering engine (not to use compatibility mode).
+  $ie_edge = [
+    '#type' => 'html_tag',
+    '#tag' => 'meta',
+    '#attributes' => [
+      'http-equiv' => 'X-UA-Compatible',
+      'content' => 'IE=edge',
+    ],
+  ];
+  $page['#attached']['html_head'][] = [$ie_edge, 'ie_edge'];
+
+  $favicons = [
+    'android' => [
+      '#type' => 'html_tag',
+      '#tag' => 'link',
+      '#attributes' => [
+        'href' => base_path()  . 'themes/custom/port_san_diego/favicons/android-chrome-192x192.png',
+        'rel' => 'icon',
+        'sizes' => '192x192',
+        'type' => 'image/png',
+      ],
+    ],
+    'apple_touch_icon' => [
+      '#type' => 'html_tag',
+      '#tag' => 'link',
+      '#attributes' => [
+        'href' => base_path() . 'themes/custom/port_san_diego/favicons/apple-touch-icon.png',
+        'rel' => 'apple-touch-icon',
+        'sizes' => '180x180',
+      ],
+    ],
+    'browserconfig' => [
+      '#type' => 'html_tag',
+      '#tag' => 'meta',
+      '#attributes' => [
+        'content' => base_path() . 'themes/custom/port_san_diego/favicons/browserconfig.xml',
+        'name' => 'msapplication-config',
+      ],
+    ],
+    'favicon_16' => [
+      '#type' => 'html_tag',
+      '#tag' => 'link',
+      '#attributes' => [
+        'href' => base_path()  . 'themes/custom/port_san_diego/favicons/favicon-16x16.png',
+        'rel' => 'icon',
+        'sizes' => '16x16',
+        'type' => 'image/png',
+      ],
+    ],
+    'favicon_32' => [
+      '#type' => 'html_tag',
+      '#tag' => 'link',
+      '#attributes' => [
+        'href' => base_path() . 'themes/custom/port_san_diego/favicons/favicon-32x32.png',
+        'rel' => 'icon',
+        'sizes' => '32x32',
+        'type' => 'image/png',
+      ],
+    ],
+    'manifest' => [
+      '#type' => 'html_tag',
+      '#tag' => 'link',
+      '#attributes' => [
+        'href' => base_path() . 'themes/custom/port_san_diego/favicons/manifest.json',
+        'rel' => 'manifest',
+      ],
+    ],
+    'mask_icon' => [
+      '#type' => 'html_tag',
+      '#tag' => 'link',
+      '#attributes' => [
+        'color' => '#2d338c',
+        'href' => base_path() . 'themes/custom/port_san_diego/favicons/safari-pinned-tab.svg',
+        'rel' => 'mask-icon',
+      ],
+    ],
+    'theme_color' => [
+      '#type' => 'html_tag',
+      '#tag' => 'meta',
+      '#attributes' => [
+        'color' => '#2d338c',
+        'name' => 'theme-color',
+      ],
+    ],
+    'tile_color' => [
+      '#type' => 'html_tag',
+      '#tag' => 'meta',
+      '#attributes' => [
+        'content' => '#2d338c',
+        'name' => 'msapplication-TileColor',
+      ],
+    ],
+    'tile_image' => [
+      '#type' => 'html_tag',
+      '#tag' => 'meta',
+      '#attributes' => [
+        'content' => 'themes/custom/port_san_diego/favicons/mstile-144x144.png',
+        'name' => 'msapplication-TileImage',
+      ],
+    ],
+  ];
+
+  foreach ($favicons as $key => $favicon) {
+    $page['#attached']['html_head'][] = [$favicon, 'favicon_' . $key];
+  }
+}
+
+/**
+ * Implements hook_preprocess_page() for page.html.twig.
+ */
+function port_san_diego_preprocess_page(array &$vars) {
+
+}
+
+/**
+ * Implements hook_theme_suggestions_page_alter().
+ */
+function port_san_diego_theme_suggestions_page_alter(array &$suggestions, array $vars) {
+
+}
+
+/**
+ * Implements hook_preprocess_page_title().
+ */
+function port_san_diego_preprocess_page_title(array &$vars) {
+  $current_path = \Drupal::service('path.current')->getPath();
+  $keyword = \Drupal::request()->query->get('keyword');
+  if ($current_path == '/search' && !empty($keyword)) {
+    $vars['title']['#markup'] = new TranslatableMarkup('Search: %k', array('%k' => '"' . trim($keyword, '"') . '"'));
+  }
+
+  // Replace any dbl encoded entities.
+  if (is_array($vars['title']) && is_string($vars['title']['#markup'])) {
+    $vars['title']['#markup'] = _port_replace_dbl_encoded_entities($vars['title']['#markup']);
+  }
+
+  $entity = _port_get_current_entity();
+  if ($entity instanceof Node) {
+    /* @var \Drupal\taxonomy\Entity\Term $term */
+    switch ($entity->bundle()) {
+      case 'event':
+        $term = _port_get_referenced_entity($entity, 'field_event_type');
+        break;
+
+      case 'person':
+        $term = _port_get_referenced_entity($entity, 'field_role');
+        break;
+
+      case 'post':
+        $term = _port_get_referenced_entity($entity, 'field_post_type');
+        break;
+
+      case 'press_release':
+        $term = _port_get_referenced_entity($entity, 'field_press_release_category');
+        break;
+    }
+
+    if (isset($term)) {
+      $vars['title'] = array('#markup' => $term->getName());
+
+      $vars['title_attributes']['class'][] = 'h1';
+      $vars['element'] = 'span';
+    }
+  }
+}
+
+/**
+ * Implements hook_preprocess_breadcrumb().
+ */
+function port_san_diego_preprocess_breadcrumb(array &$vars) {
+  foreach ($vars['breadcrumb'] as &$crumb) {
+    $crumb['text'] = html_entity_decode($crumb['text']);
+  }
+}
+
+/**
+ * Implements hook_preprocess_region().
+ */
+function port_san_diego_preprocess_region(array &$vars) {
+  switch ($vars['region']) {
+    case 'breadcrumbs':
+      $vars['attributes']['class'][] = 'breadcrumbs';
+      break;
+
+    case 'footer_copyright':
+      $vars['attributes']['class'][] = 'footer__copyright';
+
+      $config = \Drupal::config('system.site');
+      $vars['copyright'] = Html::decodeEntities('&copy; ' . date('Y') . ' ' . $config->get('name'));
+      break;
+
+    case 'footer_left':
+      $vars['attributes']['class'][] = 'footer__left';
+      break;
+
+    case 'footer_right':
+      $vars['attributes']['class'][] = 'footer__right';
+      break;
+
+    case 'header_primary':
+      $vars['attributes']['class'][] = 'header__primary';
+      break;
+
+    case 'header_secondary':
+      $vars['attributes']['class'][] = 'header__secondary';
+      break;
+
+    case 'menu':
+      $vars['attributes']['class'][] = 'header__mega-menu';
+      break;
+  }
+}
+
+/**
+ * Implements hook_preprocess_block().
+ */
+function port_san_diego_preprocess_block(array &$vars) {
+  switch ($vars['base_plugin_id']) {
+    case 'page_title_block':
+      $entity = _port_get_current_entity();
+      if (isset($entity)) {
+        // Intro.
+        if ($entity->hasField('field_intro') && !$entity->get('field_intro')->isEmpty()) {
+          $intro = $entity->get('field_intro')->view();
+        }
+        elseif ($entity->hasField('description') && !$entity->get('description')->isEmpty()) {
+          $intro = $entity->get('description')->view();
+        }
+
+        if (isset($intro)) {
+          $intro['#label_display'] = 'hidden';
+          $vars['intro'] = $intro;
+        }
+
+        // Hero menu.
+        $menu_link_manager = \Drupal::getContainer()->get('plugin.manager.menu.link');
+        $route_params = array('node' => $entity->id());
+        $menu_links = $menu_link_manager->loadLinksByRoute('entity.node.canonical', $route_params, 'main');
+
+        if (!empty($menu_links)) {
+          $root_menu_item = reset($menu_links);
+          $root_item_parents = $menu_link_manager->getParentIds($root_menu_item->getParent());
+
+          // Only on menu items with 3+ depth.
+          if (is_array($root_item_parents) && count($root_item_parents) >= 2) {
+            $menu_parameters = new MenuTreeParameters();
+            $menu_parameters->setMaxDepth(1);
+            $menu_parameters->setRoot($root_menu_item->getPluginId());
+            $menu_parameters->excludeRoot();
+
+            $menu_tree_service = \Drupal::service('menu.link_tree');
+            $tree = $menu_tree_service->load('main', $menu_parameters);
+
+            $manipulators = [
+              ['callable' => 'menu.default_tree_manipulators:checkNodeAccess'],
+              ['callable' => 'menu.default_tree_manipulators:checkAccess'],
+              ['callable' => 'menu.default_tree_manipulators:generateIndexAndSort'],
+            ];
+            $tree = $menu_tree_service->transform($tree, $manipulators);
+
+            if (!empty($tree)) {
+              $pos_tree = $menu_tree_service->build($tree);
+              // Removing menu reference to prevent the 3rd level menu to be
+              // affected by the menu levels template.
+              unset($pos_tree['#menu_name']);
+              $vars['hero_menu'] = $pos_tree;
+            }
+          }
+        }
+
+        // Hero image.
+        if ($entity->hasField('field_hero_image') && !$entity->get('field_hero_image')->isEmpty()) {
+          /* @var \Drupal\media\Entity\Media $hero_media */
+          $hero_media = _port_get_referenced_entity($entity, 'field_hero_image');
+
+          if ($hero_media) {
+            $vars['hero_images'] = port_san_diego_hero_images($hero_media);
+
+            if ($hero_media->hasField('field_place') && !$hero_media->get('field_place')->isEmpty()) {
+              /* @var $place \Drupal\node\Entity\Node */
+              $place = _port_get_referenced_entity($hero_media, 'field_place');
+
+              if ($place && $entity->id() != $place->id()) {
+                $title = $place->getTitle();
+                $url = Url::fromRoute('entity.node.canonical', array('node' => $place->id()));
+                $vars['location'] = Link::fromTextAndUrl($title, $url);
+              }
+            }
+          }
+        }
+
+        if ($entity->bundle() == 'location') {
+          $vars['wonderfront_logo'] = t("<br>");
+        }
+
+        // Watermark image.
+        if ($entity->hasField('field_watermark_image') && !$entity->get('field_watermark_image')->isEmpty()) {
+          /* @var \Drupal\media\Entity\Media $hero_media */
+          $watermark_media = _port_get_referenced_entity($entity, 'field_watermark_image');
+
+          if ($watermark_media->hasField('field_media_image') && !$watermark_media->get('field_media_image')->isEmpty()) {
+            /* @var \Drupal\file\Entity\File $file */
+            $file = _port_get_referenced_entity($watermark_media, 'field_media_image');
+
+            if ($file) {
+              $vars['watermark'] = array(
+                '#theme' => 'image',
+                '#uri' => ImageStyle::load('hero_480')->buildUrl($file->getFileUri()),
+                '#alt' => $watermark_media->get('field_media_image')->first()->get('alt')->getValue(),
+                '#attributes' => array(
+                  'class' => array('hero-watermark'),
+                ),
+              );
+            }
+          }
+        }
+
+        // Video.
+        if ($entity->hasField('field_video') && !$entity->get('field_video')->isEmpty()) {
+          /* @var \Drupal\Core\Field\FieldItemList $video */
+          $video = $entity->get('field_video');
+          $video = $video->view(['type' => 'video_embed_field_video', 'settings' => ['autoplay' => FALSE]]);
+
+          // Hide the label.
+          $video['#label_display'] = 'hidden';
+
+          $vars['video'] = $video;
+        }
+      }
+      break;
+
+    case 'system_branding_block':
+      $entity = _port_get_current_entity();
+      if (isset($entity)) {
+        if ($entity->hasField('field_topic') && !$entity->get('field_topic')->isEmpty()) {
+          /* @var \Drupal\node\Entity\Node $topic */
+          $topic = _port_get_referenced_entity($entity, 'field_topic');
+          if ($topic && $topic->hasField('field_logo') && !$topic->get('field_logo')->isEmpty()) {
+            /* @var \Drupal\file\Entity\File $file */
+            $file = _port_get_referenced_entity($topic, 'field_logo');
+          }
+        }
+        elseif ($entity->bundle() == 'topic') {
+          if ($entity->hasField('field_logo') && !$entity->get('field_logo')->isEmpty()) {
+            /* @var \Drupal\file\Entity\File $file */
+            $file = _port_get_referenced_entity($entity, 'field_logo');
+          }
+        }
+
+        if (isset($file)) {
+          $vars['site_logo'] = \Drupal::service('file_url_generator')->generateAbsoluteString($file->getFileUri());
+        }
+      }
+      break;
+
+    case 'system_breadcrumb_block':
+      $vars['attributes']['class'][] = 'breadcrumbs__list';
+
+      if (count($vars['content']['#links']) < 3) {
+        $vars['attributes']['class'][] = 'hidden';
+      }
+      break;
+
+    case 'time_and_weather':
+      $vars['attributes']['class'][] = 'header__temperature-time';
+      break;
+  }
+}
+
+/**
+ * Implements hook_theme_suggestions_block_alter().
+ */
+function port_san_diego_theme_suggestions_block_alter(array &$suggestions, array $vars) {
+  if (!empty($vars['elements']['#id'])) {
+    $block = Block::load($vars['elements']['#id']);
+    $suggestions[] = 'block__' . $block->getRegion();
+    $suggestions[] = 'block__' . $block->getRegion() . '__' . $vars['elements']['#base_plugin_id'];
+    $suggestions[] = 'block__' . $block->getRegion() . '__' . $vars['elements']['#id'];
+
+    if (in_array($vars['elements']['#base_plugin_id'], array('menu_block', 'system_menu_block'))) {
+      switch ($block->getRegion()) {
+        case 'footer_left':
+        case 'footer_right':
+          $suggestions[] = 'block__custom__footer_menu';
+          break;
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_theme_suggestions_field_alter().
+ */
+function port_san_diego_theme_suggestions_field_alter(array &$suggestions, array $vars) {
+  $element = $vars['element'];
+  $suggestions[] = 'field__' . $element['#view_mode'];
+  $suggestions[] = 'field__' . $element['#view_mode'] . '__' . $element['#field_name'];
+  $suggestions[] = 'field__' . $element['#entity_type'] . '__' . $element['#view_mode'] . '__' . $element['#field_name'] . '__' . $element['#bundle'];
+}
+
+/**
+ * Implements hook_theme_suggestions_field_alter().
+ */
+function port_san_diego_theme_suggestions_fieldset_alter(array &$suggestions, array $vars) {
+  /*$element = $vars['element'];*/
+}
+
+/**
+ * Implements hook_preprocess_node().
+ */
+function port_san_diego_preprocess_node(array &$vars) {
+  /* @var \Drupal\node\Entity\Node $node */
+  $node = $vars['node'];
+
+  switch ($vars['view_mode']) {
+    case 'teaser':
+      $strip_fields = [
+        'body',
+        'field_intro',
+      ];
+
+      foreach ($strip_fields as $strip_field) {
+        if ($node->hasField($strip_field) && !$node->get($strip_field)->isEmpty()) {
+          $field_value = $node->get($strip_field)->getValue();
+          if (array_key_exists('value', $field_value) && !empty($field_value['value'])) {
+            $vars['content'][$strip_field][0]['#markup'] = EmptyParagraphKiller::replace($field_value['value']);
+          }
+        }
+      }
+
+      if ($node->hasField('field_activity') && !$node->get('field_activity')->isEmpty()) {
+        /* @var \Drupal\taxonomy\Entity\Term $entity */
+        $entity = _port_get_referenced_entity($node, 'field_activity');
+
+        if ($entity) {
+          $eyebrow['activity'] = $entity->getName();
+        }
+      }
+
+      if ($node->bundle() == 'place' && $node->hasField('field_location') && !$node->get('field_location')->isEmpty()) {
+        /* @var \Drupal\node\Entity\Node $entity */
+        $entity = _port_get_referenced_entity($node, 'field_location');
+
+        if ($entity) {
+          $eyebrow['location'] = $entity->getTitle();
+        }
+
+        if (isset($eyebrow) && array_key_exists('activity', $eyebrow)) {
+          unset($eyebrow['activity']);
+        }
+      }
+
+      if ($node->hasField('field_topic') && !$node->get('field_topic')->isEmpty()) {
+        /* @var \Drupal\node\Entity\Node $entity */
+        $entity = _port_get_referenced_entity($node, 'field_topic');
+
+        if ($entity) {
+          $eyebrow['topic'] = $entity->getTitle();
+        }
+      }
+
+      if (isset($eyebrow) && !empty($eyebrow)) {
+        $vars['eyebrow'] = implode(', ', $eyebrow);
+      }
+      break;
+  }
+
+  if (array_key_exists('field_date', $vars['content']) && !array_key_exists('#items', $vars['content']['field_date'])) {
+    unset($vars['content']['field_date']);
+  }
+
+  $function = __FUNCTION__ . '_' . $node->bundle();
+  if (function_exists($function)) {
+    $function($vars);
+  }
+}
+
+/**
+ * Implements hook_preprocess_node_callout().
+ */
+function port_san_diego_preprocess_node_callout(array &$vars) {
+  $node = $vars['node'];
+
+  $vars['attributes']['class'][] = 'callout';
+
+  $field_link = $node->get('field_link')->first()->getValue();
+
+  $vars['icon'] = $node->get('field_callout_icon')->first()->value;
+  $vars['link_title'] = $field_link['title'];
+  $vars['url'] = Url::fromUri($field_link['uri']);
+  if (array_key_exists('attributes', $field_link['options'])) {
+    $attributes = $field_link['options']['attributes'];
+  }
+
+  $defs = \Drupal::service('entity_field.manager')->getFieldDefinitions('media', 'file');
+  /* @var $field_config \Drupal\field\Entity\FieldConfig */
+  $field_config = $defs['field_media_file'];
+  $extensions = str_replace(' ', '|', trim($field_config->getSetting('file_extensions')));
+
+  if (preg_match('/[^\.]+\.(' . $extensions . ')/i', $field_link['uri'])) {
+    $attributes['download'] = TRUE;
+  }
+
+  $attributes['class'][] = 'callout__link';
+  $vars['link_attributes'] = new Attribute($attributes);
+}
+
+/**
+ * Implements hook_preprocess_node_event().
+ */
+function port_san_diego_preprocess_node_event(array &$vars) {
+  /* @var \Drupal\node\Entity\Node $node */
+  $node = $vars['node'];
+
+  if ($node->hasField('field_cta') && !$node->get('field_cta')->isEmpty()) {
+    $vars['content']['field_cta'][0]['#title'] = new TranslatableMarkup('Additional Information');
+  }
+
+  if ($node->hasField('field_date') && !$node->get('field_date')->isEmpty()) {
+    /* @var \Drupal\Core\Datetime\DrupalDateTime $start_date */
+    $start_date = $node->get('field_date')->start_date;
+    $formatted_start_time = \Drupal::service('date.formatter')->format(
+      $start_date->getTimestamp(), 'custom', 'g:i a'
+    );
+
+    /* @var \Drupal\Core\Datetime\DrupalDateTime $end_date */
+    $end_date = $node->get('field_date')->end_date;
+    $formatted_end_time = \Drupal::service('date.formatter')->format(
+      $end_date->getTimestamp(), 'custom', 'g:i a'
+    );
+
+    if ($formatted_start_time != $formatted_end_time) {
+      $time = $formatted_start_time . ' – ' . $formatted_end_time;
+    }
+    else {
+      $time = $formatted_start_time;
+    }
+
+    if ($time == '12:00 am') {
+      $time = new TranslatableMarkup('All Day');
+    }
+
+    if (isset($time)) {
+      $vars['time'] = $time;
+    }
+  }
+
+  if ($node->hasField('field_place') && !$node->get('field_place')->isEmpty()) {
+    /* @var \Drupal\node\Entity\Node $place */
+    $place = _port_get_referenced_entity($node, 'field_place');
+
+    if ($place && $place->hasField('field_address') && !$place->get('field_address')->isEmpty()) {
+      $map = $place->get('field_address')->view(['type' => 'address_map_formatter']);
+      $map['#label_display'] = 'hidden';
+    }
+
+    $vars['event_details'] = array(
+      'map' => (isset($map)) ? $map : NULL,
+      'name' => (isset($place)) ? $place->getTitle() : NULL,
+      'address' => (isset($place)) ? $place->get('field_address')->view() : NULL,
+    );
+  }
+}
+
+/**
+ * Implements hook_preprocess_node_person().
+ */
+function port_san_diego_preprocess_node_person(array &$vars) {
+  /* @var \Drupal\node\Entity\Node $node */
+  $node = $vars['node'];
+
+  switch ($vars['view_mode']) {
+    case 'teaser':
+      if (($node->hasField('field_first_name') && !$node->get('field_first_name')->isEmpty()) && ($node->hasField('field_last_name') && !$node->get('field_last_name')->isEmpty())) {
+        $vars['label'] = Markup::create($node->get('field_first_name')->value . '<br>' . $node->get('field_last_name')->value);
+      }
+      break;
+  }
+}
+
+/**
+ * Implements hook_preprocess_node_post().
+ */
+function port_san_diego_preprocess_node_post(array &$vars) {
+  /* @var \Drupal\node\Entity\Node $node */
+  $node = $vars['node'];
+
+  if ($node->hasField('field_topic') && !$node->get('field_topic')->isEmpty()) {
+    /* @var \Drupal\node\Entity\Node $topic */
+    $topic = _port_get_referenced_entity($node, 'field_topic');
+
+    if ($topic && $topic->hasField('field_logo') && !$topic->get('field_logo')->isEmpty()) {
+      /* @var \Drupal\file\Entity\File $file */
+      $file = _port_get_referenced_entity($topic, 'field_logo');
+
+      $vars['topic_title'] = $topic->getTitle();
+
+      if ($file) {
+        $vars['topic_logo'] = \Drupal::service('file_url_generator')->generateAbsoluteString($file->getFileUri());
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_preprocess_node_press_release().
+ */
+function port_san_diego_preprocess_node_press_release(array &$vars) {
+  /* @var \Drupal\node\Entity\Node $node */
+  $node = $vars['node'];
+  /* @var \Drupal\user\Entity\User $user */
+  $user = $node->getOwner();
+
+  $author['name'] = $user->label();
+  if ($user->hasField('field_phone_number') && !$user->get('field_phone_number')->isEmpty()) {
+    /* @var \Drupal\Core\Field\FieldItemList $phone_field */
+    $phone_field = $user->get('field_phone_number');
+    /* @var \Drupal\telephone\Plugin\Field\FieldType\TelephoneItem $phone */
+    $phone = $phone_field->first();
+    $author['phone'] = $phone->value;
+  }
+  $author['email'] = $user->getEmail();
+
+  $vars['author'] = implode(', ', $author);
+
+  $boilerplates[] = array('#markup' => Drupal::config('port_press_releases.pressreleaseboilerplate')->get('global_boilerplate_copy.value'));
+  $vars['#cache']['tags'][] = 'config:port_press_releases.pressreleaseboilerplate';
+
+  if ($node->hasField('field_topic') && !$node->get('field_topic')->isEmpty()) {
+    /* @var \Drupal\node\Entity\Node $topic */
+    $topic = _port_get_referenced_entity($node, 'field_topic');
+
+    if ($topic->hasField('field_boilerplate') && !$topic->get('field_boilerplate')->isEmpty()) {
+      $topic_boilerplate = $topic->get('field_boilerplate')->value;
+      $boilerplates[] = array('#markup' => $topic_boilerplate);
+
+      $vars['#cache']['tags'][] = 'node:' . $topic->id();
+    }
+  }
+
+  $vars['boilerplate'] = array(
+    '#theme' => 'port_boilerplate',
+    '#boilerplates' => $boilerplates,
+  );
+}
+
+/**
+ * Implements hook_preprocess_node_slider().
+ */
+function port_san_diego_preprocess_node_slider(array &$vars) {
+  /* @var \Drupal\node\Entity\Node $node */
+  $node = $vars['node'];
+
+  $vars['#attached']['library'][] = 'port_sliders/port-sliders';
+
+  // Slides.
+  if ($node->hasField('field_slider_items') && !$node->get('field_slider_items')->isEmpty()) {
+    /* @var $items \Drupal\entity_reference_revisions\EntityReferenceRevisionsFieldItemList */
+    $items = $node->get('field_slider_items');
+    /* @var $item \Drupal\paragraphs\Entity\Paragraph */
+    foreach ($items->referencedEntities() as $delta => $item) {
+      $event = [];
+      $location = NULL;
+      /* @var $image_media \Drupal\media\Entity\Media */
+      $image_media = _port_get_referenced_entity($item, 'field_image');
+      if ($image_media && $image_media->hasField('field_media_image') && !$image_media->get('field_media_image')->isEmpty()) {
+        $vars['images'][$delta] = port_san_diego_hero_images($image_media);
+
+        if ($image_media->hasField('field_place') && !$image_media->get('field_place')->isEmpty()) {
+          /* @var $place \Drupal\node\Entity\Node */
+          $place = _port_get_referenced_entity($image_media, 'field_place');
+
+          if ($place) {
+            $title = $place->getTitle();
+            $url = Url::fromRoute('entity.node.canonical', array('node' => $place->id()));
+            $location = Link::fromTextAndUrl($title, $url);
+          }
+        }
+      }
+
+      if ($item->hasField('field_video') && !$item->get('field_video')->isEmpty()) {
+        /* @var \Drupal\Core\Field\FieldItemList $video_field */
+        $video_field = $item->get('field_video');
+        $video = $video_field->view(['type' => 'video_embed_field_video', 'settings' => ['autoplay' => FALSE]]);
+
+        // Hide the label.
+        $video['#label_display'] = 'hidden';
+
+        // Hide the label.
+        $video['#label_display'] = 'hidden';
+
+        $vars['images'][$delta]['video'] = $video;
+      }
+
+      if ($item->hasField('field_information') && !$item->get('field_information')->isEmpty()) {
+        /* @var \Drupal\Core\Field\FieldItemList $info_field */
+        $info_field = $item->get('field_information');
+        $render_array = $info_field->view();
+
+        // Hide the label.
+        $render_array['#label_display'] = 'hidden';
+
+        $event = array(
+          'title' => $item->get('field_title')->getString(),
+          'information' => $render_array,
+        );
+      }
+
+      if (isset($location)) {
+        $event['location'] = $location;
+      }
+
+      if (isset($event) && !empty($event)) {
+        $vars['events'][$delta] = $event;
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_preprocess_node_task().
+ */
+function port_san_diego_preprocess_node_task(array &$vars) {
+  $node = $vars['node'];
+
+  $field_link = $node->get('field_link')->first()->getValue();
+
+  $vars['url'] = Url::fromUri($field_link['uri']);
+  if (array_key_exists('attributes', $field_link['options'])) {
+    $vars['link_attributes'] = new Attribute($field_link['options']['attributes']);
+  }
+  $vars['icon'] = $node->get('field_task_icon')->first()->value;
+}
+
+/**
+ * Implements hook_theme_suggestions_taxonomy_term_alter().
+ */
+function port_san_diego_theme_suggestions_taxonomy_term_alter(array &$suggestions, array $vars) {
+  $elements = $vars['elements'];
+  /* @var \Drupal\taxonomy\Entity\Term $term */
+  $term = $elements['#taxonomy_term'];
+  $suggestions[] = 'taxonomy_term__' . $elements['#view_mode'];
+  $suggestions[] = 'taxonomy_term__' . $elements['#view_mode'] . '__' . $term->bundle();
+}
+
+/**
+ * Implements hook_preprocess_taxonomy_term().
+ */
+function port_san_diego_preprocess_taxonomy_term(array &$vars) {
+
+}
+
+/**
+ * Implements template_preprocess_paragraph().
+ */
+function port_san_diego_preprocess_paragraph(array &$vars) {
+  /* @var \Drupal\paragraphs\Entity\Paragraph $paragraph */
+  $paragraph = $vars['paragraph'];
+
+  $margin_less_types = array(
+    'cta_box',
+    'divider',
+    'featured_highlight',
+    'fifty_fifty',
+    'highlights',
+    'promo',
+    'slider',
+    'taskbar',
+    'travel_group',
+  );
+
+  if (in_array($paragraph->bundle(), $margin_less_types)) {
+    $vars['attributes']['class'][] = 'paragraph--no-margin';
+  }
+
+  $function = __FUNCTION__ . '_' . $paragraph->bundle();
+  if (function_exists($function)) {
+    $function($vars);
+  }
+
+  $vars['anchor'] = Html::cleanCssIdentifier($paragraph->bundle() . '-' . $paragraph->id());
+}
+
+/**
+ * Implements hook_preprocess_paragraph_basic_text().
+ */
+function port_san_diego_preprocess_paragraph_basic_text(array &$vars) {
+  /* @var \Drupal\paragraphs\Entity\Paragraph $paragraph */
+  $paragraph = $vars['paragraph'];
+
+  /* @var \Drupal\paragraphs\Entity\Paragraph $parent */
+  $parent = $paragraph->getParentEntity();
+
+  if ($parent->bundle() == 'fifty_fifty') {
+    if ($parent->hasField('field_layout_items') && !$parent->get('field_layout_items')->isEmpty()) {
+      /* @var \Drupal\Core\Field\EntityReferenceFieldItemList $layout_items */
+      $layout_items = $parent->get('field_layout_items');
+
+      foreach ($layout_items->referencedEntities() as $sibling_paragraph) {
+        /* @var \Drupal\paragraphs\Entity\Paragraph $sibling_paragraph */
+        if ($sibling_paragraph->bundle() == 'basic_image') {
+          if ($sibling_paragraph->hasField('field_image') && !$sibling_paragraph->get('field_image')->isEmpty()) {
+            /* @var \Drupal\media\Entity\Media $media */
+            $media = _port_get_referenced_entity($sibling_paragraph, 'field_image');
+
+            if ($media && $media->hasField('field_place') && !$media->get('field_place')->isEmpty()) {
+              /* @var \Drupal\node\Entity\Node $place */
+              $place = _port_get_referenced_entity($media, 'field_place');
+
+              if ($place) {
+                $title = $place->getTitle();
+                $url = Url::fromRoute('entity.node.canonical', array('node' => $place->id()));
+                $location = Link::fromTextAndUrl($title, $url);
+
+                $vars['location'] = $location;
+              }
+              break;
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_preprocess_paragraph_collection_tab().
+ */
+function port_san_diego_preprocess_paragraph_collection_tab(array &$vars) {
+  /* @var \Drupal\paragraphs\Entity\Paragraph $paragraph */
+  $paragraph = $vars['paragraph'];
+
+  $vars['id'] = 'collection-' . $paragraph->getParentEntity()->id() . '-tab-' . $paragraph->id();
+
+  if ($paragraph->hasField('field_topic') && !$paragraph->get('field_topic')->isEmpty()) {
+    /* @var \Drupal\node\Entity\Node $topic */
+    $topic = _port_get_referenced_entity($paragraph, 'field_topic');
+
+    if ($topic && $topic->hasField('field_logo') && !$topic->get('field_logo')->isEmpty()) {
+      /* @var \Drupal\file\Entity\File $logo */
+      $logo = _port_get_referenced_entity($topic, 'field_logo');
+
+      if ($logo) {
+        $vars['topic_logo'] = array(
+          '#theme' => 'image',
+          '#uri' => \Drupal::service('file_url_generator')->generateAbsoluteString($logo->getFileUri()),
+          '#alt' => $topic->getTitle(),
+        );
+      }
+      $vars['topic_title'] = $topic->getTitle();
+    }
+  }
+
+  if ($paragraph->hasField('field_image') && !$paragraph->get('field_image')->isEmpty()) {
+    /* @var \Drupal\media\Entity\Media $field_image */
+    $field_image = _port_get_referenced_entity($paragraph, 'field_image');
+
+    /* @var \Drupal\media\Entity\Media $field_image */
+    if ($field_image && $field_image->hasField('field_media_image') && !$field_image->get('field_media_image')->isEmpty()) {
+      /* @var \Drupal\file\Entity\File $file */
+      $file = _port_get_referenced_entity($field_image, 'field_media_image');
+
+      if ($file) {
+        $style = ImageStyle::load('hero_768')->buildUrl($file->getFileUri());
+
+        if (isset($style)) {
+          $vars['divider_image'] = $style;
+        }
+
+        $position = port_san_diego_get_focal_point_position($file, $field_image);
+
+        if (isset($position)) {
+          $vars['position'] = $position;
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_preprocess_paragraph_divider().
+ */
+function port_san_diego_preprocess_paragraph_divider(array &$vars) {
+  /* @var \Drupal\paragraphs\Entity\Paragraph $paragraph */
+  $paragraph = $vars['paragraph'];
+
+  /* @var \Drupal\media\Entity\Media $field_image */
+  $field_image = _port_get_referenced_entity($paragraph, 'field_image');
+
+  /* @var \Drupal\media\Entity\Media $field_image */
+  if ($field_image && $field_image->hasField('field_media_image') && !$field_image->get('field_media_image')->isEmpty()) {
+    /* @var \Drupal\media\Plugin\media\Source\Image $image_source */
+    $image_source = $field_image->getSource();
+
+    /* @var \Drupal\file\Entity\File $file */
+    $file = _port_get_referenced_entity($field_image, 'field_media_image');
+
+    if ($file) {
+      $image_styles = array(
+        '1440w' => 'divider_xlarge',
+        '1080w' => 'divider_large',
+        '768w' => 'divider_medium',
+        '480w' => 'divider_small',
+      );
+
+      foreach ($image_styles as $key => $image_style) {
+        $styles[] = ImageStyle::load($image_style)->buildUrl($file->getFileUri()) . ' ' . $key;
+      }
+
+      if (isset($styles) && count($styles)) {
+        $vars['width'] = $image_source->getMetadata($field_image, 'width');
+        $vars['height'] = $image_source->getMetadata($field_image, 'height');
+        $vars['url'] = \Drupal::service('file_url_generator')->generateAbsoluteString($image_source->getMetadata($field_image, 'thumbnail_uri'));
+        $vars['alt'] = $field_image->getName();
+        $vars['srcset'] = implode(', ', $styles);
+      }
+    }
+  }
+}
+
+function port_san_diego_preprocess_paragraph_fifty_fifty(array &$vars) {
+  /* @var \Drupal\paragraphs\Entity\Paragraph $paragraph */
+  $paragraph = $vars['paragraph'];
+
+  if ($paragraph->hasField('field_contain_images') && !$paragraph->get('field_contain_images')->isEmpty()) {
+    if ($paragraph->get('field_contain_images')->value) {
+      $vars['attributes']['class'][] = 'contain-images';
+    }
+  }
+}
+
+/**
+ * Implements hook_preprocess_paragraph_grid_of_teasers().
+ */
+function port_san_diego_preprocess_paragraph_grid_of_teasers(array &$vars) {
+  /* @var \Drupal\paragraphs\Entity\Paragraph $paragraph */
+  $paragraph = $vars['paragraph'];
+
+  if ($paragraph->hasField('field_content_type') && !$paragraph->get('field_content_type')->isEmpty()) {
+    if ($paragraph->get('field_content_type')->target_id) {
+      $args = array($paragraph->get('field_content_type')->target_id);
+    }
+  }
+
+  if ($paragraph->hasField('field_limit') && !$paragraph->get('field_limit')->isEmpty()) {
+    $limit = $paragraph->get('field_limit')->value;
+  }
+
+  if (isset($args) && is_array($args)) {
+    $view = Views::getView('grid_of_teasers');
+    if (is_object($view)) {
+      $view->setDisplay('default');
+      $view->setArguments($args);
+      if (isset($limit)) {
+        $view->setItemsPerPage($limit);
+      }
+      $view->preExecute();
+      $view->execute();
+      $content = $view->buildRenderable();
+
+      $vars['content'][] = $content;
+    }
+  }
+}
+
+/**
+ * Implements hook_preprocess_paragraph_highlights().
+ */
+function port_san_diego_preprocess_paragraph_highlights(array &$vars) {
+  /* @var \Drupal\paragraphs\Entity\Paragraph $paragraph */
+  $paragraph = $vars['paragraph'];
+
+  if ($paragraph->hasField('field_highlights_post_types') && !$paragraph->get('field_highlights_post_types')->isEmpty()) {
+    /* @var \Drupal\Core\Field\EntityReferenceFieldItemList $post_types */
+    $post_types = $paragraph->get('field_highlights_post_types');
+    /* @var array $terms */
+    $terms = $post_types->referencedEntities();
+    $tids = [];
+
+    foreach ($terms as $term) {
+      /* @var \Drupal\taxonomy\Entity\Term $term */
+      $vars['post_types'][] = array(
+        'name' => $term->getName(),
+        'url' => Url::fromRoute('entity.taxonomy_term.canonical', array('taxonomy_term' => $term->id()))->toString(),
+      );
+
+      $tids[] = $term->id();
+
+      // Load child terms.
+      $tree = \Drupal::service('entity_type.manager')->getStorage('taxonomy_term')->loadTree('post_types', $term->id());
+      foreach ($tree as $child_term) {
+        $tids[] = $child_term->tid;
+      }
+    }
+
+
+      if (!empty($tids)) {
+      $tids = array_unique($tids);
+
+      /* @var \Drupal\Core\Entity\Query\QueryInterface $query */
+      $query = \Drupal::entityQuery('node')
+        ->condition('status', 1)
+        ->sort('field_date', 'DESC');
+
+      $group = $query->orConditionGroup()
+        ->condition('field_event_type.entity.tid', $tids, 'IN')
+        ->condition('field_post_type.entity.tid', $tids, 'IN')
+        ->condition('field_press_release_category.entity.tid', $tids, 'IN');
+
+      $limit = 3;
+
+      if (array_key_exists('featured', $vars) && $vars['featured']) {
+        $limit = 1;
+      }
+
+      $query->range(0, $limit);
+      $query->accessCheck(TRUE);
+
+      $nids = $query->condition($group)->execute();
+
+      foreach ($nids as $nid) {
+        /* @var \Drupal\Core\Entity\EntityViewBuilder $view_builder */
+        $view_builder = \Drupal::entityTypeManager()->getViewBuilder('node');
+        /* @var \Drupal\node\NodeStorage $storage */
+        $storage = \Drupal::service('entity_type.manager')->getStorage('node');
+        /* @var \Drupal\node\Entity\Node $node */
+        $node = $storage->load($nid);
+        /* @var array $build */
+        $build = $view_builder->view($node, 'teaser');
+
+        $vars['posts'][] = $build;
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_preprocess_paragraph_places_businesses().
+ */
+function port_san_diego_preprocess_paragraph_places_businesses(array &$vars) {
+  /* @var \Drupal\paragraphs\Entity\Paragraph $paragraph */
+  $paragraph = $vars['paragraph'];
+
+  /* @var \Drupal\node\Entity\Node $node */
+  $node = $paragraph->getParentEntity();
+
+  $args = array($node->id());
+  $view = Views::getView('places');
+  if (is_object($view)) {
+    $view->setArguments($args);
+    $view->setDisplay('block_1');
+    $view->preExecute();
+    $view->execute();
+    $content = $view->buildRenderable('block_1', $args);
+
+    $vars['content'][] = $content;
+  }
+
+//  $view = Views::getView('businesses');
+//  if (is_object($view)) {
+//    $view->setArguments($args);
+//    $view->setDisplay('block_1');
+//    $view->preExecute();
+//    $view->execute();
+//    $content = $view->buildRenderable('block_1', $args);
+//
+//    $vars['content'][] = $content;
+//  }
+}
+
+/**
+ * Implements hook_preprocess_paragraph_promo().
+ */
+function port_san_diego_preprocess_paragraph_promo(array &$vars) {
+  /* @var \Drupal\paragraphs\Entity\Paragraph $paragraph */
+  $paragraph = $vars['paragraph'];
+
+  if (isset($paragraph)) {
+    if ($paragraph->hasField('field_image') && !$paragraph->get('field_image')->isEmpty()) {
+      /* @var \Drupal\media\Entity\Media $promo_media */
+      $promo_media = _port_get_referenced_entity($paragraph, 'field_image');
+
+      if ($promo_media && $promo_media->hasField('field_place') && !$promo_media->get('field_place')->isEmpty()) {
+        /* @var \Drupal\node\Entity\Node $place */
+        $place = _port_get_referenced_entity($promo_media, 'field_place');
+
+        if ($place) {
+          $title = $place->getTitle();
+          $url = Url::fromRoute('entity.node.canonical', array('node' => $place->id()));
+          $location = Link::fromTextAndUrl($title, $url);
+
+          $vars['location'] = $location;
+        }
+      }
+    }
+
+    if ($paragraph->hasField('field_topic') && !$paragraph->get('field_topic')->isEmpty()) {
+      /* @var \Drupal\node\Entity\Node $promo_topic */
+      $promo_topic = _port_get_referenced_entity($paragraph, 'field_topic');
+      if ($promo_topic && $promo_topic->hasField('field_white_logo') && !$promo_topic->get('field_white_logo')->isEmpty()) {
+        /* @var \Drupal\file\Entity\File $promo_topic_white_logo */
+        $promo_topic_white_logo = _port_get_referenced_entity($promo_topic, 'field_white_logo');
+
+        if ($promo_topic_white_logo) {
+          $vars['topic_white_logo'] = array(
+            '#theme' => 'image',
+            '#uri' => \Drupal::service('file_url_generator')->generateAbsoluteString($promo_topic_white_logo->getFileUri()),
+            '#alt' => $promo_topic->getTitle(),
+          );
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_preprocess_paragraph_slider().
+ */
+function port_san_diego_preprocess_paragraph_slider(array &$vars) {
+  $vars['#attached']['library'][] = 'magnific_popup/magnific_popup';
+}
+
+/**
+ * Implements hook_preprocess_paragraph_highlighted_events().
+ */
+function port_san_diego_preprocess_paragraph_highlighted_events(array &$vars) {
+
+    // highlighted_events
+
+    $paragraph = $vars['paragraph'];
+
+    $vars['events'] = views_embed_view('highlighted_events', 'block_1');
+
+
+
+//    $vars['#attached']['library'][] = 'magnific_popup/magnific_popup';
+}
+
+/**
+ * Implements hook_theme_suggestions_alter() for contact form container.
+ */
+function port_san_diego_theme_suggestions_container_alter(array &$suggestions, array &$variables)
+{
+    $name = '';
+    $type = '';
+    if (isset($variables['element']['#name'])) {
+        $name = $variables['element']['#name'];
+    }
+
+    if (isset($variables['element']['#type'])) {
+        $type = $variables['element']['#type'];
+    }
+
+    array_unshift($suggestions, 'container__' . $type . '__' . $name);
+}
+
+/**
+ * Implements hook_preprocess_paragraph_stat().
+ */
+function port_san_diego_preprocess_paragraph_stat(array &$vars) {
+  // Default to turning off byline/submitted.
+  $paragraph = $vars['paragraph'];
+
+  $vars['field_suffix'] = $paragraph->get('field_suffix')->value;
+  $vars['field_prefix'] = $paragraph->get('field_prefix')->value;
+  $vars['field_value'] = $paragraph->get('field_value')->value;
+  $vars['field_label'] = $paragraph->get('field_label')->value;
+}
+
+/**
+ * Implements hook_preprocess_paragraph_sub_categories().
+ */
+function port_san_diego_preprocess_paragraph_sub_categories(array &$vars) {
+  /* @var \Drupal\paragraphs\Entity\Paragraph $paragraph */
+  $paragraph = $vars['paragraph'];
+  $entity = $paragraph->getParentEntity();
+
+  /* @var \Drupal\Core\Menu\MenuLinkManagerInterface $menu_link_manager */
+  $menu_link_manager = \Drupal::getContainer()->get('plugin.manager.menu.link');
+  $route_params = array($entity->getEntityTypeId() => $entity->id());
+  $menu_links = $menu_link_manager->loadLinksByRoute('entity.' . $entity->getEntityTypeId() . '.canonical', $route_params);
+
+  if (!empty($menu_links)) {
+    $root_menu_items = [];
+
+    /* @var \Drupal\menu_link_content\Plugin\Menu\MenuLinkContent $current_link */
+    foreach ($menu_links as $current_link) {
+      if ($current_link->getMenuName() == 'main') {
+        $root_menu_items[] = $current_link;
+      }
+    }
+
+    foreach ($root_menu_items as $root_menu_item) {
+      $menu_parameters = new MenuTreeParameters();
+      $menu_parameters->setMaxDepth(1);
+      $menu_parameters->setRoot($root_menu_item->getPluginId());
+      $menu_parameters->excludeRoot();
+
+      $menu_tree_service = \Drupal::service('menu.link_tree');
+      $tree = $menu_tree_service->load($root_menu_item->getMenuName(), $menu_parameters);
+
+      $manipulators = [
+        ['callable' => 'menu.default_tree_manipulators:checkNodeAccess'],
+        ['callable' => 'menu.default_tree_manipulators:checkAccess'],
+        ['callable' => 'menu.default_tree_manipulators:generateIndexAndSort'],
+      ];
+      $tree = $menu_tree_service->transform($tree, $manipulators);
+
+      foreach ($tree as $link) {
+        /* @var \Drupal\Core\Menu\MenuLinkTreeElement $link */
+        if (isset($link->link) && $link->link->isEnabled()) {
+          $child = [];
+
+          $route_params = $link->link->getRouteParameters();
+
+          if (array_key_exists('node', $route_params)) {
+            $child['nid'] = $route_params['node'];
+          }
+          elseif (array_key_exists('taxonomy_term', $route_params)) {
+            $child['tid'] = $route_params['taxonomy_term'];
+          }
+
+          if (!empty($child)) {
+            $children[] = $child;
+          }
+        }
+      }
+    }
+  }
+
+  if (is_a($entity, '\Drupal\taxonomy\Entity\Term')) {
+    /* @var \Drupal\taxonomy\Entity\Term $entity */
+    $term_tree = \Drupal::service('entity_type.manager')->getStorage('taxonomy_term')->loadTree($entity->bundle(), $entity->id(), 1);
+    foreach ($term_tree as $child_term) {
+      $children[] = array(
+        'tid' => $child_term->tid,
+      );
+    }
+  }
+
+  $current_path = \Drupal::service('path.current')->getPath();
+  $current_path = \Drupal::service('path_alias.manager')->getAliasByPath($current_path);
+  if ($current_path == '/public-records') {
+    $children = [];
+    $term_tree = \Drupal::service('entity_type.manager')->getStorage('taxonomy_term')->loadTree('resource_categories', 0, 1);
+    foreach ($term_tree as $child_term) {
+      $children[] = array(
+        'tid' => $child_term->tid,
+      );
+    }
+  }
+
+  if (isset($children) && !empty($children)) {
+    $children = array_unique($children, SORT_REGULAR);
+
+    foreach ($children as $child) {
+      $nid = (array_key_exists('nid', $child)) ? $child['nid'] : NULL;
+      $tid = (array_key_exists('tid', $child)) ? $child['tid'] : NULL;
+      $entity = NULL;
+      $hero_images = NULL;
+
+      if (isset($nid)) {
+        $entity = Node::load($nid);
+        $url = Url::fromRoute('entity.node.canonical', array('node' => $entity->id()))->toString();
+        $cache_tags[] = 'node:' . $entity->id();
+      }
+      elseif (isset($tid)) {
+        $entity = Term::load($tid);
+        $url = Url::fromRoute('entity.taxonomy_term.canonical', array('taxonomy_term' => $entity->id()))->toString();
+        $cache_tags[] = 'taxonomy_term:' . $entity->id();
+      }
+      else {
+        break;
+      }
+
+      if ($entity->hasField('title')) {
+        $title = $entity->get('title')->value;
+      }
+      elseif ($entity->hasField('name')) {
+        $title = $entity->get('name')->value;
+      }
+
+      if ($entity->hasField('field_intro')) {
+        /* @var \Drupal\Core\Field\FieldItemList $field */
+        $field = $entity->get('field_intro');
+        $intro = $field->view();
+
+        // Hide the label.
+        $intro['#label_display'] = 'hidden';
+      }
+      elseif ($entity->hasField('description')) {
+        /* @var \Drupal\Core\Field\FieldItemList $field */
+        $field = $entity->get('description');
+        $intro = $field->view();
+
+        // Hide the label.
+        $intro['#label_display'] = 'hidden';
+      }
+
+      if ($entity->hasField('field_hero_image') && !$entity->get('field_hero_image')->isEmpty()) {
+        $media = _port_get_referenced_entity($entity, 'field_hero_image');
+        if ($media && $media->hasField('field_media_image') && !$media->get('field_media_image')->isEmpty()) {
+          $hero_images = port_san_diego_hero_images($media);
+        }
+      }
+
+      $vars['nodes'][] = array(
+        'title' => (isset($title)) ? $title : NULL,
+        'intro' => (isset($intro)) ? $intro : NULL,
+        'url' => (isset($url)) ? $url : NULL,
+        'hero_images' => (isset($hero_images)) ? $hero_images : NULL,
+      );
+    }
+  }
+
+  if (isset($cache_tags)) {
+    $vars['#cache']['tags'] = $cache_tags;
+  }
+}
+
+/**
+ * Implements hook_preprocess_paragraph_support_info().
+ */
+function port_san_diego_preprocess_paragraph_support_info(array &$vars) {
+  $paragraph = $vars['paragraph'];
+
+  if ($paragraph->hasField('field_image') && !$paragraph->get('field_image')->isEmpty()) {
+    $field_image = _port_get_referenced_entity($paragraph, 'field_image');
+
+    /* @var \Drupal\media\Entity\Media $field_image */
+    if ($field_image && $field_image->hasField('field_media_image') && !$field_image->get('field_media_image')->isEmpty()) {
+      /* @var \Drupal\file\Entity\File $file */
+      $file = _port_get_referenced_entity($field_image, 'field_media_image');
+
+      if ($file) {
+        $style = ImageStyle::load('hero_768')->buildUrl($file->getFileUri());
+
+        if (isset($style)) {
+          $vars['image'] = $style;
+        }
+
+        $position = port_san_diego_get_focal_point_position($file, $field_image);
+
+        if (isset($position)) {
+          $vars['position'] = $position;
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_preprocess_paragraph_travel_group().
+ */
+function port_san_diego_preprocess_paragraph_travel_group(array &$vars) {
+  $paragraph = $vars['paragraph'];
+
+  if ($paragraph->hasField('field_icon') && !$paragraph->get('field_icon')->isEmpty()) {
+    $icon = $paragraph->get('field_icon')->first()->value;
+    $vars['icon'] = $icon;
+  }
+
+  if ($paragraph->hasField('field_image') && !$paragraph->get('field_image')->isEmpty()) {
+    $field_image = _port_get_referenced_entity($paragraph, 'field_image');
+
+    /* @var \Drupal\media\Entity\Media $field_image */
+    if ($field_image && $field_image->hasField('field_media_image') && !$field_image->get('field_media_image')->isEmpty()) {
+      /* @var \Drupal\file\Entity\File $file */
+      $file = _port_get_referenced_entity($field_image, 'field_media_image');
+
+      if ($file) {
+        $style = ImageStyle::load('hero_768')->buildUrl($file->getFileUri());
+
+        if (isset($style)) {
+          $vars['image'] = $style;
+        }
+
+        $vars['position'] = port_san_diego_get_focal_point_position($file, $field_image);
+      }
+    }
+  }
+
+  if ($paragraph->hasField('field_place') && !$paragraph->get('field_place')->isEmpty()) {
+    /* @var \Drupal\node\Entity\Node $place */
+    $place = _port_get_referenced_entity($paragraph, 'field_place');
+
+    if ($place && $place->hasField('field_address') && !$place->get('field_address')->isEmpty()) {
+      $map = $place->get('field_address')->view(['type' => 'address_map_formatter']);
+      $map['#label_display'] = 'hidden';
+      $vars['map'] = $map;
+    }
+  }
+}
+
+/**
+ * Implements template_preprocess_media().
+ */
+function port_san_diego_preprocess_media(array &$vars) {
+  $media = $vars['media'];
+
+  $function = __FUNCTION__ . '_' . $media->bundle();
+  if (function_exists($function)) {
+    $function($vars);
+  }
+}
+
+/**
+ * Implements template_preprocess_media_resource().
+ */
+function port_san_diego_preprocess_media_resource(array &$vars) {
+  $url = '#';
+  /* @var \Drupal\media\Entity\Media $media */
+  $media = $vars['media'];
+
+  /* @var \Drupal\media\Entity\Media $field_image */
+  if ($media->hasField('field_media_file') && !$media->get('field_media_file')->isEmpty()) {
+    /* @var \Drupal\file\Entity\File $file */
+    $file = _port_get_referenced_entity($media, 'field_media_file');
+
+    if ($file) {
+      $url = \Drupal::service('file_url_generator')->generateAbsoluteString($file->getFileUri());
+      $vars['icon'] = _port_san_diego_map_mime_to_icon($file->getMimeType());
+    }
+  }
+  elseif ($media->hasField('field_external_link') && !$media->get('field_external_link')->isEmpty()) {
+    /* @var \Drupal\Core\Field\FieldItemList $link_field */
+    $link_field = $media->get('field_external_link');
+    /* @var \Drupal\Core\Url $link */
+    $link = $link_field->first()->getUrl();
+    $url = $link->toString();
+    $vars['icon'] = 'mime-link';
+  }
+
+  if ($media->hasField('field_resource_type') && !$media->get('field_resource_type')->isEmpty()) {
+    /* @var \Drupal\Core\Field\FieldItemList $resource_type_field */
+    $resource_type_field = $media->get('field_resource_type');
+    $resource_type = $resource_type_field->first()->value;
+    $vars['icon'] = _port_san_diego_map_resource_type_to_icon($resource_type);
+  }
+
+  $vars['attributes']['target'] = '_blank';
+  $vars['url'] = $url;
+}
+
+/**
+ * Custom function to map resource types to icons.
+ *
+ * @param string $type
+ *   The resource type field value.
+ *
+ * @return null|string
+ *   The string representing the SVG icon ID.
+ */
+function _port_san_diego_map_resource_type_to_icon($type) {
+  $icon = NULL;
+
+  switch ($type) {
+    case 'link':
+      $icon = 'mime-link';
+      break;
+
+    case 'video':
+      $icon = 'mime-video';
+      break;
+
+    default:
+      $icon = 'mime-default';
+      break;
+  }
+
+  return $icon;
+}
+
+/**
+ * Custom function to map file types to icons.
+ *
+ * @param string $mime
+ *   The mime type.
+ *
+ * @return null|string
+ *   The string representing the SVG icon ID.
+ */
+function _port_san_diego_map_mime_to_icon($mime) {
+  $icon = NULL;
+
+  switch ($mime) {
+    case 'application/pdf':
+      $icon = 'mime-pdf';
+      break;
+
+    default:
+      $icon = 'mime-default';
+      break;
+  }
+
+  return $icon;
+}
+
+/**
+ * Implements hook_theme_suggestions_node_alter().
+ */
+function port_san_diego_theme_suggestions_node_alter(array &$suggestions, array $vars) {
+  /*$node = $vars['elements']['#node'];
+
+  if ($vars['elements']['#view_mode'] == "full") {
+
+  }*/
+}
+
+/**
+ * Implements hook_theme_suggestions_views_view_alter().
+ */
+function port_san_diego_theme_suggestions_views_view_alter(array &$suggestions, array $vars) {
+
+}
+
+/**
+ * Implements hook_preprocess_views_view().
+ */
+function port_san_diego_preprocess_views_view(array &$vars) {
+  /* @var \Drupal\views\ViewExecutable $view */
+  $view = $vars['view'];
+
+  if ($view->total_rows > 1) {
+    $current_min = 1 + ($view->getCurrentPage() * 12);
+    $current_max = count($view->result) + ($view->getCurrentPage() * 12);
+    $current_total = sprintf('%d thru %d', $current_min, $current_max);
+    $vars['total'] = new TranslatableMarkup('@c of @t', array(
+      '@c' => $current_total,
+      '@t' => $view->total_rows,
+    ));
+  }
+  else {
+    $vars['total'] = 1;
+  }
+  $vars['plural'] = ($view->total_rows > 1) ? 's' : '';
+
+  $function = __FUNCTION__ . '_' . $view->id();
+  if (function_exists($function)) {
+    $function($vars);
+  }
+}
+
+/**
+ * Implements hook_preprocess_views_view_press_releases().
+ */
+function port_san_diego_preprocess_views_view_press_releases(array &$vars) {
+  /* @var \Drupal\views\ViewExecutable $view */
+  $view = $vars['view'];
+
+  if (count($view->args)) {
+    $term_id = reset($view->args);
+    $term = Term::load($term_id);
+    if ($term instanceof Term && $term->bundle() == 'press_release_categories') {
+      $vars['attributes']['class'][] = Html::cleanCssIdentifier(strtolower($term->bundle()));
+      $vars['attributes']['class'][] = Html::cleanCssIdentifier(strtolower($term->getName()));
+    }
+  }
+}
+
+/**
+ * Implements hook_preprocess_form().
+ */
+function port_san_diego_preprocess_form(array &$vars) {
+  /*$vars['attributes']['novalidate'] = 'novalidate'; */
+}
+
+/**
+ * Implements hook_preprocess_select().
+ */
+function port_san_diego_preprocess_select(array &$vars) {
+  /*$vars['attributes']['class'][] = 'select-chosen';*/
+}
+
+/**
+ * Implements hook_theme_suggestions_input_alter().
+ */
+function port_san_diego_theme_suggestions_input_alter(array &$suggestions, array $vars) {
+  $element = $vars['element'];
+
+  if (isset($element['#attributes']['data-twig-suggestion'])) {
+    $suggestions[] = 'input__' . $element['#type'] . '__' . $element['#attributes']['data-twig-suggestion'];
+  }
+}
+
+/**
+ * Implements theme_form_alter().
+ */
+function port_san_diego_form_alter(&$form, FormStateInterface $form_state, $form_id) {
+  switch ($form_id) {
+    case 'site_search_block_form':
+      $form['actions']['search']['#attributes']['data-twig-suggestion'] = 'search_results_submit';
+      break;
+  }
+
+  if (preg_match('/^webform_submission_.+_add_form$/i', $form_id)) {
+    foreach ($form['elements'] as &$element) {
+      if ($element['#type'] == 'select' && array_key_exists('#multiple', $element) && $element['#multiple'] > 1) {
+        $element['#attributes']['size'] = count($element['#options']);
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_preprocess_field().
+ */
+function port_san_diego_preprocess_field(array &$vars, $hook) {
+  $field = $vars['element']['#field_name'];
+  $function = __FUNCTION__ . '_' . $field;
+  if (function_exists($function)) {
+    $function($vars, $hook);
+  }
+}
+
+/**
+ * Implements hook_preprocess_field().
+ */
+function port_san_diego_preprocess_field_field_cta(array &$vars, $hook) {
+  foreach ($vars['items'] as &$item) {
+    if (isset($item['content']['#options']) && is_array($item['content']['#options']) && array_key_exists('attributes', $item['content']['#options'])) {
+      $item['link_attributes'] = new Attribute($item['content']['#options']['attributes']);
+    }
+    else {
+      $item['link_attributes'] = new Attribute();
+    }
+  }
+}
+
+/**
+ * Implements hook_preprocess_field().
+ */
+function port_san_diego_preprocess_field_field_date(array &$vars, $hook) {
+  foreach ($vars['items'] as &$item) {
+    if (array_key_exists('content', $item) && array_key_exists('start_date', $item['content']) && array_key_exists('end_date', $item['content'])) {
+      if ($item['content']['start_date']['#text'] == $item['content']['end_date']['#text']) {
+        unset($item['content']['separator']);
+        unset($item['content']['end_date']);
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_preprocess_field().
+ */
+function port_san_diego_preprocess_field_field_embed_code(array &$vars, $hook) {
+  foreach ($vars['items'] as &$item) {
+    $item['embed'] = Markup::create($item['content']['#context']['value']);
+  }
+}
+
+/**
+ * Implements hook_preprocess_field().
+ */
+function port_san_diego_preprocess_field_field_milestone(array &$vars, $hook) {
+  /* @var \Drupal\paragraphs\Entity\Paragraph $paragraph */
+  $paragraph = $vars['element']['#object'];
+  $vars['paragraph_id'] = $paragraph->id();
+  $field_milestone_items = $paragraph->get('field_milestone')->getValue();
+
+  foreach ($field_milestone_items as $key => $field_milestone_item) {
+    $p = Paragraph::load($field_milestone_item['target_id']);
+
+    if ($p->hasField('field_milestone_date') && !$p->get('field_milestone_date')->isEmpty()) {
+      $p_date = $p->get('field_milestone_date')->getValue();
+      $vars['dates_formated'][$key] = $p_date[0]['value'];
+    }
+    else {
+      $vars['dates_formated'][$key] = '';
+    }
+  }
+}
+
+/**
+ * Implements hook_preprocess_details().
+ */
+function port_san_diego_preprocess_details(array &$vars) {
+  /*$vars['attributes']['class'][] = 'details';
+  $vars['summary_attributes']['class'] = 'summary';*/
+}
+
+/**
+ * Implements hook_theme_suggestions_details_alter().
+ */
+function port_san_diego_theme_suggestions_details_alter(array &$suggestions, array $vars) {
+
+}
+
+/**
+ * Implements hook_preprocess_menu_local_task().
+ */
+function port_san_diego_preprocess_menu_local_task(array &$vars) {
+  /*$vars['element']['#link']['url']->setOption('attributes', ['class'=>'rounded']);*/
+}
+
+/**
+ * Get the current node from the current route.
+ *
+ * @return mixed|null
+ *   Node or null.
+ */
+function _port_get_current_entity() {
+  $route_name = \Drupal::routeMatch()->getRouteName();
+  switch ($route_name) {
+    case 'entity.node.preview':
+      $entity = \Drupal::routeMatch()->getParameter('node_preview');
+      break;
+
+    case 'entity.node.revision':
+      $node = \Drupal::routeMatch()->getParameter('node_revision');
+      if (intval($node) > 0) {
+        $entity = node_revision_load($node);
+      }
+      break;
+
+    case 'entity.taxonomy_term.canonical':
+      $entity = \Drupal::routeMatch()->getParameter('taxonomy_term');
+      break;
+
+    default:
+      $entity = \Drupal::routeMatch()->getParameter('node');
+      break;
+  }
+
+  if (isset($entity)) {
+    return $entity;
+  }
+
+  return NULL;
+}
+
+/**
+ * Custom function to return single referenced entity from ERF.
+ *
+ * @param mixed $parent
+ *   The parent entity.
+ * @param string $field
+ *   Name of the ERF.
+ *
+ * @return \Drupal\Core\Entity\EntityInterface
+ *   The referenced entity.
+ */
+function _port_get_referenced_entity($parent, $field) {
+  /** @var \Drupal\Core\Field\Plugin\Field\FieldType\EntityReferenceItem $referenceItem */
+  $referenceItem = $parent->get($field)->first();
+
+  /** @var \Drupal\Core\Entity\Plugin\DataType\EntityReference $entityReference */
+  $entityReference = $referenceItem->get('entity');
+
+  /** @var \Drupal\Core\Entity\Plugin\DataType\EntityAdapter $entityAdapter */
+  $entityAdapter = $entityReference->getTarget();
+
+  if (!$entityAdapter) {
+    return NULL;
+  }
+
+  /** @var \Drupal\Core\Entity\EntityInterface $entity */
+  $entity = $entityAdapter->getValue();
+
+  return $entity;
+}
+
+/**
+ * Helper function to check for double encoding issue.
+ *
+ * @param string $string
+ *   The title.
+ *
+ * @return string
+ *   The translated title.
+ */
+function _port_replace_dbl_encoded_entities($string) {
+  return strtr($string, [
+    '&amp;#039;' => '&#039;',
+    '&amp;quot;' => '&quot;',
+    '&amp;lt;' => '&lt;',
+    '&amp;gt;' => '&gt;',
+    '&amp;amp;' => '&amp;',
+  ]);
+}

@@ -1,0 +1,29 @@
+{#
+/**
+ * @file
+ * Theme override for a field.
+ */
+#}
+{%
+  set classes = [
+    'field',
+    'field--name-' ~ field_name|clean_class,
+    'field--type-' ~ field_type|clean_class,
+    'field--label-' ~ label_display,
+    'collections__interests-content',
+  ]
+%}
+{%
+  set title_classes = [
+    'field__label',
+    'collections__interests-heading'
+  ]
+%}
+<div{{ attributes.addClass(classes) }}>
+  <h4{{ title_attributes.addClass(title_classes) }}>{{ label }}</h4>
+  <ul class="field__items collections__interests-list">
+    {% for item in items %}
+      <li{{ item.attributes.addClass('field__item', 'collections__interest') }}>{{ item.content }}</li>
+    {% endfor %}
+  </ul>
+</div>

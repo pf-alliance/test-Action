@@ -1,0 +1,9 @@
+.alias-user-login {
+  #user-login-form {
+    padding: 2rem 0;
+
+    .form-item {
+      @include flex-grid-size(100%);
+    }
+  }
+}

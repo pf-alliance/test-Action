@@ -1,0 +1,41 @@
+// sass-lint:disable force-pseudo-nesting nesting-depth
+.view-press-releases {
+  &.view-display-id-press_releases_block,
+  &.press-release-categories:not(.view-display-id-attachment_featured) {
+    > .content-list__items {
+      .views-row {
+        @include flex-grid-size(100%);
+
+        > article {
+          border-bottom: 1px solid $grey-light;
+          padding-bottom: rem-calc(15);
+
+          .title {
+            font-size: rem-calc(18);
+          }
+        }
+
+        &:last-child {
+          > article {
+            border-bottom: none;
+            padding-bottom: 0;
+          }
+        }
+      }
+
+      .teaser-link {
+        display: none;
+      }
+
+      .node--view-mode-teaser {
+        .field--name-field-date {
+          margin-bottom: rem-calc(5);
+        }
+      }
+    }
+
+    .content-list__container {
+      display: block;
+    }
+  }
+}

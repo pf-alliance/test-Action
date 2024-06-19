@@ -1,0 +1,23 @@
+{% extends 'paragraph.html.twig' %}
+{#
+/**
+ * @file
+ * Default theme implementation to display a paragraph.
+ */
+#}
+{% block content %}
+  <div class="fact">
+    <div class="fact__container">
+      <div class="fact__content">
+        <div class="fact__icon">
+          <svg class="icon icon--fact-bulb" alt="fact bulb icon" xmlns="http://www.w3.org/2000/svg" width="90" height="90" viewBox="0 0 90 90">
+            <path d="M45,0A45,45,0,1,0,90,45,45,45,0,0,0,45,0Zm4.17175,70.5H41.43359V68.083h7.73816Zm2.737-3.54694H38.69666v-2.417H51.90875Zm0-3.52179H38.69666v-2.417H51.90875Zm0-3.52179H38.69666V57.49243H51.90875Zm6.30115-16.244L51.85522,56.38708H38.69666L31.7901,43.66553h.00531a15.69208,15.69208,0,1,1,26.40918,0Z"/>
+          </svg>
+        </div>
+        <div class="fact__text">
+          {{ content }}
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

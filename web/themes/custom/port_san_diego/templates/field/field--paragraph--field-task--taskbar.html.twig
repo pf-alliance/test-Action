@@ -1,0 +1,25 @@
+{#
+/**
+ * @file
+ * Theme override for a Paragraph field.
+ */
+#}
+{%
+  set classes = [
+    'field',
+    'field--name-' ~ field_name|clean_class,
+    'field--type-' ~ field_type|clean_class,
+    'field--label-' ~ label_display,
+  ]
+%}
+{%
+  set title_classes = [
+    'field__label',
+    label_display == 'visually_hidden' ? 'visually-hidden',
+  ]
+%}
+<div{{ attributes.addClass(classes, 'taskbar__tasks') }}>
+    {% for item in items %}
+      <div{{ item.attributes.addClass('taskbar__task') }}>{{ item.content }}</div>
+    {% endfor %}
+</div>

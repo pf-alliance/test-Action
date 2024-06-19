@@ -1,0 +1,61 @@
+{#
+/**
+ * @file
+ * Theme override to display a single page.
+ */
+#}
+<div class="page-wrapper">
+  <input type="checkbox" id="mobile-menu-toggle">
+  <header class="header">
+    <div class="menus-wrapper">
+      {{ page.header_primary }}
+      {{ page.menu }}
+      {{ page.header_secondary }}
+    </div>
+  </header>
+
+  <main id="main-content" class="main" tabindex="-1">
+    {{ page.hero }}
+    {{ page.help }}
+    {{ page.breadcrumbs }}
+    {% if page.sidebar %}
+      <section class="resources sidebar-enabled">
+        <aside class="sidebar-enabled__sidebar">
+          <div id="sidebar">
+            <input type="checkbox" id="show-sidebar" class="sidebar__content-toggle-checkbox">
+            <label for="show-sidebar" class="sidebar__content-toggle">
+              {{ 'More Options'|t }}
+              <svg class="icon icon--chevron-down" alt="down chevron">
+                <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#icon-chevron-down"></use>
+              </svg>
+            </label>
+            <div class="sidebar__sidebar-content">
+              {{ page.sidebar }}
+            </div>
+          </div>
+        </aside>
+        <main class="sidebar-enabled__main" id="sidebar-enabled__main">
+          {{ page.content }}
+        </main>
+      </section>
+    {% else %}
+      {{ page.content }}
+    {% endif %}
+  </main>
+
+  <footer class="footer">
+    <div class="footer__main">
+      {% if page.footer_left %}
+        {{ page.footer_left }}
+      {% endif %}
+      {% if page.footer_right %}
+        {{ page.footer_right }}
+      {% endif %}
+    </div>
+    {% if page.footer_copyright %}
+      <div class="footer__copyright-wrapper">
+        {{ page.footer_copyright }}
+      </div>
+    {% endif %}
+  </footer>
+</div>

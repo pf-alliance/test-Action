@@ -1,0 +1,25 @@
+{% extends 'paragraph.html.twig' %}
+{#
+/**
+ * @file
+ * Theme override for a field.
+ */
+#}
+{% block content %}
+  <section class="faqs">
+    <div class="faqs__heading-section">
+      <div class="faqs__container">
+        <h2 class="faqs__heading faqs__heading--open" tabindex="0">{{ 'Frequently Asked Questions'|t }}
+          <span class="faqs__status-icon">
+              <svg class="icon icon--chevron-down" alt="down chevron">
+                <use xlink:href="#icon-chevron-down"></use>
+              </svg>
+            </span>
+        </h2>
+      </div>
+    </div>
+    <div class="faqs__questions-drawer">
+      {{ content }}
+    </div>
+  </section>
+{% endblock %}

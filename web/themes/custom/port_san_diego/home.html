@@ -1,0 +1,3178 @@
+<!doctype html>
+
+<html lang="en" class="no-js">
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+  <title>{{Page Title}}</title>
+  <meta name="description" content="{{Page description}}">
+
+  <link rel="stylesheet" href="./_/css/vendor/slick.css">
+  <link rel="stylesheet" href="./_/css/port-san-diego.css">
+
+  <!--[if lt IE 9]>
+  <div class="alert alert-warning">
+    You are using an <strong>outdated</strong> browser. Please
+    <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.
+  </div>
+  <![endif]-->
+  <script>
+    // Prevents flash of unstyle cotnent for JS manipulated elements.
+    document.querySelector('html').classList.remove('no-js');
+  </script>
+
+  <!-- TODO: Remove this line and add files to build process. Only here for ease of development -->
+  <!-- jQuery -->
+  <script src="./_/js/vendor/jquery.min.js"></script>
+  <!-- Slick Carousel -->
+  <script src="./_/js/vendor/slick.min.js"></script>
+  <!-- Weather -->
+  <script src="//cdnjs.cloudflare.com/ajax/libs/jquery.simpleWeather/3.1.0/jquery.simpleWeather.min.js"></script>
+  <!-- Moment Timezone -->
+  <script src="//momentjs.com/downloads/moment.min.js"></script>
+  <script src="//momentjs.com/downloads/moment-timezone-with-data.min.js"></script>
+  <!-- Foundation -->
+  <script src="./_/js/vendor/foundation.core.min.js"></script>
+  <script src="./_/js/vendor/foundation.util.keyboard.min.js"></script>
+  <script src="./_/js/vendor/foundation.util.mediaQuery.min.js"></script>
+  <script src="./_/js/vendor/foundation.util.motion.min.js"></script>
+  <script src="./_/js/vendor/foundation.util.timer.min.js"></script>
+  <script src="./_/js/vendor/foundation.util.imageLoader.min.js"></script>
+  <script src="./_/js/vendor/foundation.util.triggers.min.js"></script>
+  <script src="./_/js/vendor/foundation.accordion.min.js"></script>
+  <script src="./_/js/vendor/foundation.tabs.min.js"></script>
+  <script src="./_/js/vendor/foundation.responsiveAccordionTabs.min.js"></script>
+  <!-- Theme specific script -->
+  <script src="./_/js/port-san-diego.js"></script>
+</head>
+
+<script>
+  // GLOBAL FUNCTIONS
+  /**
+   * enableClickWithKeyboard(targetNode)
+   *
+   * Fires a click() event on target node when it's hit with a keyboard Enter key. Accessibility FTW!!!
+   *
+   * @param targetNode  (node)  The target DOM node to attach the events to.
+   */
+  function enableClickWithKeyboard(targetNode) {
+    targetNode.addEventListener('keydown', function (event) {
+      var key = event.keyCode;
+      if (key === 13) { // 13 is enter
+        targetNode.click();
+      }
+    });
+  }
+
+  /**
+   * convertDegreeToRadian(degree)
+   *
+   * Converts a degree value to a radian (for use in trigonometry functions)
+   *
+   * @param degree (number) The value of a degree to turn to a radian
+   * @return radian (number) The equivalent radian.
+   */
+  function convertDegreeToRadian(degree) {
+    return degree * Math.PI / 180;
+  }
+
+  /**
+   * calculateClipPathOffset(element)
+   *
+   * Calculates the top left and bottom right offset for elements that need the PoSD brand angle clip path. Based on element's height.
+   *
+   * @param element (DOMnode) The element for which to calculate the angle.
+   * @return radian (clipPathOffset) The clip path offset left and right.
+   */
+  function calculateClipPathOffset(element) {
+    var clipPathOffset = element.offsetHeight / Math.tan(convertDegreeToRadian(72)); // Brand angle = 72 degrees or 1.25664 radians
+
+    return clipPathOffset;
+  }
+
+  /**
+   * applyBrandAngle()
+   *
+   * Applies the brand angle to elements with the 'data-brand-angle' attribute.
+   */
+  function applyBrandAngle() {
+    var angledElements = [].slice.call(document.querySelectorAll('[data-brand-angle]'));
+
+    angledElements.forEach(function (element) {
+      var clipPathOffset = calculateClipPathOffset(element);
+      var options = element.dataset.brandAngle;
+
+      // If the options are not set, apply default clip & exit early.
+      if (!options) {
+        element.style.clipPath = "polygon(" + clipPathOffset + "px -1px, 100% -1px, 100% 100%, 0 100%)";
+        return;
+      }
+
+      /** EXAMPLE CUSTOM DATA-BRAND-ANGLE ATTRIBUTE
+       {
+         "breakpoints":
+         [
+           { "minWidth": 0, "clipLeft": false, "clipRight": false },
+           { "minWidth": 640, "clipLeft": true, "clipRight": false },
+           { "minWidth": 1024, "clipLeft": true, "clipRight": true }
+         ]
+       }
+
+       or as a data attribute...
+
+       <div data-brand-angle="{&quot;breakpoints&quot;:[{ &quot;minWidth&quot;: 0, &quot;clipLeft&quot;: false, &quot;clipRight&quot;: false },{ &quot;minWidth&quot;: 640, &quot;clipLeft&quot;: true, &quot;clipRight&quot;: false },{ &quot;minWidth&quot;: 1024, &quot;clipLeft&quot;: true, &quot;clipRight&quot;: true }]}"></div>
+       **/
+
+      // Get options as JSON object, min width, and default offsets
+      options = JSON.parse(options);
+
+      // Get the breakpoints that are smaller than the screen size, and order them from greatest to least
+      var validBreakpoints = options.breakpoints
+        .filter(function (breakpoint) {
+          return window.innerWidth > parseInt(breakpoint.minWidth);
+        })
+        .sort(function (a, b) {
+          return b.minWidth - a.minWidth;
+        });
+
+      // Get the current breakpoint options and set default values
+      var currentBreakpoint = validBreakpoints[0];
+      var topLeftOffset = '0';
+      var bottomRightOffset = '100%';
+
+      // Update clip path values
+      if (currentBreakpoint.clipLeft) {
+        topLeftOffset = clipPathOffset + 'px';
+      }
+      if (currentBreakpoint.clipRight) {
+        bottomRightOffset = 'calc(100% - ' + clipPathOffset + 'px)';
+      }
+
+      // Apply the clip path
+      element.style.clipPath = "polygon(" + topLeftOffset + " -1px, 100% -1px, " + bottomRightOffset + " 100%, 0 100%)";
+    });
+  }
+
+  $(document).ready(applyBrandAngle);
+  $(window).resize(applyBrandAngle);
+
+
+  $(document).ready(function () {
+    /**
+     * Animated anchor links on click
+     */
+    var anchorLinks = [].slice.call(document.querySelectorAll('a[href*="#"]:not([href="#"])'));
+
+    if (anchorLinks) {
+
+      var headerOffset = document.querySelector('header.header').offsetHeight;
+
+      anchorLinks.forEach(function (link) {
+        // Quit early if the anchor link goes to a different page
+        if (location.hostname !== link.hostname || location.pathname.replace(/^\//, '') !== link.pathname.replace(/^\//, '')) {
+          return;
+        }
+
+        link.addEventListener('click', function (event) {
+          event.preventDefault(); // Prevent default scroll
+
+          var targetName = link.hash.slice(1); // Remove the hash mark
+          var $target = $('[name=' + targetName + ']')
+
+          if ($target.length) {
+            $('html,body').animate({
+              // Animate the page scroll
+              scrollTop: ($target.offset().top - headerOffset)
+            }, 500, function () {
+              // Update browser history
+              history.pushState(null, null, '#' + targetName);
+              // Add focus to element
+              $target.focus();
+            });
+          }
+        })
+      })
+    }
+    /** END ANIMATED ANCHOR LINKS **/
+  });
+</script>
+
+<body>
+  
+<!-- For screen readers to skip nav -->
+<a href="#main-content" class="screen-reader-text" aria-label="Skip to content">Skip to content</a>
+
+<!-- For CSS only mobile menu. Label below is used for toggling -->
+<input type="checkbox" id="mobile-menu-toggle">
+<header class="header" role="banner">
+
+  <div class="header__primary">
+    <div class="header__logo-wrapper">
+      <a href="./" class="header__logo" title="Port of San Diego">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 784.7 250.6">
+          <style>
+            .st0 {
+              fill: #6F7173;
+            }
+
+            .st1 {
+              clip-path: url(#SVGID_2_);
+              fill: url(#SVGID_3_);
+            }
+
+            .st2 {
+              clip-path: url(#SVGID_2_);
+            }
+
+            .st3 {
+              clip-path: url(#SVGID_5_);
+              fill: url(#SVGID_6_);
+            }
+          </style>
+          <path d="M296 170.4l8.4-10c5.8 4.8 11.9 7.8 19.2 7.8 5.8 0 9.3-2.3 9.3-6.1v-.2c0-3.6-2.2-5.4-13-8.2-13-3.3-21.3-6.9-21.3-19.7v-.2c0-11.7 9.4-19.4 22.5-19.4 9.4 0 17.4 2.9 23.9 8.2l-7.4 10.7c-5.7-4-11.3-6.3-16.7-6.3-5.4 0-8.3 2.5-8.3 5.6v.2c0 4.2 2.8 5.6 13.9 8.5 13 3.4 20.4 8.1 20.4 19.3v.2c0 12.8-9.7 19.9-23.6 19.9-9.8 0-19.6-3.4-27.3-10.3M373.7 115h13.1l27.6 64.8h-14.8l-5.9-14.4h-27.2l-5.9 14.4h-14.4l27.5-64.8m14.9 37.8L380 132l-8.5 20.9h17.1zM418.4 115.4h13.1l30.1 39.6v-39.6h14v64.4h-12l-31.2-40.9v40.9h-14v-64.4M506.7 115.4h25.1c20.2 0 34.2 13.9 34.2 32v.2c0 18.1-14 32.2-34.2 32.2h-25.1v-64.4m25.1 51.6c11.6 0 19.4-7.8 19.4-19.2v-.2c0-11.4-7.8-19.4-19.4-19.4h-10.9V167h10.9zM573 115.4h14.2v64.3H573zM595.8 115.4h48.5V128h-34.4v13.1h30.3v12.6h-30.3v13.5h34.9v12.6h-49v-64.4M648.4 147.8v-.2c0-18.3 14.2-33.3 33.7-33.3 11.6 0 18.6 3.1 25.3 8.8l-8.9 10.8c-5-4.1-9.4-6.5-16.8-6.5-10.3 0-18.5 9.1-18.5 20v.2c0 11.8 8.1 20.4 19.5 20.4 5.1 0 9.7-1.3 13.3-3.9v-9.2h-14.2v-12.2h27.9v27.9c-6.6 5.6-15.7 10.2-27.5 10.2-20 .1-33.8-14-33.8-33M716.3 147.8v-.2c0-18.3 14.4-33.3 34.3-33.3s34.1 14.8 34.1 33.1v.2c0 18.3-14.4 33.3-34.3 33.3-19.8 0-34.1-14.8-34.1-33.1m53.6 0v-.2c0-11-8.1-20.2-19.5-20.2s-19.3 9-19.3 20v.2c0 11 8.1 20.2 19.5 20.2s19.3-9 19.3-20zM300.4 1.6h38.8c22.7 0 36.4 13.4 36.4 32.8v.3c0 22-17.1 33.4-38.4 33.4h-15.9v28.5h-20.9v-95m37.4 47.9c10.4 0 16.6-6.2 16.6-14.4v-.3c0-9.4-6.5-14.4-17-14.4h-16.1v29h16.5zM380.9 49.4v-.3c0-27 21.3-49.1 50.6-49.1s50.3 21.8 50.3 48.8v.3c0 27-21.3 49.1-50.6 49.1s-50.3-21.8-50.3-48.8m79.1 0v-.3c0-16.3-11.9-29.8-28.8-29.8s-28.5 13.3-28.5 29.6v.3c0 16.3 11.9 29.8 28.8 29.8 16.8 0 28.5-13.3 28.5-29.6zM552 61.4c10.4-4.9 17.3-14.1 17.3-28.2V33c0-9-2.8-16.4-8.1-21.7-6.2-6.3-15.6-9.7-27.7-9.7h-43.4v95H511V66.2h20.3l20.4 30.4h24.4L552 61.4m-41-13.6V20.5h20.8c10.2 0 16.4 4.6 16.4 13.6v.3c0 8-5.8 13.4-16 13.4H511zM602.6 20.9h-28.9V1.6h78.7v19.3h-28.9v75.7h-20.9V20.9M655.4 72.2V72c0-14.2 11.4-25.6 26.7-25.6 15.3 0 26.6 11.3 26.6 25.5v.2c0 14.2-11.4 25.6-26.7 25.6-15.3 0-26.6-11.3-26.6-25.5m39.5 0V72c0-7.3-5.2-13.6-13-13.6-8 0-12.8 6.2-12.8 13.4v.2c0 7.3 5.2 13.6 13 13.6 8 .1 12.8-6.1 12.8-13.4zM717 59.3h-5.8V47.8h5.8v-3.1c0-5.4 1.4-9.4 4-11.9 2.6-2.6 6.3-3.9 11.3-3.9 4.4 0 7.4.6 9.9 1.4v11.6c-2-.7-4-1.2-6.3-1.2-3.2 0-5.1 1.7-5.1 5.3v1.9h11.3v11.4H731v37.3h-14V59.3"
+          />
+          <path class="st0" d="M295.9 201.9h3.4l8 23.2 7.6-23.3h2.6l7.6 23.3 8-23.2h3.3l-10 28.1h-2.6l-7.7-22.6-7.6 22.6h-2.7l-9.9-28.1M335.9 223.8c0-4.5 3.6-6.8 8.8-6.8 2.6 0 4.5.4 6.3.9v-.6c0-3.7-2.2-5.6-6.1-5.6-2.4 0-4.3.6-6.2 1.5l-.9-2.5c2.3-1 4.5-1.8 7.5-1.8 2.9 0 5.2.8 6.6 2.3 1.4 1.4 2.1 3.4 2.1 6v12.6h-3v-3.1c-1.4 1.8-3.8 3.5-7.4 3.5-3.9 0-7.7-2.2-7.7-6.4m15.1-1.6v-1.9c-1.5-.4-3.5-.9-6-.9-3.8 0-6 1.7-6 4.1v.1c0 2.6 2.4 4.1 5.2 4.1 3.8 0 6.8-2.2 6.8-5.5zM360 224.3v-12.4h-2.9v-2.7h2.9V203h3.1v6.2h6.5v2.7H363v12c0 2.5 1.4 3.4 3.5 3.4 1 0 1.9-.2 3-.7v2.6c-1.1.6-2.2.9-3.7.9-3.3 0-5.8-1.6-5.8-5.8M382 227.6c2.8 0 4.8-1.2 6.5-2.9l1.9 1.7c-2.1 2.3-4.6 3.9-8.5 3.9-5.7 0-10.3-4.3-10.3-10.7 0-6 4.2-10.7 9.9-10.7 6.1 0 9.6 4.9 9.6 10.9v1.1h-16.3c.4 4.2 3.6 6.7 7.2 6.7m6-9.3c-.4-3.7-2.5-6.9-6.6-6.9-3.5 0-6.2 2.9-6.7 6.9H388zM395.4 209.2h3.1v5.4c1.5-3.4 4.5-5.9 8.4-5.7v3.3h-.2c-4.5 0-8.2 3.2-8.2 9.4v8.2h-3.1v-20.6M413.6 211.9h-2.8v-2.7h2.8v-1.8c0-2.3.6-4.1 1.8-5.3 1-1 2.5-1.6 4.4-1.6 1.4 0 2.4.2 3.4.5v2.7c-1.1-.3-2-.5-3-.5-2.4 0-3.6 1.4-3.6 4.4v1.7h6.5v2.6h-6.5v17.9h-3.1v-17.9M426.6 209.2h3.1v5.4c1.5-3.4 4.5-5.9 8.4-5.7v3.3h-.2c-4.5 0-8.2 3.2-8.2 9.4v8.2h-3.1v-20.6M439.2 219.6c0-5.9 4.5-10.8 10.7-10.8 6.2 0 10.7 4.9 10.7 10.7v.1c0 5.8-4.6 10.7-10.8 10.7-6.1-.1-10.6-4.9-10.6-10.7m18.3 0c0-4.5-3.3-8.1-7.6-8.1-4.5 0-7.5 3.6-7.5 8v.1c0 4.4 3.3 8 7.6 8 4.4-.1 7.5-3.7 7.5-8zM464.8 209.2h3.1v3.6c1.4-2.2 3.5-4 7-4 5 0 7.9 3.3 7.9 8.2v12.8h-3.1v-12c0-3.8-2.1-6.2-5.7-6.2-3.5 0-6.2 2.6-6.2 6.4v11.8h-3.1v-20.6M488.8 224.3v-12.4h-2.9v-2.7h2.9V203h3.1v6.2h6.5v2.7h-6.5v12c0 2.5 1.4 3.4 3.5 3.4 1 0 1.9-.2 3-.7v2.6c-1.1.6-2.2.9-3.7.9-3.4 0-5.9-1.6-5.9-5.8M506.8 219.6c0-5.9 4.5-10.8 10.7-10.8 6.2 0 10.7 4.9 10.7 10.7v.1c0 5.8-4.6 10.7-10.8 10.7-6.1-.1-10.6-4.9-10.6-10.7m18.3 0c0-4.5-3.3-8.1-7.6-8.1-4.5 0-7.5 3.6-7.5 8v.1c0 4.4 3.3 8 7.6 8 4.4-.1 7.5-3.7 7.5-8zM532.7 211.9h-2.8v-2.7h2.8v-1.8c0-2.3.6-4.1 1.8-5.3 1-1 2.5-1.6 4.4-1.6 1.4 0 2.4.2 3.4.5v2.7c-1.1-.3-2-.5-3-.5-2.4 0-3.6 1.4-3.6 4.4v1.7h6.5v2.6h-6.5v17.9h-3.1v-17.9M550.7 215.9c0-7.8 5.8-14.5 14.2-14.5 8.5 0 14.2 6.6 14.2 14.3v.1c0 7.7-5.8 14.4-14.2 14.4-8.5 0-14.2-6.6-14.2-14.3m25.1 0c0-6.4-4.6-11.6-11-11.6s-10.9 5.1-10.9 11.4v.1c0 6.3 4.6 11.5 11 11.5s10.9-5.1 10.9-11.4zM583.6 209.2h3.1v4.1c1.7-2.5 4.1-4.6 7.9-4.6 4.9 0 9.8 3.9 9.8 10.7v.1c0 6.7-4.9 10.7-9.8 10.7-3.8 0-6.3-2.1-7.9-4.4v10.3h-3.1v-26.9m17.6 10.3c0-4.9-3.3-8-7.2-8-3.8 0-7.4 3.2-7.4 7.9v.1c0 4.8 3.6 8 7.4 8 3.9-.1 7.2-3 7.2-8zM607.8 209.2h3.1v4.1c1.7-2.5 4.1-4.6 7.9-4.6 4.9 0 9.8 3.9 9.8 10.7v.1c0 6.7-4.9 10.7-9.8 10.7-3.8 0-6.3-2.1-7.9-4.4v10.3h-3.1v-26.9m17.6 10.3c0-4.9-3.3-8-7.2-8-3.8 0-7.4 3.2-7.4 7.9v.1c0 4.8 3.6 8 7.4 8 4-.1 7.2-3 7.2-8zM631.9 219.6c0-5.9 4.5-10.8 10.7-10.8 6.2 0 10.7 4.9 10.7 10.7v.1c0 5.8-4.6 10.7-10.8 10.7-6.1-.1-10.6-4.9-10.6-10.7m18.3 0c0-4.5-3.3-8.1-7.6-8.1-4.5 0-7.5 3.6-7.5 8v.1c0 4.4 3.3 8 7.6 8 4.4-.1 7.5-3.7 7.5-8zM657 209.2h3.1v5.4c1.5-3.4 4.5-5.9 8.4-5.7v3.3h-.2c-4.5 0-8.2 3.2-8.2 9.4v8.2H657v-20.6M674.6 224.3v-12.4h-2.9v-2.7h2.9V203h3.1v6.2h6.5v2.7h-6.5v12c0 2.5 1.4 3.4 3.5 3.4 1 0 1.9-.2 3-.7v2.6c-1.1.6-2.2.9-3.7.9-3.4 0-5.9-1.6-5.9-5.8M687.7 222v-12.8h3.1v12c0 3.8 2.1 6.2 5.7 6.2 3.5 0 6.2-2.6 6.2-6.4v-11.8h3v20.6h-3v-3.6c-1.4 2.2-3.5 4-7 4-5 0-8-3.3-8-8.2M711.2 209.2h3.1v3.6c1.4-2.2 3.5-4 7-4 5 0 7.9 3.3 7.9 8.2v12.8h-3.1v-12c0-3.8-2.1-6.2-5.7-6.2-3.5 0-6.2 2.6-6.2 6.4v11.8h-3.1v-20.6M733.7 201.3h3.5v3.4h-3.5v-3.4zm.2 7.9h3.1v20.6h-3.1v-20.6zM743.7 224.3v-12.4h-2.9v-2.7h2.9V203h3.1v6.2h6.5v2.7h-6.5v12c0 2.5 1.4 3.4 3.5 3.4 1 0 1.9-.2 3-.7v2.6c-1.1.6-2.2.9-3.7.9-3.4 0-5.9-1.6-5.9-5.8M755.4 235.2l1-2.4c1 .5 1.9.8 3.2.8 1.8 0 3-1 4.2-3.9l-9.4-20.5h3.4l7.5 17.2 6.6-17.2h3.3l-8.6 21.2c-1.8 4.3-3.7 5.8-6.8 5.8-1.8 0-3.1-.3-4.4-1"
+          />
+          <defs>
+            <path id="SVGID_1_" d="M28.9 55.6c17.2-3.9 37.6-.4 60.7 6.7 1.2.4 1.3 2.2.1 2.6C66.1 73 42.8 79.8 21.8 80.6c-1.2 0-2.1-1.2-1.7-2.3 1.7-5.1 5.5-16.8 6.8-20.9.3-.9 1-1.6 2-1.8M120 77.3c-34.5 12.4-66.2 24.8-105.8 25.2-1.2 0-2.2.7-2.5 1.8L2.3 133c-.3 1.1.3 2.2 1.4 2.4 31.5 5 70.7-9.1 108.8-22.9 41.8-15.2 84.6-30.6 120.5-22.3 1.4.3 2.6-.9 2.1-2.3-2.4-7.3-8.4-25.7-10.1-31.2-.3-1-1.1-1.7-2.1-1.8-28.9-4.5-65.1 8.8-102.9 22.4zm6.7-25.7c30.2-10.8 60.5-20.3 87.9-19.5 1.2 0 2.1-1.1 1.8-2.3-1.9-5.9-6.8-21.1-8.6-26.3-.4-1.1-1.4-1.8-2.6-1.8H47c-1.2 0-2.2.8-2.6 1.9L35.8 30c-.4 1.2.5 2.4 1.8 2.3 28.6-1.8 59.8 8.7 87.9 19.3.4.2.8.2 1.2 0zm108.2 120.6c1.2-.8.9-2.7-.4-3.2-30.5-10.8-71.5 4-114.3 19.6-17.1 6.2-34.5 12.5-51.6 17.3-1.4.4-1.8 2.3-.6 3.2l56.5 41.1c.9.7 2.2.7 3.2 0l107.2-78zm20.9-20.8l-10.3-31.7c-.2-.6-.6-1.2-1.2-1.5-31.2-18.9-76.6-2.5-124.4 14.8-34.5 12.5-69.9 25.4-102.4 25.4-4.2 0-10.6-.7-15.5-1.3-1.8-.2-2.8 2.1-1.3 3.2l39.8 28.9c.6.4 1.4.6 2.1.5 22.4-4.2 46.5-12.9 70.1-21.5 49.8-18.1 101.1-36.7 140.5-14.7 1.5.8 3.2-.5 2.6-2.1z"
+            />
+          </defs>
+          <clipPath id="SVGID_2_">
+            <use xlink:href="#SVGID_1_" overflow="visible"/>
+          </clipPath>
+          <linearGradient id="SVGID_3_" gradientUnits="userSpaceOnUse" x1="127.968" y1="250.635" x2="127.968" y2="1.665">
+            <stop offset=".344" stop-color="#2D338C"/>
+            <stop offset=".658" stop-color="#41BB96"/>
+          </linearGradient>
+          <path class="st1" d="M0 1.7h255.9v249H0z"/>
+          <g class="st2">
+            <defs>
+              <path id="SVGID_4_" d="M28.9 55.6c17.2-3.9 37.6-.4 60.7 6.7 1.2.4 1.3 2.2.1 2.6C66.1 73 42.8 79.8 21.8 80.6c-1.2 0-2.1-1.2-1.7-2.3 1.7-5.1 5.5-16.8 6.8-20.9.3-.9 1-1.6 2-1.8M120 77.3c-34.5 12.4-66.2 24.8-105.8 25.2-1.2 0-2.2.7-2.5 1.8L2.3 133c-.3 1.1.3 2.2 1.4 2.4 31.5 5 70.7-9.1 108.8-22.9 41.8-15.2 84.6-30.6 120.5-22.3 1.4.3 2.6-.9 2.1-2.3-2.4-7.3-8.4-25.7-10.1-31.2-.3-1-1.1-1.7-2.1-1.8-28.9-4.5-65.1 8.8-102.9 22.4zm6.7-25.7c30.2-10.8 60.5-20.3 87.9-19.5 1.2 0 2.1-1.1 1.8-2.3-1.9-5.9-6.8-21.1-8.6-26.3-.4-1.1-1.4-1.8-2.6-1.8H47c-1.2 0-2.2.8-2.6 1.9L35.8 30c-.4 1.2.5 2.4 1.8 2.3 28.6-1.8 59.8 8.7 87.9 19.3.4.2.8.2 1.2 0zm108.2 120.6c1.2-.8.9-2.7-.4-3.2-30.5-10.8-71.5 4-114.3 19.6-17.1 6.2-34.5 12.5-51.6 17.3-1.4.4-1.8 2.3-.6 3.2l56.5 41.1c.9.7 2.2.7 3.2 0l107.2-78zm20.9-20.8l-10.3-31.7c-.2-.6-.6-1.2-1.2-1.5-31.2-18.9-76.6-2.5-124.4 14.8-34.5 12.5-69.9 25.4-102.4 25.4-4.2 0-10.6-.7-15.5-1.3-1.8-.2-2.8 2.1-1.3 3.2l39.8 28.9c.6.4 1.4.6 2.1.5 22.4-4.2 46.5-12.9 70.1-21.5 49.8-18.1 101.1-36.7 140.5-14.7 1.5.8 3.2-.5 2.6-2.1z"
+              />
+            </defs>
+            <clipPath id="SVGID_5_">
+              <use xlink:href="#SVGID_4_" overflow="visible"/>
+            </clipPath>
+            <linearGradient id="SVGID_6_" gradientUnits="userSpaceOnUse" x1="127.982" y1="250.119" x2="127.982" y2="1.665">
+              <stop offset="0" stop-color="#2D338C"/>
+              <stop offset="1" stop-color="#41BB96"/>
+            </linearGradient>
+            <path class="st3" d="M0 1.7h256v248.5H0z"/>
+          </g>
+        </svg>
+      </a>
+      <!-- https://www.w3.org/WAI/tutorials/menus/flyout/ -->
+      <!-- Maybe also a listener to close if the DOM is clicked or esc button pressed -->
+      <!-- TODO: Look into ARIA-EXPAND https://www.w3.org/WAI/GL/wiki/Using_aria-expanded_to_indicate_the_state_of_a_collapsible_element -->
+      <!-- TODO: Make sure to keep tabindex -->
+      <label class="header__nav-toggle" for="mobile-menu-toggle" tabindex="0" title="Toggle Menu">
+        <span class="screen-reader-text">Toggle Menu</span>
+        <span class="header__hamburger header__hamburger--top"></span>
+        <span class="header__hamburger header__hamburger--middle"></span>
+        <span class="header__hamburger header__hamburger--bottom"></span>
+      </label>
+    </div>
+    <nav role="navigation">
+      <ul class="menu">
+        <li class="menu-item menu-item--active-trail">
+          <a href="#" class="header__nav-link">Link Text
+            <svg class="icon icon--chevron-right">
+              <use xlink:href="#icon-chevron-right"></use>
+            </svg>
+          </a>
+        </li>
+        <li class="menu-item">
+          <a href="#" class="header__nav-link">Link Text
+            <svg class="icon icon--chevron-right">
+              <use xlink:href="#icon-chevron-right"></use>
+            </svg>
+          </a>
+        </li>
+        <li class="menu-item">
+          <a href="#" class="header__nav-link">Link Text
+            <svg class="icon icon--chevron-right">
+              <use xlink:href="#icon-chevron-right"></use>
+            </svg>
+          </a>
+        </li>
+        <li class="menu-item">
+          <a href="#" class="header__nav-link">Link Text
+            <svg class="icon icon--chevron-right">
+              <use xlink:href="#icon-chevron-right"></use>
+            </svg>
+          </a>
+        </li>
+        <li class="menu-item">
+          <a href="#" class="header__nav-link">Link Text
+            <svg class="icon icon--chevron-right">
+              <use xlink:href="#icon-chevron-right"></use>
+            </svg>
+          </a>
+        </li>
+      </ul>
+    </nav>
+  </div>
+  <!-- /.header__primary -->
+
+  <div class="header__mega-menu">
+    <div class="wrapper">Test</div>
+  </div>
+
+  <div class="header__secondary">
+    <div class="wrapper">
+      <nav class="navigation">
+        <ul class="menu">
+          <li class="menu-item">
+            <a href="#" class="header__secondary-nav-link">Link Text</a>
+          </li>
+          <li class="menu-item">
+            <a href="#" class="header__secondary-nav-link">Link Text</a>
+          </li>
+          <li class="menu-item">
+            <a href="#" class="header__secondary-nav-link">Link Text</a>
+          </li>
+        </ul>
+      </nav>
+
+      <form role="search" class="header__search-form">
+        <label class="screen-reader-text">Search</label>
+        <input type="text" placeholder="Search" name="keyword">
+        <button type="submit">
+          <span class="screen-reader-text">Search</span>
+          <svg class="icon icon--search">
+            <use xlink:href="#icon-search"></use>
+          </svg>
+        </button>
+      </form>
+
+      <!-- Google translate -->
+      <div id="google_translate_element" class="header__secondary__translate"></div>
+      <script type="text/javascript">
+        function googleTranslateElementInit() {
+          new google.translate.TranslateElement({
+            pageLanguage: 'en',
+            layout: google.translate.TranslateElement.InlineLayout.SIMPLE
+          }, 'google_translate_element');
+        }
+      </script>
+      <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+
+      <div class="header__temperature-time">
+        <div class="header__temperature">
+          <svg class="icon icon--weather">
+            <use xlink:href="#icon-weather"></use>
+          </svg>
+          <span class="header__temperature--temp">70</span>&deg;
+        </div>
+        <div class="header__time">
+          <span class="header__time--time"><span class="header__time--hours">12</span><span class="header__time--colon">:</span><span class="header__time--minutes">05</span><span class="header__time--suffix">PM</span></span>
+        </div>
+      </div>
+      <script>
+        (function ($) {
+          'use strict';
+
+          function headerTime() {
+            var $headerTime = $('.header__time');
+            if ($headerTime.length) {
+              var date = new Date(moment().tz('America/Los_Angeles').format());
+              var $time = $('.header__time--time', $headerTime);
+              var $hours = $('.header__time--hours', $time);
+              var $minutes = $('.header__time--minutes', $time);
+              var $suffix = $('.header__time--suffix', $headerTime);
+
+              var hours = date.getHours() > 12 ? date.getHours() - 12 : date.getHours();
+              $hours.html(hours);
+              $minutes.html(('000' + date.getMinutes()).slice(-2));
+              $suffix.html(date.getHours() >= 12 ? 'pm' : 'am');
+
+              $headerTime.show();
+            }
+          }
+
+          function headerWeather() {
+            $.simpleWeather({
+              location: 'San Diego, CA',
+              unit: 'f',
+              success: function (weather) {
+                $('.header__temperature--temp').html(weather.temp);
+                $('.header__temperature').css({'display': 'flex'});
+              }
+            });
+          }
+
+          $(function () {
+            setInterval(headerTime, 30000);
+            headerTime();
+            headerWeather();
+          });
+        })(jQuery);
+      </script>
+
+    </div>
+    <!-- /.wrapper -->
+  </div>
+  <!-- /.header__secondary -->
+</header>
+<script>
+  $(document).ready(function () {
+    var mobileMenuToggle = document.querySelector('.header__nav-toggle');
+    enableClickWithKeyboard(mobileMenuToggle);
+  });
+</script>
+<!-- /.header -->
+
+<!-- TODO: keep tabindex to pevent being in the keyboard navigation -->
+<main id="main-content" class="main" tabindex="-1">
+  <!-- TODO: This could be transitioned to match other hero sections -->
+  <section class="home-hero">
+    <div class="home-hero__img-slider-container" data-brand-angle="{&quot;breakpoints&quot;:[{ &quot;minWidth&quot;: 0, &quot;clipLeft&quot;: false, &quot;clipRight&quot;: false },{ &quot;minWidth&quot;: 640, &quot;clipLeft&quot;: true, &quot;clipRight&quot;: false }]}">
+      <div class="home-hero__img-slider">
+
+        <div class="home-hero__img-slide">
+          <div class="home-hero__img responsive-bg-img responsive-bg-img--small">
+            <div class="responsive-bg-img__child" style="background-image: url('http://via.placeholder.com/480x170');"></div>
+          </div>
+          <div class="home-hero__img responsive-bg-img responsive-bg-img--medium">
+            <div class="responsive-bg-img__child" style="background-image: url('http://via.placeholder.com/768x660');"></div>
+          </div>
+          <div class="home-hero__img responsive-bg-img responsive-bg-img--large">
+            <div class="responsive-bg-img__child" style="background-image: url('http://via.placeholder.com/998x660');"></div>
+          </div>
+        </div>
+        <!-- /.home-hero__img-slide -->
+
+        <div class="home-hero__img-slide">
+          <div class="home-hero__img responsive-bg-img responsive-bg-img--small">
+            <div class="responsive-bg-img__child" style="background-image: url('http://via.placeholder.com/480x170');"></div>
+          </div>
+          <div class="home-hero__img responsive-bg-img responsive-bg-img--medium">
+            <div class="responsive-bg-img__child" style="background-image: url('http://via.placeholder.com/768x660');"></div>
+          </div>
+          <div class="home-hero__img responsive-bg-img responsive-bg-img--large">
+            <div class="responsive-bg-img__child" style="background-image: url('http://via.placeholder.com/998x660');"></div>
+          </div>
+        </div>
+        <!-- /.home-hero__img-slide -->
+
+        <div class="home-hero__img-slide">
+          <div class="home-hero__img responsive-bg-img responsive-bg-img--small">
+            <div class="responsive-bg-img__child" style="background-image: url('http://via.placeholder.com/480x170');"></div>
+          </div>
+          <div class="home-hero__img responsive-bg-img responsive-bg-img--medium">
+            <div class="responsive-bg-img__child" style="background-image: url('http://via.placeholder.com/768x660');"></div>
+          </div>
+          <div class="home-hero__img responsive-bg-img responsive-bg-img--large">
+            <div class="responsive-bg-img__child" style="background-image: url('http://via.placeholder.com/998x660');"></div>
+          </div>
+        </div>
+        <!-- /.home-hero__img-slide -->
+
+      </div>
+      <!-- /.home-hero__img-slider -->
+    </div>
+    <!-- /.home-hero__img-slider-container -->
+
+    <div class="home-hero__container">
+      <div class="home-hero__text-column">
+        <div class="home-hero__text">
+          <h1 class="home-hero__title">Experience our dynamic waterfront in action.</h1>
+          <p class="home-hero__cta">
+            <a href="#" class="btn btn--white">Plan your visit</a>
+          </p>
+        </div>
+        <!-- /.home-hero__text -->
+        <div class="home-hero__events">
+          <h4 class="home-hero__events-heading">What's Happening</h4>
+          <div class="home-hero__events-slider">
+            <div class="home-hero__event">
+              <p class="home-hero__event-name"><strong>Harbor Police Physical Agility Test</strong></p>
+              <div class="home-hero__event-description">
+                <p>
+                  <time datetime="2017-02-14" class="home-hero__event-time">
+                    February 2, 2017
+                    <br> 3:00 pm - 5:00 pm
+                  </time>
+                </p>
+                <p>Lorem ipsum dolor site amet, consectetur adipisicing elit, sed do.</p>
+              </div>
+              <p class="hero__location"><svg class="icon icon--location"><use xlink:href="#icon-location"></use></svg>Broadway Pier Cruise Ship Terminal</p>
+            </div>
+            <!-- /.home-hero__event -->
+
+            <div class="home-hero__event">
+              <p class="home-hero__event-name"><strong>Harbor Police Physical Agility Test</strong></p>
+              <div class="home-hero__event-description">
+                <p>
+                  <time datetime="2017-02-14" class="home-hero__event-time">
+                    February 2, 2017
+                    <br> 3:00 pm - 5:00 pm
+                  </time>
+                </p>
+                <p>Lorem ipsum dolor site amet, consectetur adipisicing elit, sed do.</p>
+              </div>
+              <p class="hero__location"><svg class="icon icon--location"><use xlink:href="#icon-location"></use></svg>Broadway Pier Cruise Ship Terminal</p>
+            </div>
+            <!-- /.home-hero__event -->
+
+            <div class="home-hero__event">
+              <p class="home-hero__event-name"><strong>Harbor Police Physical Agility Test</strong></p>
+              <div class="home-hero__event-description">
+                <p>
+                  <time datetime="2017-02-14" class="home-hero__event-time">
+                    February 2, 2017
+                    <br> 3:00 pm - 5:00 pm
+                  </time>
+                </p>
+                <p>Lorem ipsum dolor site amet, consectetur adipisicing elit, sed do.</p>
+              </div>
+              <p class="hero__location"><svg class="icon icon--location"><use xlink:href="#icon-location"></use></svg>Broadway Pier Cruise Ship Terminal</p>
+            </div>
+            <!-- /.home-hero__event -->
+          </div>
+          <!-- /.home-hero__events-slider -->
+        </div>
+        <!-- /.home-hero__events -->
+      </div>
+      <!-- /.home-hero__text-column -->
+    </div>
+    <!-- /.home-hero__container -->
+    <script>
+      $(document).ready(function () {
+        // https://github.com/kenwheeler/slick
+        $('.home-hero__img-slider').slick({
+          slidesToShow: 1,
+          slidesToScroll: 1,
+          asNavFor: '.home-hero__events-slider',
+          dots: false,
+          centerMode: true,
+          focusOnSelect: true,
+          centerPadding: '0',
+          prevArrow: '<button class="slick-prev"><span class="screen-reader-text">Previous slide</span><svg class="icon"><use xlink:href="#icon-arrow-left"></use></svg></button>',
+          nextArrow: '<button class="slick-next"><span class="screen-reader-text">Next slide</span><svg class="icon"><use xlink:href="#icon-arrow-right"></use></svg></button>'
+        });
+        $('.home-hero__events-slider').slick({
+          slidesToShow: 1,
+          slidesToScroll: 1,
+          arrows: false,
+          dots: false,
+          // fade: true,
+          asNavFor: '.home-hero__img-slider'
+        });
+      });
+    </script>
+  </section>
+  <!-- /.home-hero -->
+
+  <br> Hero - Default (Detail, Library, Document, List) | No min height. Height is based on padding. Background gradient based
+  on site-wide gradient. | On mobile there is no image, content is full width and centered. | On desktop content has a
+  max width. Image stretches to take up space.
+  <div class="node--type-post">
+    <div class="hero">
+      <div class="hero__container">
+
+        <div class="hero__content">
+          <h1 class="hero__heading">Central Embarcadero Redevelopment</h1>
+        </div>
+        <!-- /.hero__content -->
+
+        <div class="hero__img" data-brand-angle>
+          <div class="responsive-bg-img responsive-bg-img--small">
+            <span class="responsive-bg-img__child" style="background-image: url( 'http://via.placeholder.com/600x242');"></span>
+          </div>
+          <div class="responsive-bg-img responsive-bg-img--medium">
+            <span class="responsive-bg-img__child" style="background-image: url( 'http://via.placeholder.com/900x363');"></span>
+          </div>
+          <div class="responsive-bg-img responsive-bg-img--large">
+            <span class="responsive-bg-img__child" style="background-image: url( 'http://via.placeholder.com/1080x440');"></span>
+          </div>
+        </div>
+        <!-- /.hero__img -->
+
+      </div>
+      <!-- /.hero__container -->
+    </div>
+    <!-- /.hero -->
+  </div>
+
+  <br> Hero - Section & Campaign | Content and image have min height, may or may not have CTA | On mobile image is visible
+  and above content; content is left aligned and has it's own gradient background. | On desktop content has max width;
+  image fills space.
+  <div class="hero hero--section hero--campaign">
+    <div class="hero__container">
+
+      <div class="hero__content">
+        <h1 class="hero__heading">Building a 21st Century Port</h1>
+        <div class="hero__text">
+          <p>At the edge of forever Hypatia tesseract, stirred by starlight concept of the number one vastness is bearable
+            only
+          </p>
+          <p class="hero__cta">
+            <a href="#" class="btn btn--white">Plan your visit</a>
+          </p>
+        </div>
+        <p class="hero__location">
+          <svg class="icon icon--location">
+            <use xlink:href="#icon-location"></use>
+          </svg>
+          <a href="#">Coronado Tidelands Park</a>
+        </p>
+      </div>
+      <!-- /.hero__content -->
+      <div class="hero__img" data-brand-angle="{&quot;breakpoints&quot;: [{ &quot;minWidth&quot;: 0, &quot;clipLeft&quot;: false, &quot;clipRight&quot;: false }, { &quot;minWidth&quot;: 640, &quot;clipLeft&quot;: true, &quot;clipRight&quot;: false }]}">
+        <div class="responsive-bg-img responsive-bg-img--small">
+          <span class="responsive-bg-img__child" style="background-image: url( 'http://via.placeholder.com/600x242');"></span>
+        </div>
+        <div class="responsive-bg-img responsive-bg-img--medium">
+          <span class="responsive-bg-img__child" style="background-image: url( 'http://via.placeholder.com/900x363');"></span>
+        </div>
+        <div class="responsive-bg-img responsive-bg-img--large">
+          <span class="responsive-bg-img__child" style="background-image: url( 'http://via.placeholder.com/1080x440');"></span>
+        </div>
+      </div>
+      <!-- /.hero__img -->
+
+    </div>
+    <!-- /.hero__container -->
+  </div>
+  <!-- /.hero -->
+
+  <br> Hero - Task | Different H1 size; Dropdown field.
+  <div class="page-node-type-travel-mode">
+    <div class="hero hero--task">
+      <div class="hero__container">
+
+        <div class="hero__content">
+          <h1 class="hero__heading">I will be visiting the Port</h1>
+          <!-- TODO: change action. Add logic for selected elements -->
+          <form action="." class="hero__task-selection">
+            <select class="hero__task-options" name="hero-task-options">
+              <option class="hero__task-option" value="land">By Land</option>
+              <option class="hero__task-option" value="air">By Air</option>
+              <option class="hero__task-option" value="boat">By Boat</option>
+              <option class="hero__task-option" value="cruise" selected>By Cruise</option>
+            </select>
+            <button class="hero__form-submit">Submit</button>
+          </form>
+        </div>
+        <!-- /.hero__content -->
+
+        <div class="hero__img" data-brand-angle>
+          <div class="responsive-bg-img responsive-bg-img--small">
+            <span class="responsive-bg-img__child" style="background-image: url( 'http://via.placeholder.com/600x242');"></span>
+          </div>
+          <div class="responsive-bg-img responsive-bg-img--medium">
+            <span class="responsive-bg-img__child" style="background-image: url( 'http://via.placeholder.com/900x363');"></span>
+          </div>
+          <div class="responsive-bg-img responsive-bg-img--large">
+            <span class="responsive-bg-img__child" style="background-image: url( 'http://via.placeholder.com/1080x440');"></span>
+          </div>
+        </div>
+        <!-- /.hero__img -->
+
+      </div>
+      <!-- /.hero__container -->
+    </div>
+  </div>
+  <script>
+    $(document).ready(function () {
+      var taskOptions = document.querySelector('.hero__task-options');
+      taskOptions.addEventListener('change', function (event) {
+        event.target.form.submit();
+      });
+    });
+  </script>
+  <!-- /.hero -->
+
+  <br> Hero - Submenu | Has a submenu
+  <div class="hero hero--submenu">
+    <div class="hero__container">
+      <div class="hero__content">
+        <h1 class="hero__heading">Cargo & Trade</h1>
+      </div>
+      <nav class="hero__nav">
+        <ul class="menu">
+          <li class="menu-item">
+            <a href="#">Breakbulk Cargo</a>
+          </li>
+          <li class="menu-item">
+            <a href="#">Refrigerated Cargo</a>
+          </li>
+          <li class="menu-item">
+            <a href="#">Bulk Commodities</a>
+          </li>
+          <li class="menu-item">
+            <a href="#">Cargo Service Providers</a>
+          </li>
+        </ul>
+      </nav>
+    </div>
+  </div>
+
+  <section class="collections">
+    <div class="collections__intro">
+      <div class="collections__container">
+
+        <h2 class="collections__heading">Where San Diego Greets the World</h2>
+        <!-- TODO: This next text block is conditional. Apply styles if not present. Possibly for heading too. -->
+        <p class="collections__sub-heading">The Port of San Diego...</p>
+
+        <ul class="collections__tabs accordion" data-responsive-accordion-tabs="accordion medium-tabs">
+          <li class="collections__tab accordion-item is-active" data-accordion-item>
+            <a href="#" class="collections__title accordion-title">
+              Tab 1
+              <svg class="icon icon--chevron-down">
+                <use xlink:href="#icon-chevron-down"></use>
+              </svg>
+            </a>
+
+            <div class="collections__collection accordion-content" data-tab-content>
+              <div class="collections__collection-container">
+                <div class="collections__main-text">
+                  <div class="collections__content-img">
+                    <img src="http://via.placeholder.com/150x70" alt="TODO: inlcude alt text">
+                  </div>
+                  <!-- Conditional. Title shows if no image -->
+                  <h3 class="collections__content-title">Chula Vista (if no image)</h3>
+                  <p>Vivamus hendrerit arcu sed erat molestie vehicula. Sed auctor neque eu tellus rhoncus ut eleifend nibh
+                    porttitor. Ut in nulla enim. Phasellus molestie magna non est bibendum non venenatis nisl tempor. Suspendisse
+                    dictum feugiat nisl ut dapibus.</p>
+                  <p>
+                    <a href="#" class="call-to-action">Discover Waterfront Development
+                      <svg class="icon icon--chevron-right">
+                        <use xlink:href="#icon-chevron-right"></use>
+                      </svg>
+                      <svg class="icon icon--chevron-right">
+                        <use xlink:href="#icon-chevron-right"></use>
+                      </svg>
+                    </a>
+                  </p>
+                </div>
+
+                <div class="collections__interests-column">
+                  <div class="collections__interests">
+                    <div class="collections__interests-img" style="background-image: url('http://via.placeholder.com/450x360');" data-brand-angle="{&quot;breakpoints&quot;: [{ &quot;minWidth&quot;: 0, &quot;clipLeft&quot;: false, &quot;clipRight&quot;: true }, { &quot;minWidth&quot;: 1024, &quot;clipLeft&quot;: true, &quot;clipRight&quot;: true }]}"></div>
+                    <div class="collections__interests-content">
+                      <h4 class="collections__interests-heading">Common Interests</h4>
+                      <ul class="collections__interests-list">
+                        <li class="collections__interest">
+                          <a href="#">Link text</a>
+                        </li>
+                        <li class="collections__interest">
+                          <a href="#">Link text</a>
+                        </li>
+                        <li class="collections__interest">
+                          <a href="#">Link text</a>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                  <!-- /.collections__interests-column -->
+                </div>
+              </div>
+              <!-- /.collections__collection-container -->
+            </div>
+            <!-- /.collections__collection -->
+          </li>
+
+          <li class="collections__tab accordion-item" data-accordion-item>
+            <a href="#" class="collections__title accordion-title">
+              Tab 2
+              <svg class="icon icon--chevron-down">
+                <use xlink:href="#icon-chevron-down"></use>
+              </svg>
+            </a>
+
+            <div class="collections__collection accordion-content" data-tab-content>
+              <div class="collections__collection-container">
+                <div class="collections__main-text">
+                  <div class="collections__content-img">
+                    <img src="http://via.placeholder.com/150x70" alt="TODO: inlcude alt text">
+                  </div>
+                  <!-- Conditional. Title shows if no image -->
+                  <h3 class="collections__content-title">Chula Vista (if no image)</h3>
+                  <p>Vivamus hendrerit arcu sed erat molestie vehicula. Sed auctor neque eu tellus rhoncus ut eleifend nibh
+                    porttitor. Ut in nulla enim. Phasellus molestie magna non est bibendum non venenatis nisl tempor. Suspendisse
+                    dictum feugiat nisl ut dapibus.</p>
+                  <p>
+                    <a href="#" class="call-to-action">Discover Waterfront Development
+                      <svg class="icon icon--chevron-right">
+                        <use xlink:href="#icon-chevron-right"></use>
+                      </svg>
+                      <svg class="icon icon--chevron-right">
+                        <use xlink:href="#icon-chevron-right"></use>
+                      </svg>
+                    </a>
+                  </p>
+                </div>
+
+                <div class="collections__interests-column">
+                  <div class="collections__interests">
+                    <div class="collections__interests-img" style="background-image: url('http://via.placeholder.com/450x360');" data-brand-angle="{&quot;breakpoints&quot;: [{ &quot;minWidth&quot;: 0, &quot;clipLeft&quot;: false, &quot;clipRight&quot;: true }, { &quot;minWidth&quot;: 1024, &quot;clipLeft&quot;: true, &quot;clipRight&quot;: true }]}"></div>
+                    <div class="collections__interests-content">
+                      <h4 class="collections__interests-heading">Common Interests</h4>
+                      <ul class="collections__interests-list">
+                        <li class="collections__interest">
+                          <a href="#">Link text</a>
+                        </li>
+                        <li class="collections__interest">
+                          <a href="#">Link text</a>
+                        </li>
+                        <li class="collections__interest">
+                          <a href="#">Link text</a>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                  <!-- /.collections__interests-column -->
+                </div>
+              </div>
+              <!-- /.collections__collection-container -->
+            </div>
+            <!-- /.collections__collection -->
+          </li>
+        </ul>
+        <!-- /.collections__tabs -->
+      </div>
+      <!-- /.collections__container -->
+    </div>
+    <!-- /.collections__intro -->
+
+  </section>
+  <!-- /.collections -->
+
+  <section class="taskbar">
+    <p class="taskbar__title">I need to...</p>
+    <div class="taskbar__tasks-wrap">
+      <ul class="taskbar__tasks">
+        <li class="taskbar__task">
+          <a href="#" class="taskbar__link">
+            <div class="taskbar__task-icon">
+              <svg>
+                <use xlink:href="#icon-placeholder-square"></use>
+              </svg>
+            </div>
+            <span class="taskbar__task-name">Explore Map</span>
+          </a>
+        </li>
+        <!-- /.taskbar__task -->
+
+        <li class="taskbar__task">
+          <a href="#" class="taskbar__link">
+            <div class="taskbar__task-icon">
+              <svg>
+                <use xlink:href="#icon-placeholder-square"></use>
+              </svg>
+            </div>
+            <span class="taskbar__task-name">Explore Map</span>
+          </a>
+        </li>
+        <!-- /.taskbar__task -->
+
+        <li class="taskbar__task">
+          <a href="#" class="taskbar__link">
+            <div class="taskbar__task-icon">
+              <svg>
+                <use xlink:href="#icon-placeholder-square"></use>
+              </svg>
+            </div>
+            <span class="taskbar__task-name">Explore Map</span>
+          </a>
+        </li>
+        <!-- /.taskbar__task -->
+
+        <li class="taskbar__task">
+          <a href="#" class="taskbar__link">
+            <div class="taskbar__task-icon">
+              <svg>
+                <use xlink:href="#icon-placeholder-square"></use>
+              </svg>
+            </div>
+            <span class="taskbar__task-name">Explore Map</span>
+          </a>
+        </li>
+        <!-- /.taskbar__task -->
+
+        <li class="taskbar__task">
+          <a href="#" class="taskbar__link">
+            <div class="taskbar__task-icon">
+              <svg>
+                <use xlink:href="#icon-placeholder-square"></use>
+              </svg>
+            </div>
+            <span class="taskbar__task-name">Explore Map</span>
+          </a>
+        </li>
+        <!-- /.taskbar__task -->
+
+        <li class="taskbar__task">
+          <a href="#" class="taskbar__link">
+            <div class="taskbar__task-icon">
+              <svg>
+                <use xlink:href="#icon-placeholder-square"></use>
+              </svg>
+            </div>
+            <span class="taskbar__task-name">Explore Map</span>
+          </a>
+        </li>
+        <!-- /.taskbar__task -->
+
+      </ul>
+      <!-- /.taskbar__tasks -->
+    </div>
+    <!-- /.taskbar__tasks-wrap -->
+  </section>
+  <!-- /.taskbar -->
+
+  <section class="highlights">
+    <div class="highlights__intro-row">
+      <div class="highlights__intro-container">
+        <div class="highlights__intro">
+          <h3 class="highlights__intro-title">What's Happening
+            <span> at the Port</span>
+          </h3>
+          <div class="highlights__intro-links">
+            <a href="#" class="call-to-action">News
+              <svg class="icon icon--chevron-right">
+                <use xlink:href="#icon-chevron-right"></use>
+              </svg>
+              <svg class="icon icon--chevron-right">
+                <use xlink:href="#icon-chevron-right"></use>
+              </svg>
+            </a>
+            <span class="highlight__cta-separator"></span>
+            <a href="#" class="call-to-action">Events
+              <svg class="icon icon--chevron-right">
+                <use xlink:href="#icon-chevron-right"></use>
+              </svg>
+              <svg class="icon icon--chevron-right">
+                <use xlink:href="#icon-chevron-right"></use>
+              </svg>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="highlights__list">
+      <div class="views-row">
+        <div class="node node--view-mode-teaser">
+          <div class="content-wrapper">
+            <a href="#" class="node-teaser-link">
+              <div class="field--name-field-hero-image">
+                <img src="http://via.placeholder.com/640x330" alt="TODO: inlcude alt tag">
+              </div>
+            </a>
+            <div class="content">
+              <p class="time">
+                <time datetime="2017-02-14">February 2, 2017</time>
+              </p>
+              <p class="category">Experiences</p>
+              <p class="title">
+                <a href="#">The Title</a>
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="views-row">
+        <div class="node node--view-mode-teaser">
+          <div class="content-wrapper">
+            <a href="#" class="node-teaser-link">
+              <div class="field--name-field-hero-image">
+                <img src="http://via.placeholder.com/640x330" alt="TODO: inlcude alt tag">
+              </div>
+            </a>
+            <div class="content">
+              <p class="time">
+                <time datetime="2017-02-14">February 2, 2017</time>
+              </p>
+              <p class="category">Experiences</p>
+              <p class="title">
+                <a href="#">The Title</a>
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="views-row">
+        <div class="node node--view-mode-teaser">
+          <div class="content-wrapper">
+            <a href="#" class="node-teaser-link">
+              <div class="field--name-field-hero-image">
+                <img src="http://via.placeholder.com/640x330" alt="TODO: inlcude alt tag">
+              </div>
+            </a>
+            <div class="content">
+              <p class="time">
+                <time datetime="2017-02-14">February 2, 2017</time>
+              </p>
+              <p class="category">Experiences</p>
+              <p class="title">
+                <a href="#">The Title</a>
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- /.highlights__list -->
+  </section>
+  <!-- /.highlights -->
+
+  <br>When there is only 1 highlight markup changes just a bit
+  <section class="highlights highlights__featured">
+    <div class="highlights__intro-row">
+      <div class="highlights__intro-container">
+        <div class="highlights__intro">
+          <h3 class="highlights__intro-title">What's Happening
+            <span> at the Port</span>
+          </h3>
+          <div class="highlights__intro-links">
+            <a href="#" class="call-to-action">News
+              <svg class="icon icon--chevron-right">
+                <use xlink:href="#icon-chevron-right"></use>
+              </svg>
+              <svg class="icon icon--chevron-right">
+                <use xlink:href="#icon-chevron-right"></use>
+              </svg>
+            </a>
+            <span class="highlight__cta-separator"></span>
+            <a href="#" class="call-to-action">Events
+              <svg class="icon icon--chevron-right">
+                <use xlink:href="#icon-chevron-right"></use>
+              </svg>
+              <svg class="icon icon--chevron-right">
+                <use xlink:href="#icon-chevron-right"></use>
+              </svg>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="highlights__list">
+      <!-- TODO: The markup only changes from here -->
+      <div class="views-row">
+        <div class="node node--view-mode-teaser wide">
+          <div class="content-wrapper">
+            <a href="#" class="node-teaser-link">
+              <div class="field--name-field-hero-image">
+                <img src="http://via.placeholder.com/640x330" alt="TODO: inlcude alt tag">
+              </div>
+            </a>
+            <div class="content">
+              <p class="time">
+                <time datetime="2017-02-14">February 2, 2017</time>
+              </p>
+              <p class="category">Experiences</p>
+              <p class="title">
+                <a href="#">The Title</a>
+              </p>
+              <div class="body">
+                <p>Brain is the seed of intelligence hydrogen atoms citizens of distant epochs dream of the mind's eye, Jean-Francois Champollion, courage of our questions!</p>
+                <a href="#" class="call-to-action">Read More
+                  <span class="screen-reader-text">About...</span>
+                  <svg class="icon icon--chevron-right">
+                    <use xlink:href="#icon-chevron-right"></use>
+                  </svg>
+                  <svg class="icon icon--chevron-right">
+                    <use xlink:href="#icon-chevron-right"></use>
+                  </svg>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- /.highlights__highlight-column -->
+    </div>
+    <!-- /.highlights__list -->
+  </section>
+  <!-- /.highlights -->
+
+  <br>Example with Projects
+  <section class="highlights">
+    <div class="highlights__intro-row">
+      <div class="highlights__intro-container">
+        <div class="highlights__intro">
+          <h3 class="highlights__intro-title">Other Projects</h3>
+          <div class="highlights__intro-links">
+            <a href="#" class="call-to-action">All Projects
+              <svg class="icon icon--chevron-right">
+                <use xlink:href="#icon-chevron-right"></use>
+              </svg>
+              <svg class="icon icon--chevron-right">
+                <use xlink:href="#icon-chevron-right"></use>
+              </svg>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="highlights__list">
+      <div class="views-row">
+        <div class="node node--view-mode-teaser">
+          <div class="content-wrapper">
+            <a href="#" class="node-teaser-link">
+              <div class="field--name-field-hero-image">
+                <img src="http://via.placeholder.com/640x330" alt="TODO: inlcude alt tag">
+              </div>
+            </a>
+            <div class="content">
+              <p class="time">
+                <time datetime="2017-02-14">February 2, 2017</time>
+              </p>
+              <p class="category">Experiences</p>
+              <p class="title">
+                <a href="#">The Title</a>
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="views-row">
+        <div class="node node--view-mode-teaser">
+          <div class="content-wrapper">
+            <a href="#" class="node-teaser-link">
+              <div class="field--name-field-hero-image">
+                <img src="http://via.placeholder.com/640x330" alt="TODO: inlcude alt tag">
+              </div>
+            </a>
+            <div class="content">
+              <p class="time">
+                <time datetime="2017-02-14">February 2, 2017</time>
+              </p>
+              <p class="category">Experiences</p>
+              <p class="title">
+                <a href="#">The Title</a>
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="views-row">
+        <div class="node node--view-mode-teaser">
+          <div class="content-wrapper">
+            <a href="#" class="node-teaser-link">
+              <div class="field--name-field-hero-image">
+                <img src="http://via.placeholder.com/640x330" alt="TODO: inlcude alt tag">
+              </div>
+            </a>
+            <div class="content">
+              <p class="time">
+                <time datetime="2017-02-14">February 2, 2017</time>
+              </p>
+              <p class="category">Experiences</p>
+              <p class="title">
+                <a href="#">The Title</a>
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- /.highlights__list -->
+  </section>
+  <!-- /.highlights -->
+
+  <section class="stats">
+    <div class="stats__details">
+      <h2 class="stats__title">Creating prosperity and a remarkable way of life.</h2>
+      <div class="stats__list">
+        <h4 class="stats__stat">
+            <span class="stats__stat-number">
+              <sup class="stats__stat-prefix">$</sup>8.3</span> Billion Total Impact
+        </h4>
+        <h4 class="stats__stat">
+            <span class="stats__stat-number">
+              <sup class="stats__stat-prefix">$</sup>8.3</span> Billion Total Impact
+        </h4>
+        <h4 class="stats__stat">
+            <span class="stats__stat-number">
+              <sup class="stats__stat-prefix">$</sup>8.3</span> Billion Total Impact
+        </h4>
+      </div>
+      <a href="#" class="btn">View Impact</a>
+    </div>
+    <!-- /.stats__details -->
+
+    <div class="stats__media">
+      <div class="stats__fluid-embed">
+        <iframe src='http://www.youtube.com/embed/QILiHiTD3uc' frameborder='0' allowfullscreen></iframe>
+      </div>
+    </div>
+  </section>
+  <!-- /.stats -->
+
+  <section class="stats">
+    <div class="stats__details">
+      <h2 class="stats__title">Creating prosperity and a remarkable way of life.</h2>
+      <div class="stats__list">
+        <h4 class="stats__stat">
+            <span class="stats__stat-number">
+              <sup class="stats__stat-prefix">$</sup>8.3</span> Billion Total Impact
+        </h4>
+        <h4 class="stats__stat">
+            <span class="stats__stat-number">
+              <sup class="stats__stat-prefix">$</sup>8.3</span> Billion Total Impact
+        </h4>
+        <h4 class="stats__stat">
+            <span class="stats__stat-number">
+              <sup class="stats__stat-prefix">$</sup>8.3</span> Billion Total Impact
+        </h4>
+      </div>
+      <a href="#" class="btn">View Impact</a>
+    </div>
+    <!-- /.stats__details -->
+
+    <div class="stats__media">
+      <img src="http://via.placeholder.com/635x370" alt="TODO: inlcude alt text" class="stats__img">
+    </div>
+  </section>
+  <!-- /.stats -->
+
+  <section class=" basic-text">
+    <div class="basic-text__container">
+      <h2 class="basic-text__heading">A Remarkable Way of Life For All</h2>
+      <p class="basic-text__content basic-text__content--columns">Vivamus hendrerit arcu sed erat molestie vehicula. Sed auctor neque eu tellus rhoncus ut eleifend nibh porttitor.
+        Ut in nulla enim. Phasellus molestie magna non est bibendum non venenatis nisl tempor. Suspendisse dictum feugiat
+        nisl ut dapibus.</p>
+      <p class="basic-text__cta">
+        <a href="#" class="btn">Read stories</a>
+      </p>
+    </div>
+    <!-- /.basic-text__container -->
+  </section>
+  <!-- /.basic-text -->
+
+  <section class="basic-text">
+    <div class="basic-text__container">
+      <h2 class="basic-text__heading">A Remarkable Way of Life For All</h2>
+      <p class="basic-text__content">Vivamus hendrerit arcu sed erat molestie vehicula. Sed auctor neque eu tellus rhoncus ut eleifend nibh porttitor.
+        Ut in nulla enim. Phasellus molestie magna non est bibendum non venenatis nisl tempor. Suspendisse dictum feugiat
+        nisl ut dapibus.</p>
+    </div>
+    <!-- /.basic-text__container -->
+  </section>
+  <!-- /.basic-text (columns)-->
+
+  <section class="divider">
+    <!-- srcset is probably a good idea here -->
+    <img width="1440" height="440" src="http://via.placeholder.com/1440x440" class="divider__img" alt="TODO: inlcude
+          alt tag" srcset="http://via.placeholder.com/1440x440 1080w, http://via.placeholder.com/900x275 900w, http://via.placeholder.com/600x183
+          600w, http://via.placeholder.com/480x147 480w">
+  </section>
+  <!-- /.divider -->
+
+  <section class="promo">
+    <div class="promo__container">
+      <div class="promo__content">
+        <h3 class="promo__heading">Green Port Month</h3>
+        <p class="promo__text">At the edge of forever Hypatia tesseract, stirred by starlight concept of the number one vastness is bearable only
+        </p>
+        <p class="promo__button">
+          <a href="#" class="btn">Learn More</a>
+        </p>
+        <!-- TODO: Optional content -->
+        <p class="promo__location">
+          <svg class="icon icon--location">
+            <use xlink:href="#icon-location"></use>
+          </svg>
+          <a href="#">Coronado Tidelands Park</a>
+        </p>
+      </div>
+      <!-- /.promo__content -->
+
+      <!-- These elements allow used of background images responsibly. Allow for images to show for certain screen sizes and higher. On smaller screens, the parent is hidden, and the child's bg image is not downloaded. -->
+      <div class="promo__img" data-brand-angle>
+        <div class="responsive-bg-img responsive-bg-img--small">
+          <span class="responsive-bg-img__child" style="background-image: url( 'http://via.placeholder.com/600x242');"></span>
+        </div>
+        <div class="responsive-bg-img responsive-bg-img--medium">
+          <span class="responsive-bg-img__child" style="background-image: url( 'http://via.placeholder.com/900x363');"></span>
+        </div>
+        <div class="responsive-bg-img responsive-bg-img--large">
+          <span class="responsive-bg-img__child" style="background-image: url( 'http://via.placeholder.com/1080x440');"></span>
+        </div>
+      </div>
+    </div>
+    <!-- /.promo__container -->
+  </section>
+  <!-- /.promo -->
+
+  <section class="callouts">
+    <div class="callout ">
+      <div class="callout__icon">
+        <svg>
+          <use xlink:href="#icon-placeholder-square"></use>
+        </svg>
+      </div>
+      <h3 class="callout__heading">Title</h3>
+      <a href="#" class="callout__link call-to-action">Learn More
+        <span class="screen-reader-text"> about {{Title}}</span>
+        <svg class="icon icon--chevron-right">
+          <use xlink:href="#icon-chevron-right"></use>
+        </svg>
+        <svg class="icon icon--chevron-right">
+          <use xlink:href="#icon-chevron-right"></use>
+        </svg>
+      </a>
+    </div>
+    <!-- /.callout -->
+
+    <div class="callout">
+      <div class="callout__icon">
+        <svg>
+          <use xlink:href="#icon-placeholder-square"></use>
+        </svg>
+      </div>
+      <h3 class="callout__heading">Title</h3>
+      <a href="#" class="callout__link call-to-action">Learn More
+        <span class="screen-reader-text"> about {{Title}}</span>
+        <svg class="icon icon--chevron-right">
+          <use xlink:href="#icon-chevron-right"></use>
+        </svg>
+        <svg class="icon icon--chevron-right">
+          <use xlink:href="#icon-chevron-right"></use>
+        </svg>
+      </a>
+    </div>
+    <!-- /.callout -->
+
+    <div class="callout">
+      <div class="callout__icon">
+        <svg>
+          <use xlink:href="#icon-placeholder-square"></use>
+        </svg>
+      </div>
+      <h3 class="callout__heading">Title</h3>
+      <a href="#" class="callout__link call-to-action call-to-action--download">Learn More
+        <span class="screen-reader-text"> about {{Title}}</span>
+        <svg class="icon icon--download">
+          <use xlink:href="#icon-download"></use>
+        </svg>
+      </a>
+    </div>
+    <!-- /.callout -->
+
+  </section>
+  <!-- /.callouts -->
+
+  <section class="supporting-information">
+    <div class="supporting-info__heading ">
+      <h2>Explore Our Terminals</h2>
+    </div>
+    <div class="supporting-info__block">
+      <span class="supporting-info__tumbnail" style="background-image: url( 'http://via.placeholder.com/685x300');"></span>
+      <div class="supporting-info__content">
+        <h4 class="supporting-info__title">Tenth Avenue Marine Terminal</h4>
+        <p class="supporting-info__text">Paroxysm of global death with pretty stories for which there's little good evidence explorations globular star
+          cluster billions upon billions extraordinary claims require extraordinary evidence Hypatia from which we spring
+          rich in heavy atoms!</p>
+        <a href="#" class="supporting-info__link call-to-action">Explore Terminal
+          <svg class="icon icon--chevron-right">
+            <use xlink:href="#icon-chevron-right"></use>
+          </svg>
+          <svg class="icon icon--chevron-right">
+            <use xlink:href="#icon-chevron-right"></use>
+          </svg>
+        </a>
+      </div>
+    </div>
+    <!-- /.supporting-info__block -->
+
+    <div class="supporting-info__block">
+      <span class="supporting-info__tumbnail" style="background-image: url( 'http://via.placeholder.com/685x300');"></span>
+      <div class="supporting-info__content">
+        <h4 class="supporting-info__title">Tenth Avenue Marine Terminal</h4>
+        <p class="supporting-info__text">Paroxysm of global death with pretty stories for which there's little good evidence explorations globular star
+          cluster billions upon billions extraordinary claims require extraordinary evidence Hypatia from which we spring
+          rich in heavy atoms!</p>
+        <a href="#" class="supporting-info__link call-to-action">Explore Terminal
+          <svg class="icon icon--chevron-right">
+            <use xlink:href="#icon-chevron-right"></use>
+          </svg>
+          <svg class="icon icon--chevron-right">
+            <use xlink:href="#icon-chevron-right"></use>
+          </svg>
+        </a>
+      </div>
+    </div>
+    <!-- /.supporting-info__block -->
+  </section>
+  <!-- /.supporting-information -->
+
+  <section class="sub-category-list">
+
+    <div class="sub-category">
+      <div class="sub-category__container">
+        <div class="sub-category__img" data-brand-angle="{&quot;breakpoints&quot;: [{ &quot;minWidth&quot;: 0, &quot;clipLeft&quot;: false, &quot;clipRight&quot;: false }, { &quot;minWidth&quot;: 1024, &quot;clipLeft&quot;: true, &quot;clipRight&quot;: false }]}">
+          <div class="responsive-bg-img responsive-bg-img--small">
+            <span class="responsive-bg-img__child" style="background-image: url( 'http://via.placeholder.com/600x242');"></span>
+          </div>
+          <div class="responsive-bg-img responsive-bg-img--medium">
+            <span class="responsive-bg-img__child" style="background-image: url( 'http://via.placeholder.com/900x363');"></span>
+          </div>
+          <div class="responsive-bg-img responsive-bg-img--large">
+            <span class="responsive-bg-img__child" style="background-image: url( 'http://via.placeholder.com/1080x440');"></span>
+          </div>
+        </div>
+
+        <div class="sub-category__content">
+          <h3 class="sub-category__title">Cargo & Trade</h3>
+          <p class="sub-category__text">Hearts of the stars, culture, Jean-Francois Champollion tesseract something incredible is waiting to be known,
+            decipherment great turbulent clouds rich in heavy atoms brain is the seed of intelligence the sky calls to
+            us, emerged into consciousness Sea of Tranquility tendrils of gossamer clouds colonies. A very small stage
+            in a vast cosmic arena the sky calls to us tesseract, finite but unbounded! Jean-Francois Champollion courage
+            of our questions the sky calls to us, rich in mystery?</p>
+          <p class="sub-category__link">
+            <a href="#" class="call-to-action">View Services
+              <span class="screen-reader-text">: {{title}}</span>
+              <svg class="icon icon--chevron-right">
+                <use xlink:href="#icon-chevron-right"></use>
+              </svg>
+              <svg class="icon icon--chevron-right">
+                <use xlink:href="#icon-chevron-right"></use>
+              </svg>
+            </a>
+          </p>
+        </div>
+        <!-- /.sub-category__content -->
+      </div>
+      <!-- /.sub-category__container -->
+    </div>
+    <!-- /.sub-category -->
+
+    <div class="sub-category">
+      <div class="sub-category__container">
+        <div class="sub-category__img" data-brand-angle="{&quot;breakpoints&quot;: [{ &quot;minWidth&quot;: 0, &quot;clipLeft&quot;: false, &quot;clipRight&quot;: false }, { &quot;minWidth&quot;: 1024, &quot;clipLeft&quot;: true, &quot;clipRight&quot;: false }]}">
+          <div class="responsive-bg-img responsive-bg-img--small">
+            <span class="responsive-bg-img__child" style="background-image: url( 'http://via.placeholder.com/600x242');"></span>
+          </div>
+          <div class="responsive-bg-img responsive-bg-img--medium">
+            <span class="responsive-bg-img__child" style="background-image: url( 'http://via.placeholder.com/900x363');"></span>
+          </div>
+          <div class="responsive-bg-img responsive-bg-img--large">
+            <span class="responsive-bg-img__child" style="background-image: url( 'http://via.placeholder.com/1080x440');"></span>
+          </div>
+        </div>
+
+        <div class="sub-category__content">
+          <h3 class="sub-category__title">Cargo & Trade</h3>
+          <p class="sub-category__text">Hearts of the stars, culture, Jean-Francois Champollion tesseract something incredible is waiting to be known,
+            decipherment great turbulent clouds rich in heavy atoms brain is the seed of intelligence the sky calls to
+            us, emerged into consciousness Sea of Tranquility tendrils of gossamer clouds colonies. A very small stage
+            in a vast cosmic arena the sky calls to us tesseract, finite but unbounded! Jean-Francois Champollion courage
+            of our questions the sky calls to us, rich in mystery?</p>
+          <p class="sub-category__link">
+            <a href="#" class="call-to-action">View Services
+              <span class="screen-reader-text">: {{title}}</span>
+              <svg class="icon icon--chevron-right">
+                <use xlink:href="#icon-chevron-right"></use>
+              </svg>
+              <svg class="icon icon--chevron-right">
+                <use xlink:href="#icon-chevron-right"></use>
+              </svg>
+            </a>
+          </p>
+        </div>
+        <!-- /.sub-category__content -->
+      </div>
+      <!-- /.sub-category__container -->
+    </div>
+    <!-- /.sub-category -->
+
+    <div class="sub-category">
+      <div class="sub-category__container">
+        <div class="sub-category__img" data-brand-angle="{&quot;breakpoints&quot;: [{ &quot;minWidth&quot;: 0, &quot;clipLeft&quot;: false, &quot;clipRight&quot;: false }, { &quot;minWidth&quot;: 1024, &quot;clipLeft&quot;: true, &quot;clipRight&quot;: false }]}">
+          <div class="responsive-bg-img responsive-bg-img--small">
+            <span class="responsive-bg-img__child" style="background-image: url( 'http://via.placeholder.com/600x242');"></span>
+          </div>
+          <div class="responsive-bg-img responsive-bg-img--medium">
+            <span class="responsive-bg-img__child" style="background-image: url( 'http://via.placeholder.com/900x363');"></span>
+          </div>
+          <div class="responsive-bg-img responsive-bg-img--large">
+            <span class="responsive-bg-img__child" style="background-image: url( 'http://via.placeholder.com/1080x440');"></span>
+          </div>
+        </div>
+
+        <div class="sub-category__content">
+          <h3 class="sub-category__title">Cargo & Trade</h3>
+          <p class="sub-category__text">Hearts of the stars, culture, Jean-Francois Champollion tesseract something incredible is waiting to be known,
+            decipherment great turbulent clouds rich in heavy atoms brain is the seed of intelligence the sky calls to
+            us, emerged into consciousness Sea of Tranquility tendrils of gossamer clouds colonies. A very small stage
+            in a vast cosmic arena the sky calls to us tesseract, finite but unbounded! Jean-Francois Champollion courage
+            of our questions the sky calls to us, rich in mystery?</p>
+          <p class="sub-category__link">
+            <a href="#" class="call-to-action">View Services
+              <span class="screen-reader-text">: {{title}}</span>
+              <svg class="icon icon--chevron-right">
+                <use xlink:href="#icon-chevron-right"></use>
+              </svg>
+              <svg class="icon icon--chevron-right">
+                <use xlink:href="#icon-chevron-right"></use>
+              </svg>
+            </a>
+          </p>
+        </div>
+        <!-- /.sub-category__content -->
+      </div>
+      <!-- /.sub-category__container -->
+    </div>
+    <!-- /.sub-category -->
+
+  </section>
+  <!-- /.sub-category-list -->
+
+  <section class="slider">
+    <div class="slider__wrapper">
+      <div class="slider__container">
+        <div class="slider__slides">
+          <div class="slider__slide">
+            <img src="http://via.placeholder.com/240x240" alt="TODO: inlcude alt text" class="slider__img
+        " srcset="http://via.placeholder.com/240x240 481w, http://via.placeholder.com/150x150 480w">
+          </div>
+
+          <div class="slider__slide">
+            <img src="http://via.placeholder.com/240x240" alt="TODO: inlcude alt text" class="slider__img
+        " srcset="http://via.placeholder.com/240x240 481w, http://via.placeholder.com/150x150 480w">
+          </div>
+
+          <div class="slider__slide">
+            <img src="http://via.placeholder.com/240x240" alt="TODO: inlcude alt text" class="slider__img
+        " srcset="http://via.placeholder.com/240x240 481w, http://via.placeholder.com/150x150 480w">
+          </div>
+
+          <div class="slider__slide">
+            <img src="http://via.placeholder.com/240x240" alt="TODO: inlcude alt text" class="slider__img
+        " srcset="http://via.placeholder.com/240x240 481w, http://via.placeholder.com/150x150 480w">
+          </div>
+
+          <div class="slider__slide">
+            <img src="http://via.placeholder.com/240x240" alt="TODO: inlcude alt text" class="slider__img
+        " srcset="http://via.placeholder.com/240x240 481w, http://via.placeholder.com/150x150 480w">
+          </div>
+
+          <div class="slider__slide">
+            <img src="http://via.placeholder.com/240x240" alt="TODO: inlcude alt text" class="slider__img
+        " srcset="http://via.placeholder.com/240x240 481w, http://via.placeholder.com/150x150 480w">
+          </div>
+        </div>
+        <!-- /.slider__slides -->
+      </div>
+      <!-- /.slider__container -->
+    </div>
+    <!-- /.slider__wrapper -->
+
+    <script>
+      $(document).ready(function () {
+        // https://github.com/kenwheeler/slick
+        $('.slider__slides').slick({
+          slidesToShow: 5,
+          slidesToScroll: 1,
+          // infinite: true,
+          // dots: false,
+          // centerMode: true,
+          // focusOnSelect: true,
+          // centerPadding: '0',
+          prevArrow: '<button class="slick-prev"><span class="screen-reader-text">Previous slide</span><svg class="icon"><use xlink:href="#icon-arrow-left"></use></svg></button>',
+          nextArrow: '<button class="slick-next"><span class="screen-reader-text">Next slide</span><svg class="icon"><use xlink:href="#icon-arrow-right"></use></svg></button>',
+          responsive: [
+            {
+              breakpoint: 1024, // Large and below
+              settings: {
+                slidesToShow: 4,
+              }
+            },
+            {
+              breakpoint: 900,
+              settings: {
+                slidesToShow: 3,
+              }
+            },
+            {
+              breakpoint: 640, // Medium and below
+              settings: {
+                slidesToShow: 2,
+              }
+            }
+            // You can unslick at a given breakpoint now by adding:
+            // settings:"unslick"
+            // instead of a settings object
+          ]
+        });
+      });
+    </script>
+  </section>
+  <!-- /.slider -->
+
+  <section class="fifty-fifty">
+    <div class="fifty-fifty__container">
+      <div class="paragraph paragraph--type--basic-image">
+        <div class="fifty-fifty__img">
+          <div class="responsive-bg-img responsive-bg-img--small">
+            <span class="responsive-bg-img__child" style="background-image: url('http://via.placeholder.com/620x360');"></span>
+          </div>
+          <div class="responsive-bg-img responsive-bg-img--medium">
+            <span class="responsive-bg-img__child" style="background-image: url('http://via.placeholder.com/720x440');"></span>
+          </div>
+          <div class="responsive-bg-img responsive-bg-img--large">
+            <span class="responsive-bg-img__child" style="background-image: url('http://via.placeholder.com/720x440');"></span>
+          </div>
+        </div>
+      </div>
+      <!-- /.fifty-fifty__img -->
+
+      <div class="paragraph paragraph--type--basic-text">
+        <div class="fifty-fifty__content">
+          <h2 class="fifty-fifty__heading">Funding Over 85 Projects</h2>
+          <div class="fifty-fifty__text">
+            <p>White dwarf, Flatland astonishment from which we spring Cambrian explosion colonies?</p>
+            <p>Rogue how far away and billions upon billions upon billions upon billions upon billions upon billions upon billions.</p>
+          </div>
+          <p class="fifty-fifty__cta">
+            <a href="#" class="btn">View year in review</a>
+          </p>
+          <p class="fifty-fifty__location">
+            <svg class="icon icon--location">
+              <use xlink:href="#icon-location"></use>
+            </svg>
+            <a href="#">Coronado Tidelands Park</a>
+          </p>
+        </div>
+      </div>
+      <!-- /.fifty-fifty__content -->
+    </div>
+    <!-- /.fifty-fifty__container -->
+  </section>
+  <!-- /.fifty-fifty -->
+
+  <section class="fifty-fifty">
+    <div class="fifty-fifty__container">
+      <div class="paragraph paragraph--type--basic-text">
+        <div class="fifty-fifty__content">
+          <h2 class="fifty-fifty__heading">Lorem Ipsum Dolor</h2>
+          <div class="fifty-fifty__text">
+            <p>Quasar with pretty stories for which there's little good evidence culture emerged into consciousness, cosmic
+              ocean extraordinary claims require extraordinary evidence kindling the energy hidden in matter rings of Uranus
+              white dwarf Rig Veda culture hearts of the stars.</p>
+          </div>
+          <!-- TODO: CTA link's call can be 'btn' or 'call-to-action' -->
+          <p class="fifty-fifty__cta">
+            <a href="#" class="call-to-action">
+              View year in review
+              <svg class="icon icon--chevron-right">
+                <use xlink:href="#icon-chevron-right"></use>
+              </svg>
+              <svg class="icon icon--chevron-right">
+                <use xlink:href="#icon-chevron-right"></use>
+              </svg>
+            </a>
+          </p>
+        </div>
+      </div>
+      <!-- /.fifty-fifty__content -->
+
+      <div class="paragraph paragraph--type--basic-text">
+        <div class="fifty-fifty__content">
+          <h2 class="fifty-fifty__heading">Lorem Ipsum Dolor</h2>
+          <div class="fifty-fifty__text">
+            <p>White dwarf, Flatland astonishment from which we spring Cambrian explosion colonies?</p>
+            <p>Rogue how far away and billions upon billions upon billions upon billions upon billions upon billions upon billions.</p>
+          </div>
+        </div>
+      </div>
+      <!-- /.fifty-fifty__content -->
+    </div>
+    <!-- /.fifty-fifty__container -->
+  </section>
+  <!-- /.fifty-fifty -->
+
+  <section class="cta-box">
+    <div class="cta-box__container">
+      <h2 class="cta-box__heading">Join us For Coastal Cleanup Day</h2>
+
+      <form class="cta-box__form">
+        <label class="cta-box__field cta-box__field--medium-50">First Name
+          <input type="text">
+        </label>
+        <label class="cta-box__field cta-box__field--medium-50">Last Name
+          <input type="text">
+        </label>
+        <label class="cta-box__field">Email Address
+          <input type="email">
+        </label>
+        <div class="cta-box__field cta-box__field--submit">
+          <button type="submit">Register</button>
+        </div>
+      </form>
+      <!-- /.cta-box__form -->
+    </div>
+  </section>
+  <!-- /.cta-box -->
+
+  <div class="breadcrumbs">
+    <div class="breadcrumbs__container">
+      <div class="breadcrumbs__list">
+        <!-- First -->
+        <div itemscope itemtype="http://data-vocabulary.org/Breadcrumb" class="breadcrumb">
+          <a href="#" itemprop="url" class="breadcrumb__link">
+            <span itemprop="title" class="breadcrumb__title">Home</span>
+          </a>
+
+          <span class="breadcrumb__separator">/</span>
+
+          <!-- Second -->
+          <div itemprop="child" itemscope itemtype="http://data-vocabulary.org/Breadcrumb" class="breadcrumb">
+            <a href="#/#" itemprop="url" class="breadcrumb__link">
+              <span itemprop="title" class="breadcrumb__title">What We Do</span>
+            </a>
+
+            <span class="breadcrumb__separator">/</span>
+
+            <!-- Third -->
+            <div itemprop="child" itemscope itemtype="http://data-vocabulary.org/Breadcrumb" class="breadcrumb">
+              <a href="#/#/#" itemprop="url" class="breadcrumb__link">
+                <span itemprop="title" class="breadcrumb__title">Maritime</span>
+              </a>
+
+              <span class="breadcrumb__separator">/</span>
+
+              <!-- Fourth -->
+              <div itemprop="child" itemscope itemtype="http://data-vocabulary.org/Breadcrumb" class="breadcrumb breadcrumb--current-page">
+                <a href="#/#/#/#" itemprop="url" class="breadcrumb__link">
+                  <span itemprop="title" class="breadcrumb__title">Cargo & Trade</span>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- /.breakcrumbs -->
+
+  <br>Breadcrumbs with items on the right
+  <div class="breadcrumbs">
+    <div class="breadcrumbs__container">
+      <div class="breadcrumbs__list">
+        <!-- First -->
+        <div itemscope itemtype="http://data-vocabulary.org/Breadcrumb" class="breadcrumb">
+          <a href="#" itemprop="url" class="breadcrumb__link">
+            <span itemprop="title" class="breadcrumb__title">Home</span>
+          </a>
+
+          <span class="breadcrumb__separator">/</span>
+
+          <!-- Second -->
+          <div itemprop="child" itemscope itemtype="http://data-vocabulary.org/Breadcrumb" class="breadcrumb">
+            <a href="#/#" itemprop="url" class="breadcrumb__link">
+              <span itemprop="title" class="breadcrumb__title">What We Do</span>
+            </a>
+
+            <span class="breadcrumb__separator">/</span>
+
+            <!-- Third -->
+            <div itemprop="child" itemscope itemtype="http://data-vocabulary.org/Breadcrumb" class="breadcrumb">
+              <a href="#/#/#" itemprop="url" class="breadcrumb__link">
+                <span itemprop="title" class="breadcrumb__title">Maritime</span>
+              </a>
+
+              <span class="breadcrumb__separator">/</span>
+
+              <!-- Fourth -->
+              <div itemprop="child" itemscope itemtype="http://data-vocabulary.org/Breadcrumb" class="breadcrumb breadcrumb--current-page">
+                <a href="#/#/#/#" itemprop="url" class="breadcrumb__link">
+                  <span itemprop="title" class="breadcrumb__title">Cargo & Trade</span>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="breadcrumbs__filters">
+        <a href="#" class="breadcrumbs__filter">
+          <svg class="icon icon--list">
+            <use xlink:href="#icon-list"></use>
+          </svg>
+        </a>
+        <a href="#" class="breadcrumbs__filter breadcrumbs__filter--active">
+          <svg class="icon icon--grid">
+            <use xlink:href="#icon-grid"></use>
+          </svg>
+        </a>
+      </div>
+    </div>
+  </div>
+  <!-- /.breakcrumbs -->
+
+  <section class="content-list">
+    <div class="content-list__featured">
+      <div class="views-row">
+        <div class="node node--view-mode-teaser wide">
+          <div class="content-wrapper">
+            <a href="#" class="node-teaser-link">
+              <div class="field--name-field-hero-image">
+                <img src="http://via.placeholder.com/640x330" alt="TODO: inlcude alt tag">
+              </div>
+            </a>
+            <div class="content">
+              <p class="time">
+                <time datetime="2017-02-14">February 2, 2017</time>
+              </p>
+              <p class="category">Experiences</p>
+              <p class="title">
+                <a href="#">The Title</a>
+              </p>
+              <div class="body">
+                <p>Brain is the seed of intelligence hydrogen atoms citizens of distant epochs dream of the mind's eye, Jean-Francois Champollion, courage of our questions!</p>
+                <a href="#" class="call-to-action">Read More
+                  <span class="screen-reader-text">About...</span>
+                  <svg class="icon icon--chevron-right">
+                    <use xlink:href="#icon-chevron-right"></use>
+                  </svg>
+                  <svg class="icon icon--chevron-right">
+                    <use xlink:href="#icon-chevron-right"></use>
+                  </svg>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- ./content-item--featured -->
+    </div>
+
+    <div class="content-list__items">
+      <div class="content-list__container">
+        <div class="content-list__filters-wrapper">
+          <div class="content-list__filters">
+            <span class="content-list__filters-title">Filter:</span>
+            <form class="content-list__filter-form">
+              <select name="content-filter-location" class="content-list__filter">
+                <option value="1">Location</option>
+                <option value="2">Option</option>
+                <option value="3">Option</option>
+              </select>
+              <select name="content-filter-topic" class="content-list__filter">
+                <option value="1">Topic</option>
+                <option value="2">Option</option>
+                <option value="3">Option</option>
+              </select>
+              <button type="submit" class="content-list__filter-submit">Submit</button>
+            </form>
+          </div>
+        </div>
+        <script>
+          $(document).ready(function () {
+            var contentFilterToggle = document.querySelector('.content-list__filters-title');
+            var $contentFilterForm = $('.content-list__filter-form');
+
+            contentFilterToggle.addEventListener('click', function (event) {
+              if (window.innerWidth < 640) {
+                $contentFilterForm.slideToggle(null, function () {
+                  contentFilterToggle.classList.toggle('content-list__filters-title--active');
+                });
+              }
+            });
+          });
+        </script>
+        <!-- ./content-list__filters-wrapper -->
+
+        <div class="views-row">
+          <div class="node node--view-mode-teaser">
+            <div class="content-wrapper">
+              <a href="#" class="node-teaser-link">
+                <div class="field--name-field-hero-image">
+                  <img src="http://via.placeholder.com/640x330" alt="TODO: inlcude alt tag">
+                </div>
+              </a>
+              <div class="content">
+                <p class="time">
+                  <time datetime="2017-02-14">February 2, 2017</time>
+                </p>
+                <p class="category">Experiences</p>
+                <p class="title">
+                  <a href="#">The Title</a>
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="views-row">
+          <div class="node node--view-mode-teaser">
+            <div class="content-wrapper">
+              <a href="#" class="node-teaser-link">
+                <div class="field--name-field-hero-image">
+                  <img src="http://via.placeholder.com/640x330" alt="TODO: inlcude alt tag">
+                </div>
+              </a>
+              <div class="content">
+                <p class="time">
+                  <time datetime="2017-02-14">February 2, 2017</time>
+                </p>
+                <p class="category">Experiences</p>
+                <p class="title">
+                  <a href="#">The Title</a>
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="views-row">
+          <div class="node node--view-mode-teaser">
+            <div class="content-wrapper">
+              <a href="#" class="node-teaser-link">
+                <div class="field--name-field-hero-image">
+                  <img src="http://via.placeholder.com/640x330" alt="TODO: inlcude alt tag">
+                </div>
+              </a>
+              <div class="content">
+                <p class="time">
+                  <time datetime="2017-02-14">February 2, 2017</time>
+                </p>
+                <p class="category">Experiences</p>
+                <p class="title">
+                  <a href="#">The Title</a>
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="views-row">
+          <div class="node node--view-mode-teaser">
+            <div class="content-wrapper">
+              <a href="#" class="node-teaser-link">
+                <div class="field--name-field-hero-image">
+                  <img src="http://via.placeholder.com/640x330" alt="TODO: inlcude alt tag">
+                </div>
+              </a>
+              <div class="content">
+                <p class="time">
+                  <time datetime="2017-02-14">February 2, 2017</time>
+                </p>
+                <p class="category">Experiences</p>
+                <p class="title">
+                  <a href="#">The Title</a>
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="views-row">
+          <div class="node node--view-mode-teaser">
+            <div class="content-wrapper">
+              <a href="#" class="node-teaser-link">
+                <div class="field--name-field-hero-image">
+                  <img src="http://via.placeholder.com/640x330" alt="TODO: inlcude alt tag">
+                </div>
+              </a>
+              <div class="content">
+                <p class="time">
+                  <time datetime="2017-02-14">February 2, 2017</time>
+                </p>
+                <p class="category">Experiences</p>
+                <p class="title">
+                  <a href="#">The Title</a>
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="views-row">
+          <div class="node node--view-mode-teaser">
+            <div class="content-wrapper">
+              <a href="#" class="node-teaser-link">
+                <div class="field--name-field-hero-image">
+                  <img src="http://via.placeholder.com/640x330" alt="TODO: inlcude alt tag">
+                </div>
+              </a>
+              <div class="content">
+                <p class="time">
+                  <time datetime="2017-02-14">February 2, 2017</time>
+                </p>
+                <p class="category">Experiences</p>
+                <p class="title">
+                  <a href="#">The Title</a>
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- ./content-list__container -->
+
+
+      <div class="pagination__row">
+        <div class="pagination__container">
+          <nav class="pagination">
+            <div class="pagination__links">
+              <a href="#" class="pagination__link pagination__link--previous">
+                <span class="screen-reader-text">Previous Page</span>
+                <svg class="icon icon--arrow-left">
+                  <use xlink:href="#icon-arrow-left"></use>
+                </svg>
+              </a>
+              <ul class="pagination__pages-list">
+                <li class="pagination__page pagination__page--current">
+                  <span href="#" class="pagination__link">1</span>
+                </li>
+                <li class="pagination__page">
+                  <a href="#" class="pagination__link">2</a>
+                </li>
+                <li class="pagination__page">
+                  <a href="#" class="pagination__link">3</a>
+                </li>
+                <li class="pagination__page">
+                  <a href="#" class="pagination__link">4</a>
+                </li>
+                <li class="pagination__page">
+                  <a href="#" class="pagination__link">5</a>
+                </li>
+                <li class="pagination__page">
+                  <a href="#" class="pagination__link">6</a>
+                </li>
+                <li class="pagination__page-break">...</li>
+                <li class="pagination__page">
+                  <a href="#" class="pagination__link">10</a>
+                </li>
+              </ul>
+              <a href="#" class="pagination__link pagination__link--next">
+                <span class="screen-reader-text">Next Page</span>
+                <svg class="icon icon--arrow-right">
+                  <use xlink:href="#icon-arrow-right"></use>
+                </svg>
+              </a>
+            </div>
+          </nav>
+        </div>
+      </div>
+
+    </div>
+    <!-- ./content-list__items -->
+  </section>
+  <!-- /.content-list -->
+
+  <section class="article-header">
+    <div class="article-header__container">
+      <p class="article-header__time">
+        <time datetime="2017-02-14">February 2, 2017</time>
+      </p>
+      <img src="http://via.placeholder.com/290x125" alt="TODO: inlcude alt text" class="article-header__img">
+      <!-- Heading only shows if image is not chosen -->
+      <div class="article-header__content">
+        <h2>Fallback heading if no image</h2>
+        <p>Vivamus hendrerit arcu sed erat molestie vehicula. Sed auctor neque eu tellus rhoncus ut eleifend nibh porttitor. Ut in nulla enim. Phasellus molestie magna non est bibendum non venenatis nisl tempor. Suspendisse dictum feugiat nisl ut dapibus.</p>
+      </div>
+    </div>
+    <!-- /.article-header__container -->
+  </section>
+  <!-- /.article-header -->
+
+  <section class="timeline">
+    <div class="timeline__container">
+
+      <div class="timeline__intro">
+        <h2 class="timeline__heading">Project Timeline</h2>
+        <p class="timeline__subheading">The Port of San Diego has been pursuing redevelopment of the Central Embarcadero through an open, public, and competitive
+          process.
+        </p>
+        <button class="timeline__toggle-view">View as list</button>
+      </div>
+
+      <div class="timeline__milestones">
+        <!-- TODO: Requires some sort of unique ID for each timeline and milestone (in case of multiple timelines/milestones) -->
+        <input type="radio" class="timeline__milestone-toggle" name="timeline-1__milestone-toggle" id="timeline-1__milestone-1" checked>
+        <div class="timeline__milestone">
+          <label for="timeline-1__milestone-1" class="timeline__dot" tabindex="0">
+            <span class="screen-reader-text">Toggle Milestone</span>
+          </label>
+          <div class="timeline__content-wrapper">
+            <!--
+            // TODO: to calculate offset for each milestone
+
+            $milestones = {{array of timeline milestones}}
+            $gaps = count($milestones) + 1;
+            $halfway = $gaps / 2;
+            $padding = 15 // Padding from screen edge in px
+
+            // Note: Loop starts at 1
+            for ($i = 1, $i < $gaps; $i++) {
+              $paddingOffset = ($halfway - i) * ($padding / 2);
+              $percentageOffset = i * (100 / $gaps) * -1;
+
+              // USAGE:
+              // style="transform: translateX(calc( {{ $paddingOffset }}px + {{ $percentageOffset }}% ));
+            }
+            -->
+            <div class="timeline__content" style="transform: translateX(calc(15px + -16.6667%));">
+              <p class="timeline__milestone-date">
+                <time datetime="2015-10-06">October 6, 2015</time>
+              </p>
+              <div class="timeline__milestone-info">
+                Board of Port Commissioners directs staff to move forward on a redevelopment strategy for the Central Embarcadero.
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- /.timeline__milestone -->
+
+        <input type="radio" class="timeline__milestone-toggle" name="timeline-1__milestone-toggle" id="timeline-1__milestone-2">
+        <div class="timeline__milestone">
+          <label for="timeline-1__milestone-2" class="timeline__dot" tabindex="0">
+            <span class="screen-reader-text">Toggle Milestone</span>
+          </label>
+          <div class="timeline__content-wrapper">
+            <div class="timeline__content" style="transform: translateX(calc(7.5px + -33.3333%));">
+
+              <p class="timeline__milestone-date">
+                <time datetime="2015-10-06">October 6, 2015</time>
+              </p>
+              <div class="timeline__milestone-info">
+                Board of Port Commissioners directs staff to move forward on a redevelopment strategy for the Central Embarcadero.
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- /.timeline__milestone -->
+
+        <input type="radio" class="timeline__milestone-toggle" name="timeline-1__milestone-toggle" id="timeline-1__milestone-3">
+        <div class="timeline__milestone">
+          <label for="timeline-1__milestone-3" class="timeline__dot" tabindex="0">
+            <span class="screen-reader-text">Toggle Milestone</span>
+          </label>
+          <div class="timeline__content-wrapper">
+            <div class="timeline__content" style="transform: translateX(calc(0px + -50%));">
+
+              <p class="timeline__milestone-date">
+                <time datetime="2015-10-06">October 6, 2015</time>
+              </p>
+              <div class="timeline__milestone-info">
+                Board of Port Commissioners directs staff to move forward on a redevelopment strategy for the Central Embarcadero.
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- /.timeline__milestone -->
+
+        <input type="radio" class="timeline__milestone-toggle" name="timeline-1__milestone-toggle" id="timeline-1__milestone-4">
+        <div class="timeline__milestone">
+          <label for="timeline-1__milestone-4" class="timeline__dot" tabindex="0">
+            <span class="screen-reader-text">Toggle Milestone</span>
+          </label>
+          <div class="timeline__content-wrapper">
+            <div class="timeline__content" style="transform: translateX(calc(-7.5px + -66.6667%));">
+
+              <p class="timeline__milestone-date">
+                <time datetime="2015-10-06">October 6, 2015</time>
+              </p>
+              <div class="timeline__milestone-info">
+                Board of Port Commissioners directs staff to move forward on a redevelopment strategy for the Central Embarcadero.
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- /.timeline__milestone -->
+
+        <input type="radio" class="timeline__milestone-toggle" name="timeline-1__milestone-toggle" id="timeline-1__milestone-5">
+        <div class="timeline__milestone">
+          <label for="timeline-1__milestone-5" class="timeline__dot" tabindex="0">
+            <span class="screen-reader-text">Toggle Milestone</span>
+          </label>
+          <div class="timeline__content-wrapper">
+            <div class="timeline__content" style="transform: translateX(calc(-15px + -83.3333%));">
+              <p class="timeline__milestone-date">
+                <time datetime="2015-10-06">October 6, 2015</time>
+              </p>
+              <div class="timeline__milestone-info">
+                Board of Port Commissioners directs staff to move forward on a redevelopment strategy for the Central Embarcadero.
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- /.timeline__milestone -->
+      </div>
+      <!-- /.timeline__milestones -->
+    </div>
+    <!-- /.timeline__container -->
+  </section>
+  <script>
+    $(document).ready(function () {
+      // Enable keyboard click on timeline dots
+      var timelineDots = [].slice.call(document.querySelectorAll('.timeline__dot'));
+      timelineDots.forEach(function (timelineDot) {
+        enableClickWithKeyboard(timelineDot);
+      });
+
+      // Slightly adjust height of timelines in case milestones are extra tall or short.
+      var timelines = [].slice.call(document.querySelectorAll('.timeline'));
+
+      timelines.forEach(function (timeline) {
+
+        var toggleView = timeline.querySelector('.timeline__toggle-view');
+
+        toggleView.addEventListener('click', function (event) {
+          var $toggleBtn = $(event.target);
+          $toggleBtn.closest('.timeline').toggleClass('timeline--list-view')
+
+        })
+
+        //
+        if (window.innerWidth < 1024) {
+          var milestoneTrack = timeline.querySelector('.timeline__milestones');
+          var milestones = timeline.querySelectorAll('.timeline__milestone');
+          var trackHeight = milestoneTrack.offsetHeight;
+          var trackMarginTop = 0;
+          var trackMarginBottom = 0;
+
+          // Adjust milestoneTrack margin top and bottom based on content height and overlap
+          milestones.forEach(function (milestone) {
+            var contentHeight = milestone.querySelector('.timeline__content').offsetHeight;
+            var overlapTop = (contentHeight / 2) - milestone.offsetTop;
+            var overlapBottom = milestone.offsetTop + (contentHeight / 2) - trackHeight;
+
+            trackMarginTop = (overlapTop > trackMarginTop) ? overlapTop : trackMarginTop;
+            trackMarginBottom = (overlapBottom > trackMarginBottom) ? overlapBottom : trackMarginBottom;
+          });
+
+          milestoneTrack.style.marginTop = trackMarginTop + 'px';
+          milestoneTrack.style.marginBottom = trackMarginBottom + 'px';
+        }
+      });
+    });
+  </script>
+  <!-- /.timeline -->
+
+  <section class="faqs">
+    <div class="faqs__heading-section">
+      <div class="faqs__container">
+        <h2 class="faqs__heading faqs__heading--open" tabindex="0">Frequently Asked Questions
+          <span class="faqs__status-icon">
+              <svg class="icon icon--chevron-down">
+                <use xlink:href="#icon-chevron-down"></use>
+              </svg>
+            </span>
+        </h2>
+      </div>
+    </div>
+    <!-- /.faqs__heading-section -->
+
+    <div class="faqs__questions-drawer">
+      <div class="faqs__questions">
+        <div class="faqs__question-block">
+          <h4 class="faqs__question">How Did the Port Choose a Proposal?</h4>
+          <p class="faqs__answer">The goal was to select...</p>
+        </div>
+        <div class="faqs__question-block">
+          <h4 class="faqs__question">How Did the Port Choose a Proposal?</h4>
+          <p class="faqs__answer">The goal was to select...</p>
+        </div>
+      </div>
+    </div>
+    <!-- /.faqs__questions-drawer -->
+  </section>
+  <script>
+    $(document).ready(function () {
+
+      function toggleFaqDrawer(event) {
+        var $faqHeading = $(event.target);
+        var $faqSection = $faqHeading.closest('.faqs');
+        var $faqDrawer = $faqSection.find('.faqs__questions-drawer');
+
+        $faqDrawer.slideToggle(null, function () {
+          $faqHeading.toggleClass('faqs__heading--open')
+        })
+      }
+
+      var faqsHeadings = [].slice.call(document.querySelectorAll('.faqs__heading'));
+
+      faqsHeadings.forEach(function (heading) {
+        enableClickWithKeyboard(heading);
+        heading.addEventListener('click', toggleFaqDrawer);
+      })
+    })
+  </script>
+  <!-- /.faqs -->
+
+  <section class="documents">
+    <div class="documents__heading-section">
+      <div class="documents__heading-container">
+        <h2 class="documents__heading documents__heading--open" tabindex="0">Documents
+          <span class="documents__status-icon">
+              <svg class="icon icon--chevron-down">
+                <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#icon-chevron-down"></use>
+              </svg>
+            </span>
+        </h2>
+      </div>
+    </div>
+    <div class="documents__drawer">
+      <div class="documents__document">
+        <div class="documents__document-container">
+          <p class="documents__document-title">
+            <a href="#">Central Embarcadero Brochure
+              <span class="documents__icon">
+                  <svg class="icon icon--pdf">
+                    <use xlink:href="#icon-pdf"></use>
+                  </svg>
+                </span>
+            </a>
+          </p>
+        </div>
+      </div>
+      <!-- /.documents__document -->
+
+      <div class="documents__document">
+        <div class="documents__document-container">
+          <p class="documents__document-title">
+            <a href="#">Approval for Tenant Project Plan
+              <span class="documents__icon">
+                  <svg class="icon icon--pdf">
+                    <use xlink:href="#icon-pdf"></use>
+                  </svg>
+                </span>
+            </a>
+          </p>
+        </div>
+      </div>
+      <!-- /.documents__document -->
+
+      <div class="documents__document">
+        <div class="documents__document-container">
+          <p class="documents__document-title">
+            <a href="#">Central Embarcadero Brochure
+              <span class="documents__icon">
+                  <svg class="icon icon--pdf">
+                    <use xlink:href="#icon-pdf"></use>
+                  </svg>
+                </span>
+            </a>
+          </p>
+        </div>
+      </div>
+      <!-- /.documents__document -->
+    </div>
+    </div>
+    <!-- /.documents__documents-list -->
+  </section>
+  <script>
+    $(document).ready(function () {
+
+      function toggleDocumentsDrawer(event) {
+        var $documentsHeading = $(event.target);
+        var $documentsSection = $documentsHeading.closest('.documents');
+        var $documentsDrawer = $documentsSection.find('.documents__drawer');
+
+        $documentsDrawer.slideToggle(null, function () {
+          $documentsHeading.toggleClass('documents__heading--open')
+        })
+      }
+
+      var documentsHeadings = [].slice.call(document.querySelectorAll('.documents__heading'));
+
+      documentsHeadings.forEach(function (heading) {
+        enableClickWithKeyboard(heading);
+        heading.addEventListener('click', toggleDocumentsDrawer);
+      })
+    })
+  </script>
+  <!-- /.documents -->
+
+  Example Sidebar Template
+  <section class="sidebar-enabled">
+    <aside class="sidebar-enabled__sidebar">
+      <button class="sidebar__content-toggle">
+        <!-- This content can change per page -->
+        Toggle Sidebar (example text)
+        <svg class="icon icon--chevron-down">
+          <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#icon-chevron-down"></use>
+        </svg>
+      </button>
+      <div class="sidebar__sidebar-content">
+
+        <!-- This content can change per page -->
+        Example Sidebar Content
+
+      </div>
+      <!-- /.sidebar__sidebar-content -->
+    </aside>
+    <!-- /.sidebar -->
+
+    <main class="sidebar-enabled__main">
+      <div class="sidebar-enabled__main-container">
+
+        <!-- This content can change per page -->
+        Example Main Content with Sidebars
+
+      </div>
+    </main>
+    <!-- /.sidebar-enabled__main -->
+  </section>
+  <!-- /.sidebar-enabled -->
+  <script>
+    // .sidebar-enabled scripts
+    $(document).ready(function () {
+
+      var sidebarToggles = [].slice.call(document.querySelectorAll('.sidebar__content-toggle'));
+
+      sidebarToggles.forEach(function (toggle) {
+        toggle.addEventListener('click', function (event) {
+          var $toggle = $(event.target);
+          var $sidebarContent = $toggle.siblings('.sidebar__sidebar-content');
+
+          $sidebarContent.slideToggle('fast', function () {
+            $toggle.toggleClass('sidebar__content-toggle--active');
+          });
+        });
+      });
+    });
+  </script>
+
+  <section class="resources sidebar-enabled">
+    <aside class="sidebar-enabled__sidebar">
+      <button class="sidebar__content-toggle">
+        Advanced Search
+        <svg class="icon icon--chevron-down">
+          <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#icon-chevron-down"></use>
+        </svg>
+      </button>
+      <div class="sidebar__sidebar-content">
+
+        <div class="resources__sidebar-content">
+          <form class="sidebar__form">
+            <div class="sidebar__section">
+              <p class="sidebar__section-title">Advanced Search</p>
+
+              <label>
+                Keyword
+                <input type="search">
+              </label>
+            </div>
+
+            <div class="sidebar__section">
+              <p class="sidebar__section-title">Filters</p>
+
+              <fieldset class="sidebar__fieldset sidebar__fieldset--expandable sidebar__fieldset--open">
+                <!-- TODO: Make sure to include tabindex -->
+                <legend tabindex="0">
+                  <span class="screen-reader-text">Toggle </span>Topic
+                  <span class="screen-reader-text"> filters</span>
+                </legend>
+                <div class="sidebar__input-group">
+                  <label>
+                    <input type="checkbox" name="name"> Lorem Ipsum
+                  </label>
+                  <label>
+                    <input type="checkbox" name="name"> Lorem Ipsum
+                  </label>
+                  <label>
+                    <input type="checkbox" name="name"> Lorem Ipsum
+                  </label>
+                </div>
+              </fieldset>
+
+              <fieldset class="sidebar__fieldset sidebar__fieldset--expandable">
+                <!-- TODO: Make sure to include tabindex -->
+                <legend tabindex="0">
+                  <span class="screen-reader-text">Toggle </span>Location
+                  <span class="screen-reader-text"> filters</span>
+                </legend>
+                <div class="sidebar__input-group">
+                  <label>
+                    <input type="checkbox" name="name"> Lorem Ipsum
+                  </label>
+                  <label>
+                    <input type="checkbox" name="name"> Lorem Ipsum
+                  </label>
+                  <label>
+                    <input type="checkbox" name="name"> Lorem Ipsum
+                  </label>
+                </div>
+              </fieldset>
+
+              <fieldset class="sidebar__fieldset sidebar__fieldset--expandable">
+                <!-- TODO: Make sure to include tabindex -->
+                <legend tabindex="0">
+                  <span class="screen-reader-text">Toggle </span>Type
+                  <span class="screen-reader-text"> filters</span>
+                </legend>
+                <div class="sidebar__input-group">
+                  <label>
+                    <input type="checkbox" name="name"> Lorem Ipsum
+                  </label>
+                  <label>
+                    <input type="checkbox" name="name"> Lorem Ipsum
+                  </label>
+                  <label>
+                    <input type="checkbox" name="name"> Lorem Ipsum
+                  </label>
+                </div>
+              </fieldset>
+
+            </div>
+            <!-- /.sidebar__section -->
+
+            <input type="reset" value="Reset">
+            <input type="submit" value="Submit">
+          </form>
+        </div>
+
+      </div>
+      <!-- /.sidebar__sidebar-content -->
+
+      <script>
+        $(document).ready(function () {
+          // Get all expandable fieldsets as an array instead of nodeList
+          var expandableFieldsets = [].slice.call(document.querySelectorAll('.sidebar__fieldset--expandable legend'));
+
+          function toggleExpandableFieldsets(event) {
+            // jQuery for simple DOM navigation & animation
+            var $legend = $(event.target);
+            var $fieldSet = $legend.closest('.sidebar__fieldset');
+            var $inputGroup = $legend.siblings('.sidebar__input-group');
+
+            $inputGroup.slideToggle(null, function () {
+              $fieldSet.toggleClass('sidebar__fieldset--open');
+            });
+          };
+
+          // Add an 'click' event listener to each node
+          expandableFieldsets.forEach(function (fieldset) {
+            fieldset.addEventListener('click', toggleExpandableFieldsets);
+            enableClickWithKeyboard(fieldset);
+          });
+        });
+      </script>
+
+    </aside>
+    <!-- /.sidebar -->
+
+    <main class="sidebar-enabled__main">
+      <!-- <div class="sidebar-enabled__main-container"> -->
+
+      <!-- This content can change per page -->
+      <div class="resources__main-content">
+        <div class="resources__count-sort">
+          <h4 class="resources__count">Showing 16 of 45 Results</h4>
+          <!-- TODO: Add action or JS event for loading -->
+          <form action="http://127.0.0.1:8887/home.html" class="resources__sort-form">
+            <select name="resource-sort-options" class="resources__sort-options">
+              <option value="">Sort By</option>
+              <option value="1">Option</option>
+              <option value="2">Option</option>
+              <option value="3">Option</option>
+            </select>
+            <button type="submit" class="resources__sort-submit">Submit</button>
+          </form>
+          <script>
+            $(document).ready(function () {
+              var resourcesSortOptions = document.querySelector('.resources__sort-options');
+              resourcesSortOptions.addEventListener('change', function (event) {
+                event.target.form.submit();
+              });
+            });
+          </script>
+        </div>
+
+        <div class="resources__resource-wrapper">
+          <a href="#" class="resources__resource">
+            <h3 class="resources__title">2008 The Knight & Carver Way Newsletter</h3>
+            <div class="resources__info">
+                <span class="resources__link call-to-action">View
+                  <span class="screen-reader-text"> {{resource title}}</span>
+                  <svg class="icon icon--chevron-right">
+                    <use xlink:href="#icon-chevron-right"></use>
+                  </svg>
+                  <svg class="icon icon--chevron-right">
+                    <use xlink:href="#icon-chevron-right"></use>
+                  </svg>
+                </span>
+              <span class="resources__type resources__type--pdf">
+                  <svg class="icon icon--pdf">
+                    <use xlink:href="#icon-pdf"></use>
+                  </svg>
+                </span>
+            </div>
+          </a>
+        </div>
+        <!-- /.resources__resource-wrapper -->
+
+        <div class="resources__resource-wrapper">
+          <a href="#" class="resources__resource">
+            <h3 class="resources__title">Approval for Tenant Project Plan - BPC Policy 357</h3>
+            <div class="resources__info">
+              <div class="resources__link call-to-action">View
+                <span class="screen-reader-text"> {{resource title}}</span>
+                <svg class="icon icon--chevron-right">
+                  <use xlink:href="#icon-chevron-right"></use>
+                </svg>
+                <svg class="icon icon--chevron-right">
+                  <use xlink:href="#icon-chevron-right"></use>
+                </svg>
+              </div>
+              <span class="resources__type resources__type--link">
+                  <svg class="icon icon--link">
+                    <use xlink:href="#icon-link"></use>
+                  </svg>
+                </span>
+            </div>
+          </a>
+        </div>
+        <!-- /.resources__resource-wrapper -->
+
+        <div class="resources__resource-wrapper">
+          <a href="#" class="resources__resource">
+            <h3 class="resources__title">2008 The Knight & Carver Way Newsletter</h3>
+            <div class="resources__info">
+                <span class="resources__link call-to-action">View
+                  <span class="screen-reader-text"> {{resource title}}</span>
+                  <svg class="icon icon--chevron-right">
+                    <use xlink:href="#icon-chevron-right"></use>
+                  </svg>
+                  <svg class="icon icon--chevron-right">
+                    <use xlink:href="#icon-chevron-right"></use>
+                  </svg>
+                </span>
+              <span class="resources__type resources__type--pdf">
+                  <svg class="icon icon--pdf">
+                    <use xlink:href="#icon-pdf"></use>
+                  </svg>
+                </span>
+            </div>
+          </a>
+        </div>
+        <!-- /.resources__resource-wrapper -->
+
+        <div class="resources__resource-wrapper">
+          <a href="#" class="resources__resource">
+            <h3 class="resources__title">Approval for Tenant Project Plan - BPC Policy 357</h3>
+            <div class="resources__info">
+              <div class="resources__link call-to-action">View
+                <span class="screen-reader-text"> {{resource title}}</span>
+                <svg class="icon icon--chevron-right">
+                  <use xlink:href="#icon-chevron-right"></use>
+                </svg>
+                <svg class="icon icon--chevron-right">
+                  <use xlink:href="#icon-chevron-right"></use>
+                </svg>
+              </div>
+              <span class="resources__type resources__type--link">
+                  <svg class="icon icon--link">
+                    <use xlink:href="#icon-link"></use>
+                  </svg>
+                </span>
+            </div>
+          </a>
+        </div>
+        <!-- /.resources__resource-wrapper -->
+
+        <div class="resources__resource-wrapper">
+          <a href="#" class="resources__resource">
+            <h3 class="resources__title">2008 The Knight & Carver Way Newsletter</h3>
+            <div class="resources__info">
+                <span class="resources__link call-to-action">View
+                  <span class="screen-reader-text"> {{resource title}}</span>
+                  <svg class="icon icon--chevron-right">
+                    <use xlink:href="#icon-chevron-right"></use>
+                  </svg>
+                  <svg class="icon icon--chevron-right">
+                    <use xlink:href="#icon-chevron-right"></use>
+                  </svg>
+                </span>
+              <span class="resources__type resources__type--pdf">
+                  <svg class="icon icon--pdf">
+                    <use xlink:href="#icon-pdf"></use>
+                  </svg>
+                </span>
+            </div>
+          </a>
+        </div>
+        <!-- /.resources__resource-wrapper -->
+
+        <div class="resources__resource-wrapper">
+          <a href="#" class="resources__resource">
+            <h3 class="resources__title">Approval for Tenant Project Plan - BPC Policy 357</h3>
+            <div class="resources__info">
+              <div class="resources__link call-to-action">View
+                <span class="screen-reader-text"> {{resource title}}</span>
+                <svg class="icon icon--chevron-right">
+                  <use xlink:href="#icon-chevron-right"></use>
+                </svg>
+                <svg class="icon icon--chevron-right">
+                  <use xlink:href="#icon-chevron-right"></use>
+                </svg>
+              </div>
+              <span class="resources__type resources__type--link">
+                  <svg class="icon icon--link">
+                    <use xlink:href="#icon-link"></use>
+                  </svg>
+                </span>
+            </div>
+          </a>
+        </div>
+        <!-- /.resources__resource-wrapper -->
+
+        <div class="resources__pagination">
+          <nav class="pagination">
+            <div class="pagination__links">
+              <a href="#" class="pagination__link pagination__link--previous">
+                <span class="screen-reader-text">Previous Page</span>
+                <svg class="icon icon--arrow-left">
+                  <use xlink:href="#icon-arrow-left"></use>
+                </svg>
+              </a>
+              <ul class="pagination__pages-list">
+                <li class="pagination__page pagination__page--current">
+                  <span href="#" class="pagination__link">1</span>
+                </li>
+                <li class="pagination__page">
+                  <a href="#" class="pagination__link">2</a>
+                </li>
+                <li class="pagination__page">
+                  <a href="#" class="pagination__link">3</a>
+                </li>
+                <li class="pagination__page">
+                  <a href="#" class="pagination__link">4</a>
+                </li>
+                <li class="pagination__page">
+                  <a href="#" class="pagination__link">5</a>
+                </li>
+                <li class="pagination__page">
+                  <a href="#" class="pagination__link">6</a>
+                </li>
+                <li class="pagination__page-break">...</li>
+                <li class="pagination__page">
+                  <a href="#" class="pagination__link">10</a>
+                </li>
+              </ul>
+              <a href="#" class="pagination__link pagination__link--next">
+                <span class="screen-reader-text">Next Page</span>
+                <svg class="icon icon--arrow-right">
+                  <use xlink:href="#icon-arrow-right"></use>
+                </svg>
+              </a>
+            </div>
+          </nav>
+          <!-- /.pagination -->
+        </div>
+        <!-- /.resources__pagination -->
+      </div>
+      <!-- /.resources__main-content -->
+    </main>
+    <!-- /.resources__main -->
+  </section>
+  <!-- /.resources -->
+
+  <section class="task sidebar-enabled">
+    <aside class="sidebar-enabled__sidebar">
+      <button class="sidebar__content-toggle">
+        Jump To
+        <svg class="icon icon--chevron-down">
+          <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#icon-chevron-down"></use>
+        </svg>
+      </button>
+      <div class="sidebar__sidebar-content">
+
+        <div class="task__jumplinks">
+          <div class="task__jumplinks-group">
+            <div class="task__jumplinks-icon">
+              <svg class="icon icon--placeholder-square">
+                <use xlink:href="#icon-placeholder-square"></use>
+              </svg>
+            </div>
+            <h5 class="task__jumplinks-title">Directions</h5>
+            <ul class="task__jumplinks-list">
+              <li class="task__jumplink">
+                <a href="#parking">
+                  Parking</a>
+              </li>
+              <li class="task__jumplink">
+                <a href="#transportation">
+                  Transportation</a>
+              </li>
+            </ul>
+          </div>
+          <!-- /.task__jumplinks-group -->
+
+          <div class="task__jumplinks-group">
+            <div class="task__jumplinks-icon">
+              <svg class="icon icon--placeholder-square">
+                <use xlink:href="#icon-placeholder-square"></use>
+              </svg>
+            </div>
+            <h5 class="task__jumplinks-title">Directions</h5>
+            <ul class="task__jumplinks-list">
+              <li class="task__jumplink">
+                <a href="#weather">
+                  Weather</a>
+              </li>
+              <li class="task__jumplink">
+                <a href="#traffic">
+                  Traffic</a>
+              </li>
+              <li class="task__jumplink">
+                <a href="#closures">
+                  Closures</a>
+              </li>
+              <li class="task__jumplink">
+                <a href="#tides">
+                  Tides</a>
+              </li>
+              <li class="task__jumplink">
+                <a href="#water-quality">
+                  Water Quality</a>
+              </li>
+            </ul>
+          </div>
+          <!-- /.task__jumplinks-group -->
+        </div>
+        <!-- /.task__jumplinks -->
+
+      </div>
+      <!-- /.sidebar__sidebar-content -->
+    </aside>
+    <!-- /.sidebar -->
+
+    <main class="sidebar-enabled__main">
+      <div class="sidebar-enabled__main-container">
+
+        <section class="task__section">
+
+          <div class="section-divider">
+            <div class="section-divider__container">
+              <div class="section-divider__icon">
+                <svg class="icon icon--placeholder-square">
+                  <use xlink:href="#icon-placeholder-square"></use>
+                </svg>
+              </div>
+              <h3 class="section-divider__heading">Directions</h3>
+              <p class="section-divider__text">Venture extraplanetary. Quasar something incredible is waiting to be known, billions upon billions worldlets
+                corpus callosum great turbulent clouds concept of the number one. Radio telescope across the centuries
+                tingling of the spine concept of the number one gathered by gravity muse about gathered by gravity cosmic
+                ocean take root and flourish science Sea of Tranquility.</p>
+            </div>
+          </div>
+          <!-- /.section-divider -->
+
+          <div class="info-bullets">
+            <div class="info-bullets__media">
+              <!-- Can take Images and MAYBE Google Maps-->
+              <!-- TODO: Use GMaps API instead of embed? -->
+              <iframe src="https://www.google.com/maps/embed?pb=!1m14!1m12!1m3!1d13422.994612270928!2d-117.19575780000001!3d32.7458642!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!5e0!3m2!1sen!2sus!4v1508365234323"
+                frameborder="0" style="border:0" allowfullscreen></iframe>
+            </div>
+            <div class="info-bullets__text">
+              <h4 class="info-bullets__title">Planning for the Waterfront of the Future</h4>
+              <ul class="info-bullets__bullets">
+                <li class="info-bullets__bullet">Strengthening connectiosn to the waterfront</li>
+                <li class="info-bullets__bullet">Strengthening connectiosn to the waterfront</li>
+                <li class="info-bullets__bullet">Strengthening connectiosn to the waterfront</li>
+                <li class="info-bullets__bullet">Strengthening connectiosn to the waterfront</li>
+              </ul>
+            </div>
+            <!-- /.info-bullets__text -->
+          </div>
+          <!-- /.info-bullets -->
+
+          <div class="info-bullets">
+            <div class="info-bullets__media">
+              <!-- TODO: Check responsive sizes -->
+              <span class="info-bullets__image" style="background-image: url( 'http://via.placeholder.com/590x310');"></span>
+            </div>
+            <div class="info-bullets__text">
+              <h4 class="info-bullets__title">Planning for the Waterfront of the Future</h4>
+              <ul class="info-bullets__bullets">
+                <li class="info-bullets__bullet">Strengthening connectiosn to the waterfront</li>
+                <li class="info-bullets__bullet">Strengthening connectiosn to the waterfront</li>
+                <li class="info-bullets__bullet">Strengthening connectiosn to the waterfront</li>
+                <li class="info-bullets__bullet">Strengthening connectiosn to the waterfront</li>
+              </ul>
+            </div>
+            <!-- /.info-bullets__text -->
+          </div>
+          <!-- /.info-bullets -->
+
+          <a class="page-anchor" name="parking" tabindex="-1"></a>
+
+          <div class="sub-task">
+            <div class="sub-task__container">
+              <div class="sub-task__main">
+                <h3 class="sub-task__title">Parking</h3>
+                <p class="sub-task__content">A still more glorious dawn awaits Sea of Tranquility Jean-Francois Champollion, stirred by starlight. Something
+                  incredible is waiting to be known. Rich in mystery shores of the cosmic ocean, paroxysm of global death
+                  citizens of distant epochs rich in mystery colonies tendrils of gossamer clouds laws of physics the carbon
+                  in our apple pies finite but unbounded, encyclopaedia galactica hydrogen atoms</p>
+              </div>
+              <!-- /.sub-task__main -->
+
+              <div class="sub-task__related">
+                <h4 class="sub-task__related-heading">Related Tasks</h4>
+                <ul class="sub-task__related-tasks">
+                  <li class="sub-task__related-task">
+                    <a href="#">Parking Meters & Pay Stations</a>
+                  </li>
+                  <li class="sub-task__related-task">
+                    <a href="#">Parking Meters & Pay Stations</a>
+                  </li>
+                  <li class="sub-task__related-task">
+                    <a href="#">Parking Meters & Pay Stations</a>
+                  </li>
+                </ul>
+              </div>
+              <!-- /.sub-task__related -->
+            </div>
+            <!-- /.sub-task__container -->
+          </div>
+          <!-- /.sub-task -->
+
+          <div class="fact">
+            <div class="fact__container">
+              <div class="fact__content">
+                <div class="fact__icon">
+                  <svg class="icon icon--placeholder-square">
+                    <use xlink:href="#icon-placeholder-square"></use>
+                  </svg>
+                </div>
+                <!-- TODO: How do we do the strong tags? -->
+                <p class="fact__text">The Bayshore Bikeway is a
+                  <strong>24-mile</strong> circuit bicycling enthusiasts can take around San Diego Bay, and the Port of San Diego's
+                  member cities.</p>
+              </div>
+            </div>
+          </div>
+          <!-- /.fact -->
+
+          <div class="banner">
+            <div class="banner__container">
+              <div class="banner__contents">
+                <div class="banner__img" data-brand-angle="{&quot;breakpoints&quot;: [{ &quot;minWidth&quot;: 0, &quot;clipLeft&quot;: false, &quot;clipRight&quot;: true }]}">
+                  <div class="responsive-bg-img responsive-bg-img--small">
+                    <span class="responsive-bg-img__child" style="background-image: url( 'http://via.placeholder.com/600x242');"></span>
+                  </div>
+                  <div class="responsive-bg-img responsive-bg-img--medium">
+                    <span class="responsive-bg-img__child" style="background-image: url( 'http://via.placeholder.com/900x363');"></span>
+                  </div>
+                  <div class="responsive-bg-img responsive-bg-img--large">
+                    <span class="responsive-bg-img__child" style="background-image: url( 'http://via.placeholder.com/1080x440');"></span>
+                  </div>
+                </div>
+                <!-- /.banner__container -->
+
+                <div class="banner__text-column">
+                  <h4 class="banner__heading">San Diego Waterfront Parking Lots</h4>
+                  <a href="#" class="banner__cta btn">View Parking Lots</a>
+                </div>
+              </div>
+              <!-- /.banner__contents -->
+            </div>
+            <!-- /.banner__container -->
+          </div>
+          <!-- /.banner -->
+
+        </section>
+        <!-- /.task__section -->
+
+      </div>
+    </main>
+    <!-- /.sidebar-enabled__main -->
+
+    <!-- </div> -->
+    <!-- /.sidebar-enabled__container -->
+
+  </section>
+  <!-- /.task -->
+
+</main>
+<!-- /.main -->
+
+<footer class="footer">
+  <div class="footer__main">
+    <div class="footer__left">
+      <div class="footer__menus">
+        <div class="footer__menu">
+          <h4 class="footer__menu-title">Title</h4>
+          <nav role="navigation">
+            <ul class="menu">
+              <li class="menu-item">
+                <a href="#">Link text</a>
+              </li>
+              <li class="menu-item">
+                <a href="#">Link text</a>
+              </li>
+              <li class="menu-item">
+                <a href="#">Link text</a>
+              </li>
+              <li class="menu-item">
+                <a href="#">Link text</a>
+              </li>
+              <li class="menu-item">
+                <a href="#">Link text</a>
+              </li>
+            </ul>
+          </nav>
+        </div>
+        <div class="footer__menu">
+          <h4 class="footer__menu-title">Title</h4>
+          <nav role="navigation">
+            <ul class="menu">
+              <li class="menu-item">
+                <a href="#">Link text</a>
+              </li>
+              <li class="menu-item">
+                <a href="#">Link text</a>
+              </li>
+              <li class="menu-item">
+                <a href="#">Link text</a>
+              </li>
+              <li class="menu-item">
+                <a href="#">Link text</a>
+              </li>
+              <li class="menu-item">
+                <a href="#">Finance and Budget Info</a>
+              </li>
+            </ul>
+          </nav>
+        </div>
+      </div>
+    </div>
+    <!-- /.footer__left -->
+
+    <div class="footer__right">
+      <div class="footer__stay-informed">
+        <h4 class="footer__stay-informed-title">Stay Informed</h4>
+        <ul class="footer__social-links">
+          <li>
+            <a href="#" class="footer__social-link icon-twitter">
+              <span class="screen-reader-text">Twitter</span>
+              <svg class="icon icon--placeholder-square">
+                <use xlink:href="#icon-placeholder-square" overflow="visible"/>
+              </svg>
+            </a>
+          </li>
+          <li>
+            <a href="#" class="footer__social-link icon-facebook">
+              <span class="screen-reader-text">Facebook</span>
+              <svg class="icon icon--placeholder-square">
+                <use xlink:href="#icon-placeholder-square" overflow="visible"/>
+              </svg>
+            </a>
+          </li>
+          <li>
+            <a href="#" class="footer__social-link icon-youtube">
+              <span class="screen-reader-text">YouTube</span>
+              <svg class="icon icon--placeholder-square">
+                <use xlink:href="#icon-placeholder-square" overflow="visible"/>
+              </svg>
+            </a>
+          </li>
+          <li>
+            <a href="#" class="footer__social-link icon-linkedin">
+              <span class="screen-reader-text">LinkedIn</span>
+              <svg class="icon icon--placeholder-square">
+                <use xlink:href="#icon-placeholder-square" overflow="visible"/>
+              </svg>
+            </a>
+          </li>
+          <li>
+            <a href="#" class="footer__social-link icon-instagram">
+              <span class="screen-reader-text">Instagram</span>
+              <svg class="icon icon--placeholder-square">
+                <use xlink:href="#icon-placeholder-square" overflow="visible"/>
+              </svg>
+            </a>
+          </li>
+          <li>
+            <a href="#" class="footer__social-link icon-pinterest">
+              <span class="screen-reader-text">Pinterest</span>
+              <svg class="icon icon--placeholder-square">
+                <use xlink:href="#icon-placeholder-square" overflow="visible"/>
+              </svg>
+            </a>
+          </li>
+          <li>
+            <a href="#" class="footer__social-link icon-flickr">
+              <span class="screen-reader-text">Flickr</span>
+              <svg class="icon icon--placeholder-square">
+                <use xlink:href="#icon-placeholder-square" overflow="visible"/>
+              </svg>
+            </a>
+          </li>
+          <li>
+            <a href="#" class="footer__social-link icon-rss">
+              <span class="screen-reader-text">RSS</span>
+              <svg class="icon icon--placeholder-square">
+                <use xlink:href="#icon-placeholder-square" overflow="visible"/>
+              </svg>
+            </a>
+          </li>
+        </ul>
+      </div>
+      <!-- /.footer__stay-informed -->
+
+      <div class="footer__get-notified">
+        <p class="footer__get-notified-title">Get notified of upcoming news and events.</p>
+        <form class="footer__sign-up">
+          <label>Name
+            <input type="text">
+          </label>
+          <label>Email
+            <input type="email">
+          </label>
+          <div class="submit">
+            <input type="submit" value="Sign Up">
+          </div>
+        </form>
+      </div>
+
+      <div class="footer__contact-info">
+        <div class="footer__location">
+          <svg class="icon icon--location">
+            <use xlink:href="#icon-location"></use>
+          </svg>
+          Administration Building
+        </div>
+        <div class="footer__address">
+          3165 Pacific Highway
+          <br>San Diego, CA 92101
+          <br>
+          <a href="tel:+01-619-686-6200">(619) 686-6200</a>
+        </div>
+        <div class="footer__hours">
+          8:00 a.m. - 5:00 p.m.
+          <br>Closed on alternate Fridays.
+        </div>
+      </div>
+
+    </div>
+    <!-- /.footer__right -->
+  </div>
+  <!-- /.footer__main -->
+
+  <div class="footer__copyright-wrapper">
+    <div class="footer__copyright">
+      <p>&copy; 2018 Port of San Diego</p>
+      <ul>
+        <li>
+          <a href="#" class="footer__terms-link">Terms</a>
+        </li>
+        <li>
+          <a href="#" class="footer__privacy-link">Privacy</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+<svg version="1.1" xmlns="http://www.w3.org/2000/svg" style="display:none;">
+  <symbol id="icon-placeholder-square" viewBox="0 0 365 365" width="365" height="365">
+    <path d="M0 0h365v365H0z"/>
+  </symbol>
+</svg>
+
+<svg style="display: none;"><symbol viewBox="0 0 38.256 29.774" id="icon-arrow-left"><title>arrow-left</title><path d="M11.88 28.755L.977 17.343c-1.304-1.36-1.304-3.508 0-4.87l10.9-11.454C12.49.37 13.34 0 14.227 0c.89 0 1.74.37 2.348 1.02 1.293 1.38 1.293 3.53 0 4.91l-5.238 5.48H34.92c1.862.077 3.333 1.608 3.336 3.472.003 1.864-1.463 3.4-3.325 3.483H11.347l5.24 5.477c1.292 1.382 1.292 3.53 0 4.913-.61.65-1.463 1.02-2.354 1.02-.89 0-1.743-.37-2.353-1.02z"/></symbol><symbol viewBox="0 0 38.256 29.774" id="icon-arrow-right"><title>arrow-right</title><path d="M26.377 1.02l10.9 11.41c1.305 1.362 1.305 3.51 0 4.87l-10.9 11.455c-.608.65-1.458 1.02-2.347 1.02-.89 0-1.74-.37-2.348-1.02-1.293-1.382-1.293-3.53 0-4.913l5.238-5.477H3.336C1.474 18.287.003 16.755 0 14.892c-.003-1.864 1.463-3.4 3.325-3.483H26.91l-5.24-5.48c-1.292-1.38-1.292-3.53 0-4.91C22.28.37 23.134 0 24.025 0c.89 0 1.743.37 2.353 1.02z"/></symbol><symbol viewBox="0 0 18.96 16.442" id="icon-chevron-down"><title>chevron-down</title><path d="M3.965 0l5.48 12.307L14.962 0h4l-7.618 16.442H7.62L0 0h3.965z"/></symbol><symbol viewBox="0 0 16.442 18.96" id="icon-chevron-right"><title>chevron-right</title><path d="M0 14.994l12.307-5.48L0 4V0l16.442 7.618v3.723L0 18.96v-3.966z"/></symbol><symbol viewBox="0 0 18.96 25.182" id="icon-download"><title>download</title><path d="M11.342 16.44L18.96 0h-4L9.447 12.306 3.966 0H0l7.62 16.44h3.722zM0 22.117h18.96v3.065H0z"/></symbol><symbol viewBox="0 0 19.333 17.333" id="icon-grid"><title>grid</title><path d="M0 0h3.333v3.333H0zM8 0h3.333v3.333H8zM16 0h3.333v3.333H16zM0 7h3.333v3.333H0zM8 7h3.333v3.333H8zM16 7h3.333v3.333H16zM0 14h3.333v3.333H0zM8 14h3.333v3.333H8zM16 14h3.333v3.333H16z"/></symbol><symbol viewBox="0 0 16.618 25.166" id="icon-link"><title>link</title><path d="M11.51 2.23c.596-.594 1.56-.594 2.155 0 .595.596.595 1.56 0 2.156l-3.878 3.94c1.176.373 2.462.052 3.324-.83l1.848-1.848c1.292-1.292 1.292-3.387 0-4.68-1.292-1.29-3.387-1.29-4.68 0L8.433 2.817c-.865.872-1.183 2.148-.83 3.324l3.91-3.91z"/><path d="M11.418 4.51c-.17-.178-.402-.278-.647-.278-.243 0-.476.1-.645.277L5.2 9.433c-.235.23-.33.57-.245.887.084.32.333.567.65.65.32.085.658-.008.888-.243l4.925-4.925c.177-.17.277-.402.277-.647 0-.244-.1-.478-.277-.646z"/><path d="M9.017 9.126l-3.94 3.88c-.595.594-1.56.594-2.155 0-.595-.596-.595-1.56 0-2.156l3.91-3.91c-1.177-.367-2.46-.046-3.325.832L1.66 9.62c-1.292 1.29-1.292 3.386 0 4.678 1.292 1.292 3.387 1.29 4.68 0l1.846-1.847c.864-.872 1.183-2.147.83-3.324zM.87 20.21H0v4.956h3.475v-.793H.87V20.21zM4.433 20.21h.87v4.956h-.87zM10.09 23.637L7.435 20.21h-.807v4.956h.857V21.64l2.732 3.526h.73V20.21h-.857v3.427zM14.46 22.342l2.066-2.13H15.45l-2.357 2.49v-2.49h-.87v4.954h.87V23.73l.772-.794 1.692 2.23h1.06l-2.158-2.824z"/></symbol><symbol viewBox="0 0 19.333 17.333" id="icon-list"><title>list</title><path d="M0 0h3.333v3.333H0zM0 7h3.333v3.333H0zM0 14h3.333v3.333H0zM8 0h11.333v3.333H8zM8 7h11.333v3.333H8zM8 14h11.333v3.333H8z"/></symbol><symbol viewBox="0 0 25.146 34.277" id="icon-location"><title>location</title><path d="M19.387 2.05C16.592.203 13.167-.432 9.894.292c-3.272.724-6.11 2.745-7.866 5.6-2.704 4.252-2.704 9.684 0 13.936l.087.09c.088.09.088.267.175.357l9.16 13.4c.205.303.524.512.884.58.36.066.733-.014 1.034-.223.157-.07.282-.2.35-.357l9.07-13.4c.11-.103.198-.224.263-.358l.088-.09c3.756-5.965 2.096-13.836-3.75-17.777zm-6.804 16.17C10.403 18.272 8.41 17 7.54 15c-.87-2-.444-4.326 1.08-5.886 1.523-1.56 3.84-2.042 5.858-1.22 2.02.823 3.34 2.786 3.34 4.966.025 2.922-2.313 5.316-5.235 5.36z"/></symbol><symbol viewBox="0 0 20.994 28.648" id="icon-pdf"><title>pdf</title><path d="M10.098 24.49h-.975v3.362h.975c.455.03.902-.135 1.23-.452.326-.318.503-.76.487-1.215v-.014c.017-.456-.16-.9-.486-1.22-.328-.32-.775-.487-1.232-.46zM9.654 4.896c.36-.67.533-1.427.496-2.188-.02-.985-.258-2.033-.674-2.033-.19 0-.174 1.49-.174 1.49-.002.922.116 1.84.352 2.73zM1.282 19.546c.636-.292 1.605-1.21 3.052-3.518-.195.188-.41.39-.496.46-1.07.815-1.943 1.86-2.556 3.058zM5.412 24.49h-1.01v1.78h1.01c.657 0 1.067-.368 1.067-.884v-.014c0-.58-.418-.882-1.068-.882zM9.513 9.023c-.456 1.182-.984 2.334-1.58 3.45q-.463.87-.902 1.65c1.787-.67 3.627-1.18 5.502-1.532-.14-.11-.28-.22-.41-.327-1.06-.91-1.945-2.01-2.61-3.24zM19.617 13.348c-.563-.157-1.148-.22-1.732-.188-.415 0-.88.02-1.387.057.94.49 1.963.798 3.016.912.248.004.494-.038.727-.125.13-.08.12-.466-.623-.657z" fill="none"/><path d="M20.954 13.177c-.05-.203-.156-.387-.31-.53-.82-.525-1.794-.756-2.762-.653-1.113 0-2.223.083-3.324.245-.552-.297-1.07-.654-1.54-1.066-1.25-1.206-2.202-2.684-2.784-4.318.04-.158.073-.295.107-.436.316-1.668.48-3.36.49-5.06-.014-.122-.043-.244-.087-.36l-.057-.148c-.152-.48-.588-.816-1.092-.837l-.33-.01H9.26c-.55-.048-1.063.275-1.26.79-.402 1.488.014 3.716.768 6.597l-.195.47c-.538 1.32-1.215 2.645-1.81 3.814l-.078.15c-.63 1.23-1.2 2.276-1.72 3.16l-.53.282c-.04.02-.956.506-1.17.633C1.44 16.99.235 18.224.034 19.2c-.102.335.023.697.308.9l.516.26c.218.11.46.167.703.168 1.296 0 2.8-1.615 4.874-5.233 2.452-.793 4.962-1.39 7.508-1.783 1.67.98 3.54 1.574 5.47 1.736.217.004.433-.02.644-.07.257-.064.484-.22.64-.436.265-.475.355-1.03.254-1.565zm-19.672 6.37c.613-1.2 1.486-2.244 2.556-3.06.087-.07.302-.27.496-.46-1.447 2.31-2.416 3.227-3.052 3.52zM9.476.674c.416 0 .654 1.048.674 2.033.037.76-.135 1.517-.496 2.188-.235-.89-.354-1.81-.352-2.73 0 0-.017-1.49.174-1.49zM7.03 14.122q.438-.78.902-1.648c.597-1.117 1.125-2.27 1.58-3.45.665 1.23 1.55 2.328 2.61 3.24.132.106.27.217.41.327-1.875.352-3.715.864-5.5 1.532zm13.21-.117c-.232.087-.48.13-.727.124-1.053-.115-2.075-.424-3.015-.913.506-.036.972-.057 1.387-.057.584-.033 1.17.03 1.732.188.744.19.754.576.623.657zM5.483 23.698h-1.95v4.945h.87v-1.59h.98c1.09 0 1.98-.578 1.98-1.687v-.015c0-.478-.204-.936-.565-1.253-.36-.317-.84-.462-1.315-.4zm.996 1.688c0 .516-.41.884-1.068.884h-1.01v-1.78h1.01c.65 0 1.067.303 1.067.883v.013zM10.098 23.698H8.254v4.945h1.844c.682.042 1.35-.2 1.85-.668.496-.468.778-1.12.778-1.804v-.013c0-.682-.283-1.334-.78-1.8-.5-.465-1.167-.704-1.848-.66zm1.717 2.487c.016.455-.16.897-.488 1.215-.327.317-.774.482-1.23.452h-.974V24.49h.975c.457-.027.904.14 1.23.46.328.32.504.764.487 1.22v.015zM13.78 28.643h.87V26.63h2.493v-.79H14.65v-1.35h2.81v-.792h-3.68v4.945z"/></symbol><symbol viewBox="0 0 100 100" id="icon-search"><title>search</title> <path d="M98.66053,92.21681l-.00371-.00719-25.625-25.62848a40.98066,40.98066,0,1,0-6.44358,6.451L92.213,98.66061a4.55777,4.55777,0,0,0,6.44751-6.4438ZM63.5413,63.5379a31.9196,31.9196,0,0,1-22.56017,9.337l.00349.00349A31.89058,31.89058,0,1,1,63.5413,63.5379Z"/> </symbol><symbol viewBox="0 0 100 100" id="icon-social-facebook"><title>social-facebook</title> <path d="M40.215,89.9975V52.4625H30.01V38.9475H40.215V27.4025c0-9.07,6.03-17.4,19.925-17.4a86.77151,86.77151,0,0,1,9.785.525l-.325,12.62s-4.245-.04-8.875-.04c-5.015,0-5.81,2.245-5.81,5.97v9.87H69.99l-.65,13.515H54.915v37.535Z"/> </symbol><symbol viewBox="0 0 100 100" id="icon-social-flickr"><title>social-flickr</title> <path d="M50.00252,5a45,45,0,1,0,44.995,45A44.994,44.994,0,0,0,50.00252,5Zm-19.01,59.565a14.74,14.74,0,1,1,14.745-14.74A14.73447,14.73447,0,0,1,30.99251,64.565Zm38.14,0a14.74,14.74,0,1,1,14.745-14.74A14.7387,14.7387,0,0,1,69.13246,64.565Z"/> </symbol><symbol viewBox="0 0 100 100" id="icon-social-instagram"><title>social-instagram</title> <path d="M82.395,7.5H17.605A10.09435,10.09435,0,0,0,7.5,17.58V82.42A10.09435,10.09435,0,0,0,17.605,92.5h64.79A10.09435,10.09435,0,0,0,92.5,82.42V17.58A10.09435,10.09435,0,0,0,82.395,7.5ZM66.545,19.56a2.37821,2.37821,0,0,1,2.38-2.375H80.415A2.374,2.374,0,0,1,82.79,19.56V31.025a2.36971,2.36971,0,0,1-2.375,2.37H68.925a2.374,2.374,0,0,1-2.38-2.37ZM50.1,33.79A16.30754,16.30754,0,1,1,33.755,50.1,16.33066,16.33066,0,0,1,50.1,33.79ZM82.99,80.245A2.374,2.374,0,0,1,80.61,82.615H19.585a2.37288,2.37288,0,0,1-2.375-2.37V43.28h7.95a25.855,25.855,0,1,0,49.88,0H82.99Z"/> </symbol><symbol viewBox="0 0 100 100" id="icon-social-linkedin"><title>social-linkedin</title> <path d="M84.08,10H15.905A5.83636,5.83636,0,0,0,10,15.765v68.46A5.84152,5.84152,0,0,0,15.905,90H84.08A5.85457,5.85457,0,0,0,90,84.225V15.765A5.84942,5.84942,0,0,0,84.08,10ZM33.725,78.17H21.865V39.99h11.86ZM27.8,34.775a6.88,6.88,0,1,1,6.875-6.885A6.88177,6.88177,0,0,1,27.8,34.775ZM78.17,78.17H66.31V59.6c0-4.425-.085-10.12-6.16-10.12-6.18,0-7.125,4.825-7.125,9.805V78.17H41.17V39.99H52.55v5.22h.155a12.47626,12.47626,0,0,1,11.23-6.17c12.015,0,14.235,7.91,14.235,18.19Z"/> </symbol><symbol viewBox="0 0 100 100" id="icon-social-pinterest"><title>social-pinterest</title> <path d="M50.005,2.5A47.5024,47.5024,0,0,0,30.935,93.51,41.70768,41.70768,0,0,1,31.76,82.6c.915-3.855,6.11-25.88,6.11-25.88A18.28248,18.28248,0,0,1,36.355,49.205c0-7.04,4.075-12.3,9.16-12.3,4.32,0,6.41,3.245,6.41,7.135,0,4.34-2.77,10.84-4.19494,16.855-1.195,5.04,2.52494,9.15,7.495,9.15,9,0,15.06-11.56,15.06-25.255,0-10.41-7.01-18.205-19.765-18.205-14.41,0-23.385,10.745-23.385,22.75a13.72117,13.72117,0,0,0,3.13,9.315,2.30243,2.30243,0,0,1,.685,2.645c-.23.88-.755,2.98-.965,3.815A1.64333,1.64333,0,0,1,27.6,66.3c-6.63-2.71-9.725-9.98-9.725-18.15,0-13.49,11.38-29.67,33.95005-29.67,18.135,0,30.07,13.125,30.07,27.21,0,18.63-10.355,32.555-25.63,32.555-5.12505,0-9.95-2.775-11.605-5.92,0,0-2.755,10.94-3.34,13.055a39.76658,39.76658,0,0,1-4.78,10.175A47.50084,47.50084,0,1,0,50.005,2.5Z"/> </symbol><symbol viewBox="0 0 100 100" id="icon-social-rss"><title>social-rss</title> <path d="M74.60747,90c-.21988-35.65-29.095-64.59-64.57489-64.59V10c43.965,0,79.74991,35.85,79.96994,80ZM62.80754,90H47.40746a37.5432,37.5432,0,0,0-10.95-26.26,37.03065,37.03065,0,0,0-26.44-11.01V37.32A52.98942,52.98942,0,0,1,62.80754,90Zm-42.14-21.365a10.6725,10.6725,0,1,1-10.67,10.67A10.66522,10.66522,0,0,1,20.6675,68.635Z"/> </symbol><symbol viewBox="0 0 100 100" id="icon-social-twitter"><title>social-twitter</title> <path d="M95.0025,21.38a36.33362,36.33362,0,0,1-10.605,2.98,18.88614,18.88614,0,0,0,8.12-10.475,36.46292,36.46292,0,0,1-11.725,4.595,18.24021,18.24021,0,0,0-13.48-5.98,18.7047,18.7047,0,0,0-18.465,18.935,19.778,19.778,0,0,0,.475,4.315,51.99764,51.99764,0,0,1-38.055-19.785,19.27551,19.27551,0,0,0,5.715,25.28,18.02451,18.02451,0,0,1-8.365-2.37v.24a18.8358,18.8358,0,0,0,14.81,18.565,18.04477,18.04477,0,0,1-8.34.325,18.55537,18.55537,0,0,0,17.25,13.145,36.45692,36.45692,0,0,1-22.93,8.105,37.77448,37.77448,0,0,1-4.41-.26,51.37618,51.37618,0,0,0,28.31,8.505c33.965,0,52.535-28.85,52.535-53.87,0-.82-.02-1.64-.05-2.45A38.12359,38.12359,0,0,0,95.0025,21.38Z"/> </symbol><symbol viewBox="0 0 100 100" id="icon-social-youtube"><title>social-youtube</title> <path d="M73.875,14.9825H26.125C0,14.9825,0,22.4975,0,40.9725v18.055c0,17.57,3.705,25.99,26.125,25.99h47.75c20.255,0,26.125-4.925,26.125-25.99V40.9725C100,21.5275,99.01,14.9825,73.875,14.9825ZM39.78,63.7225V35.3775l26.955,14.13Z"/> </symbol><symbol viewBox="0 0 100 77.56382" id="icon-weather"><title>weather</title> <path d="M11.78668,33.895a2.44785,2.44785,0,0,0-2.44449-2.44242H2.41959a2.44252,2.44252,0,0,0,0,4.88483h6.9226a2.44075,2.44075,0,0,0,2.44241-2.44034ZM33.87217,11.80743A2.44252,2.44252,0,0,0,36.31459,9.365V2.44242a2.44138,2.44138,0,1,0-4.88275,0V9.365a2.44429,2.44429,0,0,0,2.44656,2.44242ZM14.79975,18.27558a2.44246,2.44246,0,0,0,3.45508-3.453L13.36377,9.9253a2.44463,2.44463,0,0,0-3.45715,3.45714l4.89313,4.89106Zm0,31.23884L9.90247,54.41171a2.44312,2.44312,0,0,0,3.45715,3.453l4.89728-4.89313a2.44391,2.44391,0,0,0-3.45507-3.45715ZM51.21809,18.99564a2.43729,2.43729,0,0,0,1.72651-.71591l4.89728-4.89313A2.44311,2.44311,0,0,0,54.3868,9.93152l-4.89728,4.89313a2.44248,2.44248,0,0,0,1.7265,4.171Zm-23.536,26.933A13.62993,13.62993,0,1,1,43.52356,24.16269a26.88629,26.88629,0,0,1,4.27474-2.56692A18.51585,18.51585,0,1,0,24.13571,49.54348a20.94418,20.94418,0,0,1,3.54846-3.61071ZM82.6935,42.955a17.508,17.508,0,0,0-2.03361.12036,21.37631,21.37631,0,0,0-42.55032,2.93214q0,.62255.03735,1.24508a15.268,15.268,0,0,0,2.60842,30.31127H82.6935a17.30339,17.30339,0,1,0,0-34.60677Zm0,29.72194H40.75534a10.383,10.383,0,0,1-.06225-20.76572l3.13343.06226-.54783-2.94667a16.48737,16.48737,0,1,1,32.69558-3.08363v3.37l3.14588-.94417a12.41587,12.41587,0,1,1,3.57543,24.30587Z"/> </symbol></svg>
+</body>
+
+</html>

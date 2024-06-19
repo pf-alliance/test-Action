@@ -1,0 +1,130 @@
+// Body styles, page wrapper, etc.
+#main-content {
+  // For the screen reader's skip to content link
+  &:focus {
+    outline: none;
+  }
+}
+
+.call-to-action {
+  display: inline-block;
+  position: relative;
+  padding-right: 1.3em; // For static chevron
+  font-size: rem-calc(14);
+  font-weight: 600;
+  text-decoration: none !important;
+  text-transform: uppercase;
+
+  &--download {
+    margin-right: 0;
+  }
+
+  .icon--chevron-right,
+  .icon--download {
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 0.8em;
+    height: 0.8em;
+  }
+
+  .icon--chevron-right + .icon--chevron-right {
+    opacity: 0;
+    transition: opacity $transition-time ease, right $transition-time ease;
+    will-change: opacity, right;
+  }
+
+  &:hover,
+  &:focus {
+    .icon--chevron-right + .icon--chevron-right {
+      opacity: 1;
+      right: -0.8em;
+    }
+  }
+}
+
+// For visually hidden but accessible content
+.screen-reader-text {
+  clip: rect(1px, 1px, 1px, 1px);
+  position: absolute !important;
+  height: 1px;
+  width: 1px;
+  overflow: hidden;
+
+  &:focus {
+    background-color: $blue;
+    border-radius: $border-radius;
+    box-shadow: 0 0 rem-calc(2) rem-calc(2) transparentize($black, 0.4);
+    clip: auto !important;
+    color: $white;
+    display: block;
+    font-size: rem-calc(14);
+    font-weight: bold;
+    height: auto;
+    left: rem-calc(5);
+    line-height: normal;
+    padding: rem-calc(15) rem-calc(23) rem-calc(14);
+    text-decoration: none;
+    top: rem-calc(5);
+    width: auto;
+    z-index: 100000;
+  }
+}
+
+// Elements that need background images with responsive breakpoints
+.responsive-bg-img {
+  display: none;
+  position: relative;
+
+  &--small {
+    @include breakpoint(small only) {
+      display: block;
+    }
+  }
+
+  &--medium {
+    @include breakpoint(medium only) {
+      display: block;
+    }
+  }
+
+  &--large {
+    @include breakpoint(large) {
+      display: block;
+    }
+  }
+
+  &__child {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background-size: cover;
+    background-position: center;
+  }
+}
+
+.hero-image-social-image {
+  display: none !important;
+}
+
+.page-anchor {
+  // Visibly hide element, but allow to be focused
+  clip: rect(1px, 1px, 1px, 1px);
+  position: absolute !important;
+  height: 1px;
+  width: 1px;
+  overflow: hidden;
+
+  .no-js & {
+    height: rem-calc(60); // Rough height of the header
+    margin-top: -rem-calc(60);
+    @include breakpoint(large) {
+      height: rem-calc(140);
+      margin-top: -rem-calc(140);
+    }
+  }
+}
+

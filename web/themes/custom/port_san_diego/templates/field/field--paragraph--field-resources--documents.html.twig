@@ -1,0 +1,38 @@
+{#
+/**
+ * @file
+ * Theme override for a field.
+ */
+#}
+{%
+  set classes = [
+    'field',
+    'field--name-' ~ field_name|clean_class,
+    'field--type-' ~ field_type|clean_class,
+    'field--label-' ~ label_display,
+  ]
+%}
+{%
+  set title_classes = [
+    'field__label',
+    label_display == 'visually_hidden' ? 'visually-hidden',
+  ]
+%}
+<section class="documents">
+  <div class="documents__heading-section">
+    <div class="documents__heading-container">
+      <h2 class="documents__heading" tabindex="0">Documents
+        <span class="documents__status-icon">
+          <svg class="icon icon--chevron-down" alt="down chevron">
+            <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#icon-chevron-down"></use>
+          </svg>
+        </span>
+      </h2>
+    </div>
+  </div>
+  <div{{ attributes.addClass(classes, 'documents__drawer') }}>
+    {% for item in items %}
+      <div{{ item.attributes.addClass('documents__document') }}><div class="documents__document-container">{{ item.content }}</div></div>
+    {% endfor %}
+  </div>
+</section>

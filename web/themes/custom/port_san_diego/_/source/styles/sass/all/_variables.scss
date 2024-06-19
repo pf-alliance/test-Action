@@ -1,0 +1,63 @@
+@import '../foundation-sites/scss/util/unit';
+
+// Colors.
+$black: #000;
+$blue-dark: #003066;
+$blue-gradient: #2d2f8f;
+$blue-light: #008bca;
+$blue: #006298;
+$brown-dark: #613728;
+$brown-light: #d6a77b;
+$brown: #946037;
+$deep-blue-dark: #05003f;
+$deep-blue-light: #005aa0;
+$deep-blue: #002d72;
+$grey-dark: #787072;
+$grey-light: #d6d4d6;
+$grey-lighter: #e1e1e1;
+$grey: #a39b9d;
+$morning-clay: #a39b9d;
+$required: #d00f0f;
+$teal-dark: #00976a;
+$teal-gradient: #3d9d95;
+$teal-light: #28bcb6;
+$teal: #00b388;
+$white: #fff;
+$yellow-dark: #f78d1e;
+$yellow-light: #ffd500;
+$yellow: #f2a900;
+
+// Derivative colors.
+$highlight: $blue;
+$map-background: scale-color($morning-clay, $lightness: 95%);
+$morning-clay-light: scale-color($morning-clay, $lightness: 95%);
+$sand-dark: $grey-lighter;
+$sand-light: $grey-lighter;
+$sand: $grey-lighter;
+
+$drop-shadow: transparentize($black, 0.95);
+
+// Fonts.
+$font1: 'Gotham A', 'Gotham B', sans-serif;
+
+// Vars.
+$border-radius: rem-calc(4);
+$header-primary-size: rem-calc(100);
+$header-secondary-size: rem-calc(40);
+$transition-time: 0.25s;
+$narrow-content-width: rem-calc(938);
+$global-spacing: (
+  'small': rem-calc(25),
+  'medium': rem-calc(37.5),
+  'large': rem-calc(50),
+);
+
+// Foundation Overrides.
+$body-font-family: $font1;
+$header-font-family: $font1;
+$global-width: rem-calc(1290);
+$global-lineheight: 1.5em;
+$paragraph-lineheight: $global-lineheight;
+$hr-border: 1px solid $sand;
+$hr-margin: 0 auto rem-calc(20) auto;
+$tooltip-max-width: rem-calc(250);

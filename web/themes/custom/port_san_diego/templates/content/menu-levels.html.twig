@@ -1,0 +1,58 @@
+{#
+/**
+ * @file
+ * Default theme implementation to each level of menu.
+ */
+#}
+{% import _self as menu %}
+
+{{ menu.menu_links(items, attributes, 0) }}
+
+{% macro menu_links(items, attributes, menu_level) %}
+  <ul class="menu menu-level-{{ items|first.menu_level }}">
+  {% for key, item in items %}
+    {% if key|first != '#' %}
+
+      {% set menu_item_classes = [
+        'menu-item',
+        item.is_expanded ? 'menu-item--expanded',
+        item.is_collapsed ? 'menu-item--collapsed',
+        item.in_active_trail ? 'menu-item--active-trail',
+      ] %}
+
+      <li{{ item.attributes.addClass(menu_item_classes) }}>
+        {% if items|first.menu_level == 0 %}
+          <input type="radio" name="parent-level-menu-item" id="parent-level-{{ key }}">
+          <label for="parent-level-{{ key }}">
+            {{ link(item.title, item.url) }}
+          </label>
+          <label for="parent-level-off-{{ key }}">{{ 'Close'|t }}<span class="box"></span>
+            <input type="radio" name="parent-level-menu-item" id="parent-level-off-{{ key }}">
+          </label>
+        {% elseif items|first.menu_level == 1 %}
+          {% if item.url|render is not empty %}
+            <span class="call-to-action">{{ link(item.title, item.url) }}
+              <svg class="icon icon--chevron-right" alt="right chevron">
+                <use xlink:href="#icon-chevron-right"></use>
+              </svg>
+              <svg class="icon icon--chevron-right" alt="right chevron">
+                <use xlink:href="#icon-chevron-right"></use>
+              </svg>
+            </span>
+          {% else %}
+            <span class="call-to-action">{{ item.title }}</span>
+          {% endif %}
+        {% else %}
+          {{ link(item.title, item.url) }}
+        {% endif %}
+
+        {% set rendered_content = item.content|without('')|render %}
+        {% if rendered_content %}
+          {{ rendered_content }}
+        {% endif %}
+      </li>
+    {% endif %}
+
+  {% endfor %}
+  </ul>
+{% endmacro %}

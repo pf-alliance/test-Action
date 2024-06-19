@@ -1,0 +1,65 @@
+{#
+/**
+ * @file
+ * Theme override for a main view template.
+ */
+#}
+{%
+  set classes = [
+    'view',
+    'view-' ~ id|clean_class,
+    'view-id-' ~ id,
+    'view-display-id-' ~ display_id,
+    dom_id ? 'js-view-dom-id-' ~ dom_id,
+  ]
+%}
+<div{{ attributes.addClass(classes) }}>
+  {{ title_prefix }}
+  {% if title %}
+    {{ title }}
+  {% endif %}
+  {{ title_suffix }}
+  {% if header %}
+    <div class="view-header">
+      {{ header }}
+    </div>
+  {% endif %}
+  {% if attachment_before %}
+    {{ attachment_before }}
+  {% endif %}
+
+  <div class="resources__main-content">
+    {% if rows %}
+      <div class="resources__count-sort">
+        <h4 class="search__count">{{ 'Showing :t Result:p'|t({':t': total, ':p': plural}) }}</h4>
+      </div>
+      {{ rows }}
+    {% elseif empty %}
+      <div class="view-empty">
+        {{ empty }}
+      </div>
+    {% endif %}
+
+    {% if pager %}
+      <div class="pagination__row">
+        <div class="pagination__container">
+          {{ pager }}
+        </div>
+      </div>
+    {% endif %}
+  </div>
+
+  {% if attachment_after %}
+    <div class="attachment attachment-after">
+      {{ attachment_after }}
+    </div>
+  {% endif %}
+  {% if more %}
+    {{ more }}
+  {% endif %}
+  {% if footer %}
+    <div class="view-footer">
+      {{ footer }}
+    </div>
+  {% endif %}
+</div>

@@ -1,0 +1,11 @@
+@import 'variables';
+@import 'mixins';
+
+@import '../foundation-sites/scss/foundation';
+
+@include foundation-global-styles;
+@include foundation-typography-base;
+@include foundation-typography-helpers;
+@include foundation-visibility-classes;
+@include foundation-float-classes;
+@include foundation-reveal;

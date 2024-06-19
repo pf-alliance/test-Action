@@ -1,0 +1,16 @@
+{% extends 'paragraph.html.twig' %}
+{#
+/**
+ * @file
+ * Default theme implementation to display a paragraph.
+ */
+#}
+{% block content %}
+  <section class="cta-box">
+    <h2 class="cta-box__heading">{{ content.field_title }}</h2>
+    <div class="cta-box__body">{{ content.field_body }}</div>
+    <div class="cta-box__container">
+      {{ content.field_cta_request_form }}
+    </div>
+  </section>
+{% endblock %}

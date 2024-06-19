@@ -1,0 +1,11 @@
+{% extends 'block.html.twig' %}
+{#
+/**
+ * @file
+ * Theme override to display a block.
+ */
+#}
+{% block content %}
+  <p class="sidebar__section-title">{{ 'Advanced Search'|t }}</p>
+  {{ content }}
+{% endblock %}

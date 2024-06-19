@@ -1,0 +1,14 @@
+.view-people {
+  .content-list__items {
+    background-color: transparent;
+
+    .views-row {
+      @include breakpoint(medium) {
+        @include flex-grid-size(6 of 12);
+      }
+      @include breakpoint(large) {
+        @include flex-grid-size(4 of 12);
+      }
+    }
+  }
+}

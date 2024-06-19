@@ -1,0 +1,120 @@
+.node--type-person {
+  &.node--view-mode-full {
+    @include global-spacing;
+
+    header {
+      @include flex-grid-row;
+      justify-content: center;
+
+      + .field--name-field-paragraphs {
+        // sass-lint:disable force-pseudo-nesting
+        > .paragraph:first-child {
+          margin-top: rem-calc(40);
+        }
+      }
+    }
+
+    .header-wrapper {
+      @include flex-grid-row;
+
+      @include breakpoint(medium) {
+        @include grid-row-nest;
+        @include flex-grid-size(9);
+      }
+    }
+
+    .field--name-field-headshot {
+      @include flex-grid-column;
+
+      @include breakpoint(medium) {
+        @include flex-grid-size(1 of 3);
+      }
+    }
+
+    .header-info {
+      @include flex-grid-column;
+
+      @include breakpoint(medium) {
+        @include flex-grid-size(2 of 3);
+      }
+
+      .person-title {
+        position: relative;
+
+        @include breakpoint(medium) {
+          padding-bottom: 1.25rem;
+
+          &::after {
+            background-color: $grey-light;
+            content: '';
+            height: 1px;
+            left: 0;
+            position: absolute;
+            top: 100%;
+            width: 100%;
+          }
+        }
+      }
+
+      .field--name-field-title,
+      .field--name-field-email {
+        margin-top: rem-calc(10);
+      }
+    }
+  }
+
+  &.node--view-mode-teaser {
+    background-color: scale-color($morning-clay, $lightness: 90%);
+    height: 100%;
+    padding: rem-calc(10);
+
+    .content-wrapper {
+      display: flex;
+    }
+
+    .field--name-field-headshot {
+      margin: 0;
+    }
+
+    .teaser-link {
+      flex: 0 0 40%;
+      max-width: 40%;
+
+      + .content {
+        max-width: 60%;
+      }
+    }
+
+    .content {
+      display: flex;
+      flex: 1 1 60%;
+      flex-direction: column;
+      padding: 0 rem-calc(15);
+
+      &__bottom {
+        margin-top: auto;
+        padding-bottom: rem-calc(20);
+      }
+    }
+
+    .title {
+      line-height: 1.25em;
+      margin-bottom: rem-calc(10);
+    }
+
+    .field--name-field-email {
+      a {
+        @include link-inverted;
+        align-items: center;
+        display: flex;
+        line-height: 1em;
+        margin-top: rem-calc(10);
+
+        svg {
+          font-size: 1.25em;
+          margin-right: rem-calc(8);
+        }
+      }
+    }
+  }
+}

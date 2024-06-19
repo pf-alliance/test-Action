@@ -1,0 +1,30 @@
+{#
+/**
+ * @file
+ * Theme override for a field.
+ */
+#}
+{%
+  set classes = [
+    'field',
+    'field--name-' ~ field_name|clean_class,
+    'field--type-' ~ field_type|clean_class,
+    'field--label-' ~ label_display,
+    'sub-task__related',
+  ]
+%}
+{%
+  set title_classes = [
+    'field__label',
+    label_display == 'visually_hidden' ? 'visually-hidden',
+    'sub-task__related-heading'
+  ]
+%}
+<div{{ attributes.addClass(classes) }}>
+  <h4{{ title_attributes.addClass(title_classes) }}>{{ label }}</h4>
+  <ul class="sub-task__related-tasks field__items">
+    {% for item in items %}
+      <li{{ item.attributes.addClass('field__item', 'sub-task__related-task') }}>{{ item.content }}</li>
+    {% endfor %}
+  </ul>
+</div>

@@ -1,0 +1,100 @@
+.supporting-information {
+  @include flex-grid-row(null, expand);
+}
+
+.supporting-info__heading {
+  @include flex-grid-column(100%);
+  color: $teal;
+  margin-bottom: map-get($global-spacing, small);
+  text-align: center;
+  @include breakpoint(medium) {
+    margin-bottom: map-get($global-spacing, medium);
+  }
+  @include breakpoint(large) {
+    margin-bottom: map-get($global-spacing, large);
+  }
+}
+
+.supporting-info__block {
+  @include flex-grid-column(100%);
+  padding-bottom: rem-calc(15);
+  display: flex;
+  flex-direction: column;
+  @include breakpoint(850) {
+    @include flex-grid-column(50%);
+    padding-bottom: 0;
+  }
+  @include breakpoint(large) {
+    flex-direction: row;
+  }
+
+  &:last-child {
+    padding-bottom: 0;
+  }
+}
+
+.supporting-info__tumbnail {
+  height: rem-calc(130);
+  width: 100%;
+  border-radius: $border-radius $border-radius 0 0;
+  background-size: cover;
+  background-position: center;
+  display: block;
+  @include breakpoint(large) {
+    height: 100%;
+    min-width: 25%;
+    max-width: rem-calc(180);
+    border-radius: $border-radius 0 0 $border-radius;
+  }
+
+  + .supporting-info__content {
+    border-radius: 0 0 $border-radius $border-radius;
+    @include breakpoint(large) {
+      border-radius: 0 $border-radius $border-radius 0;
+      max-width: 75%;
+    }
+  }
+}
+
+.supporting-info__content {
+  background-color: $blue;
+  border-radius: $border-radius;
+  color: $white;
+  flex-grow: 1;
+  max-width: 100%;
+  padding: rem-calc(20) rem-calc(35) rem-calc(25);
+  @include breakpoint(large) {
+    padding-top: rem-calc(50);
+    padding-bottom: rem-calc(60);
+  }
+}
+
+.supporting-info__title {
+  margin-bottom: rem-calc(20);
+
+  &::after {
+    display: block;
+    content: '';
+    height: 1px;
+    margin-top: rem-calc(20);
+    width: calc(100% + #{rem-calc(35)});
+    background: $blue-dark;
+  }
+}
+
+.supporting-info__text {
+  @include breakpoint(medium) {
+    margin-bottom: rem-calc(35);
+  }
+
+  @include not-btn {
+    @include white-link-on-dark;
+  }
+}
+
+.supporting-info__link {
+  a {
+    @include white-link-on-dark;
+    text-decoration: none;
+  }
+}

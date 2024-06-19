@@ -1,0 +1,285 @@
+.hero {
+  position: relative;
+  overflow: hidden;
+  color: $white;
+
+  &::before {
+    background: linear-gradient($teal-gradient 0%, $blue-gradient 100%);
+    content: '';
+    height: 100%;
+    left: 0;
+    min-height: rem-calc(660); // Match the height of the homepage slider to keep consistent gradients across the site.
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+
+  @include not-btn {
+    @include white-link-on-dark;
+  }
+
+  .responsive-bg-img--small {
+    @include breakpoint(small down) {
+      display: block;
+    }
+  }
+
+  &__heading {
+    max-width: 100%;
+  }
+
+  &__text {
+    max-width: 100%;
+
+    @include not-btn {
+      @include white-link-on-dark;
+    }
+  }
+
+  // IE11 and Edge hack
+  @include edge-ie-hack {
+    &::before {
+      min-height: 0;
+    }
+  }
+}
+
+.hero__container {
+  @include flex-grid-row;
+  flex-flow: row;
+  position: relative;
+  @include breakpoint(small down) {
+    flex-direction: column-reverse;
+  }
+}
+
+.header-video--btn {
+  @include grid-column-gutter;
+  position: absolute;
+  right: 0;
+  top: rem-calc(40);
+
+  button {
+    background-color: transparent;
+    border: 2px solid $white;
+    border-radius: 100%;
+    color: $white;
+    height: rem-calc(60);
+    position: relative;
+    width: rem-calc(60);
+  }
+
+  svg {
+    height: auto;
+    left: 53%;
+    position: absolute;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 38%;
+  }
+
+  &:hover {
+    button {
+      border-color: $blue;
+      color: $blue;
+    }
+  }
+}
+
+.hero__location {
+  @include location-w-icon;
+  margin-top: rem-calc(35);
+}
+
+.hero__content,
+.hero__img {
+  @include flex-grid-column(shrink);
+  position: relative;
+  @include breakpoint(small down) {
+    min-width: 100%;
+    max-width: none;
+  }
+  @include breakpoint(medium) {
+    flex-grow: 1;
+  }
+}
+
+.hero__content {
+  align-self: center;
+  max-width: 100%;
+  padding-top: rem-calc(30);
+  padding-bottom: rem-calc(30);
+  text-align: center;
+  @include breakpoint(small down) {
+    background: linear-gradient($teal-gradient 0%, $blue-gradient 100%);
+  }
+  @include breakpoint(medium) {
+    flex-basis: rem-calc(415);
+    padding-top: rem-calc(40);
+    padding-bottom: rem-calc(40);
+    text-align: left;
+  }
+
+  .page-node-type-event &,
+  .page-node-type-press-release & {
+    @include breakpoint(large) {
+      flex-basis: rem-calc(800);
+    }
+  }
+
+  .wonderfront-logo {
+    display: none;
+    margin-bottom: rem-calc(30);
+    max-width: rem-calc(240);
+    @include breakpoint(medium) {
+      display: block;
+    }
+  }
+}
+
+.hero__img {
+  min-height: rem-calc(175);
+  padding: 0 !important;
+  position: relative;
+  @include breakpoint(medium) {
+    flex-basis: 100%;
+    flex-shrink: 1;
+  }
+  @include breakpoint($global-width) {
+    margin-right: calc((#{$global-width} - 100vw) / 2);
+  }
+
+  .responsive-bg-img {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+  }
+
+  .page-node-type-event &,
+  .page-node-type-press-release &,
+  .page-node-type-travel-mode & {
+    display: none;
+    @include breakpoint(medium) {
+      display: block;
+    }
+  }
+
+  .page-node-type-post & {
+    @include breakpoint(medium) {
+      min-height: rem-calc(350);
+    }
+  }
+
+  // IE11 and Edge hack
+  @include edge-ie-hack {
+    &::before {
+      @include clip-angle;
+      background-image: url('../img/clip-gradient.svg');
+    }
+  }
+}
+
+.hero-watermark {
+  left: 50%;
+  margin: 0 rem-calc(15);
+  max-height: calc(100% - #{rem-calc(30)});
+  max-width: calc(100% - #{rem-calc(60)});
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  @include breakpoint(medium) {
+    bottom: rem-calc(30);
+    left: auto;
+    right: 0;
+    top: auto;
+    transform: none;
+  }
+  @include breakpoint($global-width) {
+    right: calc((100vw - #{$global-width}) / 2);
+  }
+}
+
+// Task
+.page-node-type-travel-mode {
+  .hero__content {
+    align-items: center;
+    @include breakpoint(medium) {
+      align-items: flex-start;
+    }
+  }
+
+  .hero__form-submit {
+    display: none;
+    @include breakpoint(medium) {
+      margin-left: rem-calc(20);
+    }
+  }
+
+  .no-js {
+    .hero__form-submit {
+      display: block;
+    }
+  }
+}
+
+.hero__task-selection {
+  @include breakpoint(medium) {
+    margin-left: rem-calc(-20);
+  }
+}
+
+.hero__task-options {
+  margin-bottom: 0;
+  border: none;
+  padding-left: $global-padding;
+  padding-right: rem-calc(50);
+  font-size: rem-calc(28);
+  font-weight: 500;
+  color: $white;
+  background-color: transparent;
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 18.96 16.442"><path d="M3.965 0l5.48 12.307L14.962 0h4l-7.618 16.442H7.62L0 0h3.965z" fill="#{$white}"/></svg>'); // icon-chevron-down SVG
+  background-size: rem-calc(15);
+  @include breakpoint(medium) {
+    font-size: rem-calc(48);
+    text-transform: uppercase;
+  }
+
+  &:focus {
+    background-color: $teal;
+  }
+}
+
+.hero__task-option {
+  font-size: rem-calc(16);
+  font-weight: 500;
+}
+
+.hero__nav {
+  @include flex-grid-column;
+  display: flex;
+  align-items: center;
+  flex: none;
+  position: relative;
+  max-width: 100%;
+
+  > .menu {
+    @include flex-grid-row(nest);
+    @include list-inline;
+    justify-content: center;
+    @include breakpoint(medium) {
+      justify-content: flex-start;
+    }
+
+    > .menu-item {
+      padding: 0 $global-padding;
+
+      > a {
+        @extend h5;
+        @include white-link-border-top;
+      }
+    }
+  }
+}

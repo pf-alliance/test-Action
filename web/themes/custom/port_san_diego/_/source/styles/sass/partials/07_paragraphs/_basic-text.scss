@@ -1,0 +1,91 @@
+.basic-text {
+  @include flex-grid-row;
+  padding-top: rem-calc(40);
+  padding-bottom: rem-calc(40);
+  @include breakpoint(medium) {
+    padding-top: rem-calc(55);
+    padding-bottom: rem-calc(60);
+  }
+}
+
+.basic-text__container {
+  @include flex-grid-column;
+}
+
+.basic-text__content {
+  max-width: $narrow-content-width;
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
+
+  &--columns {
+    @include breakpoint(medium) {
+      max-width: none;
+      column-count: 2;
+      text-align: left;
+    }
+  }
+}
+
+.basic-text__cta {
+  margin-top: rem-calc(40);
+  text-align: center;
+}
+
+// sass-lint:disable force-pseudo-nesting
+.paragraph--type--basic-text {
+  .field--name-field-paragraphs > & {
+    @include flex-grid-row;
+    justify-content: center;
+
+    > .content {
+      @include flex-grid-column;
+
+      @include breakpoint(medium) {
+        @include flex-grid-size(9);
+      }
+    }
+
+    .field--name-field-body {
+      > h2:first-child {
+        + * {
+          margin-top: rem-calc(35);
+        }
+      }
+
+      > .two-col {
+        margin-bottom: rem-calc(27);
+        max-width: none;
+        @include breakpoint($global-width) {
+          margin-left: rem-calc(-195);
+          margin-right: rem-calc(-195);
+        }
+
+        &:last-child {
+          margin-bottom: 0;
+        }
+      }
+
+      blockquote {
+        border-left: none;
+        display: flex;
+        margin-bottom: rem-calc(27);
+        padding: 0;
+
+        p {
+          color: $black;
+        }
+
+        &:before {
+          color: $blue;
+          content: '“';
+        }
+
+        &:after {
+          color: $blue;
+          content: '”';
+        }
+      }
+    }
+  }
+}

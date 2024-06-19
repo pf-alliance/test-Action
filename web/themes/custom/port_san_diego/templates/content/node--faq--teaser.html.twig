@@ -1,0 +1,11 @@
+{% extends 'node.html.twig' %}
+{#
+/**
+ * @file
+ * Theme override to display a node.
+ */
+#}
+{% block content %}
+  <h4 class="faqs__question faqs__question--open" tabindex="0">{{ label }}</h4>
+  <div class="faqs__answer">{{ content }}</div>
+{% endblock %}

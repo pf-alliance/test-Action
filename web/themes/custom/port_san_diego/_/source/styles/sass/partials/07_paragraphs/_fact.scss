@@ -1,0 +1,46 @@
+.fact {
+  @include flex-grid-row;
+}
+
+.fact__container {
+  @include flex-grid-column;
+}
+
+.fact__content {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  border-radius: $border-radius;
+  padding-top: $global-padding;
+  padding-bottom: $global-padding;
+  text-align: center;
+  color: $white;
+  background-color: $deep-blue;
+  @include breakpoint(large) {
+    padding: rem-calc(20) rem-calc(45);
+    text-align: left;
+  }
+
+  @include not-btn {
+    @include white-link-on-dark;
+  }
+}
+
+.fact__icon,
+.fact__text {
+  padding: $global-padding;
+}
+
+.fact__icon {
+  font-size: rem-calc(90);
+  fill: $white;
+}
+
+.fact__text {
+  @extend h3;
+  flex: 0 0 100%;
+  align-self: center;
+  @include breakpoint(large) {
+    flex: 1 1 0;
+  }
+}

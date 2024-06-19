@@ -1,0 +1,62 @@
+.block-events-calendar-block {
+  @include flex-grid-row;
+  @include grid-column-gutter;
+  @include global-spacing;
+
+  .pre-calendar {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    font-size: rem-calc(13.6);
+    margin-bottom: rem-calc(15);
+    width: 100%;
+    @include breakpoint(medium) {
+      justify-content: flex-end;
+      margin-top: rem-calc(-5);
+    }
+
+    > strong {
+      width: 100%;
+      @include breakpoint(medium) {
+        width: auto;
+      }
+    }
+
+    .category {
+      border-radius: 3px;
+      font-weight: 500;
+      line-height: 1;
+      margin-bottom: rem-calc(5);
+      margin-right: rem-calc(10);
+      margin-top: rem-calc(5);
+      padding: rem-calc(5);
+      @include breakpoint(medium) {
+        margin-left: rem-calc(10);
+        margin-right: 0;
+      }
+
+      &:last-of-type {
+        margin-right: 0;
+      }
+    }
+  }
+
+  .ellipsis {
+    position: absolute;
+
+    &::after {
+      animation: ellipsis steps(4, end) 900ms infinite;
+      content: '\2026';
+      display: inline-block;
+      overflow: hidden;
+      vertical-align: bottom;
+      width: 0;
+    }
+  }
+
+  @keyframes ellipsis {
+    to {
+      width: 1.15em;
+    }
+  }
+}

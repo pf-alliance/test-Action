@@ -1,0 +1,165 @@
+.form-type-checkbox {
+  align-items: flex-start;
+  display: flex;
+  margin-top: rem-calc(10);
+
+  input {
+    margin-right: rem-calc(8);
+    margin-top: rem-calc(2);
+  }
+}
+
+.user-login-form,
+.webform-submission-form {
+  @include flex-grid-row;
+
+  .form-required {
+    &::after {
+      color: $required;
+      content: ' * ';
+      font-weight: bold;
+    }
+  }
+
+  .form-item,
+  .webform-required {
+    @include flex-grid-column(100%);
+  }
+
+  .form-item {
+    flex-direction: column;
+    margin-top: rem-calc(10);
+    @include breakpoint(medium) {
+      margin-top: rem-calc(15);
+    }
+
+    &.form-type-textfield,
+    &.form-type-password,
+    &.form-type-select,
+    &.form-type-email,
+    &.form-type-tel {
+      @include breakpoint(medium) {
+        @include flex-grid-size(50%);
+      }
+    }
+
+    &.form-type-date {
+      @include breakpoint(medium) {
+        @include flex-grid-size(50%);
+      }
+    }
+
+    label {
+      font-size: rem-calc(14);
+      margin-bottom: rem-calc(2);
+    }
+
+    input,
+    textarea,
+    select {
+      margin: 0;
+
+      &[type='checkbox'],
+      &[type='radio'] {
+        border: initial;
+      }
+    }
+
+    textarea {
+      height: initial;
+      resize: none;
+    }
+
+    select {
+      &[multiple] {
+        background-image: none;
+        height: auto;
+      }
+    }
+
+    .description {
+      margin-top: rem-calc(5);
+    }
+  }
+
+  .form-composite {
+    display: flex;
+    flex-flow: row wrap;
+    margin-top: 0;
+    padding: 0;
+
+    .form-item {
+      @include breakpoint(medium) {
+        @include flex-grid-size(50%);
+      }
+
+      &[class*='state-province'],
+      &[class*='postal-code'] {
+        @include breakpoint(medium) {
+          @include flex-grid-size(25%);
+        }
+      }
+    }
+  }
+
+  .form-actions {
+    @include flex-grid-column(100%);
+    text-align: center;
+
+    input,
+    button {
+      margin-top: rem-calc(10);
+      @include breakpoint(medium) {
+        margin-top: rem-calc(15);
+      }
+    }
+  }
+}
+
+// sass-lint:disable nesting-depth
+.region--sidebar {
+  .views-exposed-form {
+    .webform-type-checkboxes {
+      &.processed {
+        > legend {
+          cursor: pointer;
+          position: relative;
+
+          &::before,
+          &::after {
+            background: $black;
+            content: '';
+            display: block;
+            height: rem-calc(2);
+            position: absolute;
+            right: rem-calc(5);
+            top: 50%;
+            transform: translateY(-50%);
+            transition: transform $transition-time;
+            width: rem-calc(10);
+          }
+
+          &::after {
+            transform: translateY(-50%) rotate(90deg);
+          }
+        }
+
+        &.open {
+          > legend {
+            &::after {
+              transform: translateY(-50%);
+            }
+          }
+
+          .fieldset-wrapper {
+            display: block;
+          }
+        }
+
+        .fieldset-wrapper {
+          display: none;
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,35 @@
+{
+  "name": "port-san-diego",
+  "version": "0.0.0",
+  "engines": {
+    "node": ">=20.14.0 <21.0.0",
+    "npm": ">=10.7"
+  },
+  "scripts": {
+    "compile": "gulp",
+    "watch": "gulp watch",
+    "build": "gulp build"
+  },
+  "devDependencies": {
+    "css-element-queries": "^1.2.3",
+    "foundation-sites": "^6.8.1",
+    "gulp": "^5.0.0",
+    "gulp-cheerio": "^1.0.0",
+    "gulp-clean-css": "^4.3.0",
+    "gulp-download2": "^1.1.0",
+    "gulp-jshint": "^2.1.0",
+    "gulp-postcss": "^10.0.0",
+    "gulp-rename": "^2.0.0",
+    "gulp-sass": "^5.1.0",
+    "gulp-sass-globbing": "^0.0.2",
+    "gulp-sass-lint": "^1.4.0",
+    "gulp-sourcemaps": "^3.0.0",
+    "gulp-svgmin": "^4.1.0",
+    "gulp-svgstore": "^9.0.0",
+    "gulp-uglify": "^3.0.2",
+    "node-sass": "^9.0.0",
+    "postcss-cssnext": "^3.1.1",
+    "slick-carousel": "^1.8.1",
+    "sticky-sidebar": "^3.3.1"
+  }
+}

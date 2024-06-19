@@ -1,0 +1,183 @@
+.taskbar {
+  color: $highlight;
+  display: flex;
+  flex-direction: column;
+  margin: auto;
+  max-width: rem-calc(1420);
+  padding: rem-calc(12);
+  text-align: center;
+
+  @include breakpoint(large) {
+    flex-direction: row;
+    height: rem-calc(161);
+  }
+}
+
+// taskbar with title
+.taskbar__title {
+  align-items: center;
+  background: $deep-blue-light;
+  border-radius: 5px 5px 0 0;
+  color: $white;
+  display: flex;
+  font-size: rem-calc(28);
+  height: 100%;
+  justify-content: center;
+  padding: rem-calc(20);
+  width: auto;
+  @include breakpoint(large) {
+    border-radius: 5px 0 0 5px;
+    flex: 0 0 rem-calc(140);
+    line-height: 30px;
+    padding: 0 0 0 rem-calc(30);
+    position: relative;
+    text-align: left;
+    width: rem-calc(140);
+    min-height: 140px;
+    box-sizing: border-box;
+
+    &:after {
+      background-color: $deep-blue-light;
+      height: 100%;
+      position: absolute;
+      right: 0;
+      top: 0;
+      transform: skew(-20deg);
+      transform-origin: right bottom;
+      width: calc(100% - 5px);
+      z-index: -1;
+    }
+  }
+
+  p {
+    font-size: rem-calc(28);
+    max-width: 100%;
+  }
+}
+
+.taskbar__tasks-wrap {
+  display: flex;
+  height: 100%;
+  width: 100%;
+  @include breakpoint(large) {
+    min-height: 140px;
+    box-sizing: border-box;
+  }
+}
+
+@include breakpoint(large) {
+  .taskbar__middle_elements {
+    width: 3.875rem;
+    position: relative;
+    min-height: 140px;
+    box-sizing: border-box;
+
+    &:before {
+      content: '';
+      width: rem-calc(40);
+      background: $deep-blue-light;
+      position: absolute;
+      height: 100%;
+      left: rem-calc(-20);
+      transform: skew(-15deg);
+    }
+
+    &:after {
+      content: '';
+      background: $white;
+      position: absolute;
+      height: 100%;
+      border: $deep-blue-light solid 2px;
+      width: rem-calc(80);
+      right: rem-calc(-60);
+      transform: skew(-15deg);
+      border-right: 0;
+    }
+  }}
+
+
+
+// taskbar with icons..
+.taskbar__tasks {
+  align-items: center;
+  border: $deep-blue-light solid 2px;
+  border-radius: 0 0 5px 5px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-around;
+  list-style-type: none;
+  height: 100%;
+  width: 100%;
+  position: relative;
+  @include breakpoint(large) {
+    border-radius: 0 5px 5px 0;
+    border-left: 0;
+    position: relative;
+    flex-wrap: nowrap;
+
+    &:after {
+      background: $deep-blue-light;
+      height: 145px;
+      left: -26px;
+      position: absolute;
+      top: -6px;
+      transform: rotate(20deg);
+      width: 2px;
+    }
+
+    &:before {
+      background: $deep-blue-light;
+      height: 2px;
+      left: -50px;
+      bottom: -2px;
+      position: absolute;
+      width: 51px;
+    }
+  }
+}
+
+.taskbar__task {
+  min-width: 50%;
+  padding: rem-calc(24.5) rem-calc(10);
+  flex: 1 1 auto;
+  @include breakpoint(medium) {
+    min-width: 0;
+  }
+
+  @include breakpoint(large) {
+    margin: rem-calc(40.5) auto;
+    padding: 0;
+  }
+}
+
+.taskbar__link {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-decoration: none !important;
+
+  &:hover,
+  &:focus {
+    .taskbar__task-icon {
+      transform: scale(1.15);
+    }
+  }
+}
+
+.node--type-task {
+  .taskbar__task-icon {
+    color: $teal;
+    height: rem-calc(40);
+    margin: 0;
+    transition: transform $transition-time ease;
+    width: rem-calc(40);
+
+    @include breakpoint(large) {
+      margin-bottom: rem-calc(20);
+    }
+  }
+}
+
+.taskbar__task-name {
+  @extend h5;
+}

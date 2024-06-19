@@ -1,0 +1,20 @@
+{% extends 'node.html.twig' %}
+{#
+/**
+ * @file
+ * Theme override to display a node.
+ */
+#}
+{% block content %}
+  {{ title_prefix }}
+  {{ title_suffix }}
+  <a href="{{ url }}" {{ link_attributes }}>
+    <div class="callout__icon">
+      <svg class="icon icon--{{ icon }}" alt="{{ label.0 }}">
+        <use xlink:href="#icon-{{ icon }}"></use>
+      </svg>
+    </div>
+
+    <h3 class="callout__heading">{{ label }}</h3>
+  </a>
+{% endblock %}

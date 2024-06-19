@@ -1,0 +1,19 @@
+{#
+/**
+ * @file
+ * Theme override for a branding block.
+ */
+#}
+<div class="header__logo-wrapper">
+  {% if site_logo %}
+    <a href="{{ path('<front>') }}" title="{{ site_name }}" rel="home" class="header__logo" >
+      <img src="{{ site_logo }}" alt="{{ 'Home'|t }}" />
+    </a>
+  {% endif %}
+  <label class="header__nav-toggle" for="mobile-menu-toggle" tabindex="0" title="Toggle Menu">
+    <span class="screen-reader-text">Toggle Menu</span>
+    <span class="header__hamburger header__hamburger--top"></span>
+    <span class="header__hamburger header__hamburger--middle"></span>
+    <span class="header__hamburger header__hamburger--bottom"></span>
+  </label>
+</div>

@@ -1,0 +1,25 @@
+// sass-lint:disable force-element-nesting
+.field--name-field-body {
+  ul {
+    @include list-bullets-color;
+
+    .paragraph--type--cta-box &,
+    .paragraph--type--fact &,
+    .paragraph--type--promo &,
+    .paragraph--type--supporting-information &,
+    .paragraph--type--travel-group .info-bullets__text &,
+    .timeline--timeline-view .paragraph--type--milestone & {
+      li {
+        &::before {
+          background-color: $white;
+        }
+      }
+    }
+  }
+
+  p + dl,
+  p + ol,
+  p + ul {
+    margin-top: rem-calc(-18);
+  }
+}

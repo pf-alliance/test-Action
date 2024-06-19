@@ -1,0 +1,315 @@
+.footer {
+  position: relative;
+  padding: rem-calc(50) 0;
+  color: $white;
+  background-image: linear-gradient($teal-gradient 0%, $blue-gradient 100%);
+  @include breakpoint(small only) {
+    padding-bottom: rem-calc(65);
+  }
+
+  &::before {
+    display: block;
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background-image: url('../img/logo-PoSD-half.svg');
+    background-repeat: no-repeat;
+    background-position: right calc(100% - 300px);
+    background-size: auto rem-calc(280);
+    opacity: 0.1;
+    @include breakpoint(medium) {
+      background-position: right rem-calc(20);
+      background-size: rem-calc(190) rem-calc(370);
+    }
+  }
+
+  @include not-btn {
+    @include white-link-on-dark;
+  }
+}
+
+.footer__main {
+  @include flex-grid-row;
+  position: relative; // To position above the background image
+  margin-bottom: rem-calc(50);
+  padding-left: rem-calc(20);
+  padding-right: rem-calc(20);
+  @include breakpoint(medium) {
+    padding-left: 0;
+    padding-right: 0;
+    justify-content: space-between;
+  }
+}
+
+.footer__left,
+.footer__right {
+  @include flex-grid-column(12);
+  @include breakpoint(medium) {
+    @include flex-grid-size(6);
+  }
+}
+
+.footer__left {
+  margin-bottom: rem-calc(60);
+  @include breakpoint(medium) {
+    margin-bottom: 0;
+  }
+}
+
+.footer__right {
+  position: relative;
+  @include breakpoint(medium) {
+    max-width: rem-calc(530);
+  }
+
+  > * {
+    position: relative; // Places it above the image;
+  }
+}
+
+.footer__menu-title {
+  margin-bottom: rem-calc(20);
+  border-bottom: 1px solid $blue-light;
+  padding-bottom: rem-calc(15);
+}
+
+.footer__menus {
+  @include flex-grid-row(nest);
+  justify-content: space-around;
+  @include breakpoint(medium) {
+    justify-content: left;
+  }
+  @include breakpoint(large) {
+    justify-content: flex-start;
+  }
+}
+
+.footer__menu {
+  @include flex-grid-column;
+  max-width: rem-calc(275);
+
+  > nav {
+    > ul {
+      margin-left: 0;
+      margin-bottom: 0;
+      list-style-type: none;
+
+      > li {
+        display: block;
+        line-height: 1;
+        padding-bottom: rem-calc(15);
+        @include breakpoint(medium) {
+          border-bottom: 1px solid $blue-light;
+          padding-bottom: 0;
+        }
+
+        a {
+          @include white-link-border-top;
+        }
+
+        &:last-child {
+          @include breakpoint(medium) {
+            border-bottom: none;
+          }
+        }
+      }
+    }
+  }
+}
+
+.footer__stay-informed {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-bottom: rem-calc(30);
+  border-bottom: 1px solid $blue-light;
+  padding-bottom: rem-calc(25);
+  text-align: center;
+  @include breakpoint(medium) {
+    justify-content: space-between;
+    margin-bottom: rem-calc(10);
+    padding-bottom: rem-calc(4);
+  }
+}
+
+.footer__social-links {
+  @include list-inline;
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  width: 100%;
+  margin-top: rem-calc(10);
+  margin-bottom: rem-calc(10);
+  @include breakpoint(large) {
+    width: auto;
+    margin-top: 0;
+  }
+}
+
+.footer__social-link {
+  display: block;
+  padding: rem-calc(3) rem-calc(8);
+  font-size: rem-calc(20);
+  @include breakpoint(large) {
+    margin-left: rem-calc(5);
+    margin-right: rem-calc(5);
+  }
+
+  svg {
+    transition: transform $transition-time ease;
+    will-change: transform;
+  }
+
+  &:hover {
+    svg {
+      transform: scale(1.15);
+    }
+  }
+
+  // sass-lint:disable force-pseudo-nesting
+  li:first-child & {
+    margin-left: 0;
+    padding-left: 0;
+  }
+
+  li:last-child & {
+    margin-right: 0;
+    padding-right: 0;
+  }
+  // sass-lint:enable force-pseudo-nesting
+}
+
+.footer__get-notified-title {
+  @include breakpoint(medium) {
+    margin-bottom: rem-calc(10);
+  }
+}
+
+.footer__sign-up {
+  @include flex-grid-row;
+  margin-left: rem-calc(-5);
+  margin-right: rem-calc(-5);
+
+  > * {
+    flex: 1 1 100%;
+    padding: 0 rem-calc(5);
+    @include breakpoint(large) {
+      flex: 1 0 auto;
+    }
+  }
+
+  input {
+    @include breakpoint(large) {
+      margin: 0 0 rem-calc(10);
+    }
+  }
+
+  .submit {
+    display: flex;
+    align-items: flex-end;
+    justify-content: flex-end;
+    flex: 0 0 auto;
+
+    input {
+      background-color: $white;
+      border-color: $white;
+      color: $blue;
+
+      &:hover {
+        background-color: transparent;
+        color: $white;
+      }
+    }
+  }
+
+  #mce-responses {
+    flex: 1 1 100%;
+
+    > .response {
+      margin-top: 1rem;
+    }
+  }
+}
+
+.footer__contact-info {
+  @include flex-grid-row(nest);
+  margin-top: rem-calc(30);
+  text-align: center;
+  @include breakpoint(medium) {
+    text-align: initial;
+  }
+}
+
+.footer__location,
+.footer__address,
+.footer__hours {
+  @include flex-grid-column(100%);
+  padding-top: rem-calc(15);
+  padding-bottom: rem-calc(15);
+}
+
+.footer__location {
+  @include location-w-icon;
+  @include breakpoint(medium) {
+    padding-bottom: 0;
+  }
+}
+
+.footer__address,
+.footer__hours {
+  @include breakpoint(medium) {
+    @include flex-grid-column(50%);
+  }
+}
+
+.footer__copyright-wrapper {
+  @include flex-grid-row;
+  position: relative; // To position above the background image
+}
+
+.footer__copyright {
+  @include flex-grid-column;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  @include breakpoint(small only) {
+    font-size: rem-calc(14);
+  }
+  @include breakpoint(medium) {
+    justify-content: flex-start;
+  }
+
+  p {
+    margin-top: rem-calc(5);
+    margin-bottom: rem-calc(5);
+    padding-right: rem-calc(30);
+    @include breakpoint(small only) {
+      font-size: rem-calc(12);
+    }
+  }
+
+  ul {
+    @include list-inline;
+
+    > li {
+      padding: rem-calc(15);
+
+      &:first-child {
+        padding-left: 0;
+      }
+
+      &:last-child {
+        padding-right: 0;
+      }
+
+      a {
+        @include white-link-border-top;
+        display: block;
+      }
+    }
+  }
+}

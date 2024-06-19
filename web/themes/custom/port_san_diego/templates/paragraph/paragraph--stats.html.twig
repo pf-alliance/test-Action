@@ -1,0 +1,37 @@
+{% extends 'paragraph.html.twig' %}
+{#
+/**
+ * @file
+ * Theme override to display a Taskbar Paragraph.
+ */
+#}
+{% block content %}
+  <section class="stats">
+    {% if content.field_video['#theme'] is not null or content.field_image %}
+      <div class="stats__details">
+        <h2 class="stats__title">{{ content.field_title }}</h2>
+        <div class="stats__list">
+          {{ content.field_stats }}
+        </div>
+        {{ content.field_cta }}
+      </div>
+      <div class="stats__media">
+        {% if content.field_video['#theme'] is not null %}
+          {{ content.field_video }}
+        {% else %}
+          {% if content.field_image %}
+            {{ content.field_image }}
+          {% endif %}
+        {% endif %}
+      </div>
+    {% else %}
+      <div class="stats__details stats_no_media">
+        <h2 class="stats__title">{{ content.field_title }}</h2>
+        <div class="stats__list">
+          {{ content.field_stats }}
+        </div>
+        {{ content.field_cta }}
+      </div>
+    {% endif %}
+  </section>
+{% endblock %}

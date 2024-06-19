@@ -1,0 +1,26 @@
+{% extends 'paragraph.html.twig' %}
+{#
+/**
+ * @file
+ * Default theme implementation to display a paragraph.
+ */
+#}
+{% block content %}
+  <div class="banner">
+    <div class="banner__container">
+      <div class="banner__contents">
+        <div class="banner__img">
+          {{ content.field_image }}
+        </div>
+        <!-- /.banner__container -->
+
+        <div class="banner__text-column">
+          <h4 class="banner__heading">{{ content.field_title }}</h4>
+          {{ content.field_cta }}
+        </div>
+      </div>
+      <!-- /.banner__contents -->
+    </div>
+    <!-- /.banner__container -->
+  </div>
+{% endblock %}

@@ -1,0 +1,8 @@
+.page-node-type-task {
+  .sidebar-enabled__main {
+    @include breakpoint($global-width) {
+      margin-right: calc(-1 * ((100vw - #{$global-width}) / 2));
+      padding-right: 0;
+    }
+  }
+}

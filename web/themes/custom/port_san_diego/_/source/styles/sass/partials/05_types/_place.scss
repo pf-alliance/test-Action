@@ -1,0 +1,7 @@
+.node--type-place {
+  &.node--view-mode-full {
+    .field--name-field-address {
+      @include global-spacing;
+    }
+  }
+}

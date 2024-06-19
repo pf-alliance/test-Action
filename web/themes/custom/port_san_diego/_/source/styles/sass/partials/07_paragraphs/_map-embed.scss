@@ -1,0 +1,13 @@
+.paragraph--type--map-embed {
+  .field--name-field-embed-code {
+    @include map-loading-background;
+
+    > iframe {
+      border: none;
+      display: block;
+      height: rem-calc(480);
+      position: relative;
+      width: 100%;
+    }
+  }
+}

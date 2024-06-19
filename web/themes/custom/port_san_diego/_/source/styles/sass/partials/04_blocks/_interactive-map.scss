@@ -1,0 +1,603 @@
+// sass-lint:disable nesting-depth
+$activities: (
+  'shop': $grey-dark,
+  'dine': $deep-blue,
+  'stay': $teal-dark,
+  'play': $blue-light,
+  'more': $brown,
+);
+
+.port-interactive-map-container {
+  .interactive-map-loading {
+    @include global-spacing;
+    background-color: $map-background;
+    color: $blue;
+    font-weight: bold;
+    padding: rem-calc(15) 0;
+    position: relative;
+    text-align: center;
+    @include breakpoint(medium) {
+      padding-bottom: rem-calc(30);
+      padding-top: rem-calc(30);
+    }
+
+    .ellipsis {
+      position: absolute;
+
+      &::after {
+        animation: ellipsis steps(4, end) 900ms infinite;
+        content: '\2026';
+        display: inline-block;
+        overflow: hidden;
+        vertical-align: bottom;
+        width: 0;
+      }
+    }
+
+    @keyframes ellipsis {
+      to {
+        width: 1.15em;
+      }
+    }
+  }
+
+  .interactive-map {
+    @include global-spacing;
+    background: $map-background;
+    width: 100%;
+    @include breakpoint(medium) {
+      display: flex;
+    }
+
+    .map-filters {
+      @include flex-grid-row;
+      position: relative;
+      @include breakpoint(medium) {
+        flex-basis: 45%;
+        width: 45%;
+      }
+      @include breakpoint(large) {
+        flex-basis: 27.778%;
+        width: 27.778%;
+      }
+      @include breakpoint($global-width) {
+        margin-left: calc((100vw - #{$global-width}) / 2);
+      }
+
+      &__group {
+        @include flex-grid-column(expand);
+        border-bottom: 1px solid $sand;
+        border-right: 1px solid $sand;
+        padding-bottom: rem-calc(20);
+        padding-top: rem-calc(20);
+        @include breakpoint(medium) {
+          border-bottom: 0;
+          border-right: 1px solid $sand;
+          padding-bottom: rem-calc(30);
+          padding-top: rem-calc(30);
+        }
+
+        &:last-of-type {
+          border-right: 0;
+          flex-grow: 1.5;
+          overflow: hidden;
+          @include breakpoint(medium) {
+            border-bottom: 0;
+          }
+        }
+
+        &--title {
+          margin-bottom: rem-calc(10);
+        }
+      }
+
+      a,
+      label {
+        font-size: rem-calc(11.36);
+        line-height: 1.25em;
+        text-decoration: none;
+        text-transform: uppercase;
+      }
+
+      label {
+        color: $blue;
+        font-weight: bold;
+        transition: all $transition-time;
+      }
+
+      ul {
+        @include list-plain;
+
+        li {
+          margin-bottom: rem-calc(3);
+
+          &:last-of-type {
+            margin-bottom: 0;
+          }
+        }
+
+        [type='checkbox'] {
+          display: none;
+        }
+
+        label {
+          align-items: center;
+          display: flex;
+          line-height: 1.25em;
+          padding: rem-calc(7) rem-calc(20) rem-calc(7) 0;
+          position: relative;
+          z-index: 1;
+
+          &::before {
+            background-color: transparent;
+            content: '';
+            height: 100%;
+            position: absolute;
+            right: rem-calc(-10);
+            top: 50%;
+            transform: translateY(-50%);
+            transition: all $transition-time;
+            width: 200vw;
+            z-index: -1;
+            @include breakpoint(medium) {
+              right: rem-calc(-15);
+            }
+          }
+
+          @include breakpoint(medium) {
+            &:hover {
+              color: $blue-light;
+              text-decoration: underline;
+
+              &::before {
+                background-color: $white;
+                box-shadow: 0 2px 4px transparentize($black, 0.9);
+              }
+            }
+          }
+
+          @each $activity, $color in $activities {
+            &.#{$activity} {
+              &:focus,
+              &:hover {
+                color: $color;
+              }
+            }
+          }
+        }
+
+        .icon--close {
+          margin-right: 0;
+          opacity: 0;
+          pointer-events: none;
+          position: absolute;
+          right: 0;
+          top: 50%;
+          transform: translateY(-50%);
+          transition: all $transition-time;
+        }
+
+        :checked {
+          + label {
+            @each $activity, $color in $activities {
+              &.#{$activity} {
+                color: $color;
+              }
+
+              &::before {
+                background-color: $white;
+                box-shadow: 0 2px 4px transparentize($black, 0.9);
+              }
+
+              &:hover {
+                .icon--close {
+                  opacity: 1;
+                }
+              }
+            }
+          }
+        }
+
+        &.activities {
+          padding-left: rem-calc(2);
+
+          li {
+            label {
+              padding-left: rem-calc(27);
+            }
+          }
+
+          [class*='icon--activity'] {
+            flex-shrink: 0;
+            left: 0;
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%) scale(1.65);
+          }
+        }
+      }
+
+      .clear-filters {
+        align-items: center;
+        bottom: rem-calc(30);
+        color: $blue;
+        display: none;
+        flex-basis: 100%;
+        font-size: rem-calc(11.36);
+        font-weight: bold;
+        line-height: 1em;
+        margin-left: rem-calc(10);
+        padding: rem-calc(20) 0;
+        pointer-events: none;
+        text-decoration: none;
+        text-transform: uppercase;
+        transition: all $transition-time;
+        @include breakpoint(medium) {
+          display: flex;
+          left: #{map-get($grid-column-gutter, 'medium') / 2};
+          margin: 0;
+          opacity: 0;
+          padding: 0;
+          position: absolute;
+        }
+
+        &.active {
+          cursor: pointer;
+          display: flex;
+          pointer-events: auto;
+          @include breakpoint(medium) {
+            opacity: 1;
+          }
+        }
+
+        &:hover,
+        &:focus {
+          color: $blue-light;
+          text-decoration: underline;
+        }
+
+        svg {
+          margin-right: rem-calc(10);
+        }
+
+        span {
+          @include breakpoint(medium) {
+            max-width: rem-calc(100);
+          }
+        }
+      }
+
+      .map-download {
+        margin-top: rem-calc(30);
+      }
+
+      .page-node-type-location & {
+        // sass-lint:disable zero-unit
+        flex: 0 0 0px;
+
+        .map-filters__group {
+          overflow: visible;
+        }
+
+        .map-filters__group--title {
+          @include breakpoint(medium) {
+            padding-right: rem-calc(50);
+          }
+        }
+      }
+    }
+
+    .map {
+      @include map-loading-background;
+      flex-grow: 1;
+      height: rem-calc(450);
+      width: 100%;
+      @include breakpoint(medium) {
+        flex-basis: 55%;
+        width: 55%;
+      }
+      @include breakpoint(large) {
+        flex-basis: 72.222%;
+        width: 72.222%;
+      }
+    }
+
+    .gm-style {
+      p {
+        margin-bottom: rem-calc(15);
+
+        &:last-child {
+          margin-bottom: 0;
+        }
+      }
+
+      img {
+        float: left;
+        height: auto;
+        margin-bottom: rem-calc(5);
+        margin-right: rem-calc(10);
+        max-width: 50%;
+      }
+    }
+  }
+
+  .interactive-map-items-list {
+    @include flex-grid-row;
+    @include flex-grid-column;
+    @include global-spacing;
+
+    &__item {
+      @include breakpoint(medium) {
+        border-top: 1px solid $sand;
+        display: flex;
+        flex-basis: 100%;
+        flex-flow: row wrap;
+        margin-top: rem-calc(40);
+      }
+      @include breakpoint(large) {
+        flex-wrap: nowrap;
+        margin-top: 0;
+      }
+
+      &:first-child {
+        margin-top: 0;
+      }
+
+      > * {
+        margin-bottom: rem-calc(20);
+        margin-top: rem-calc(20);
+        @include breakpoint(medium) {
+          flex: 0 1 auto;
+          margin-bottom: 0;
+        }
+        @include breakpoint(large) {
+          margin-bottom: rem-calc(40);
+          margin-right: rem-calc(40);
+          margin-top: rem-calc(40);
+        }
+
+        &:last-child {
+          margin-right: 0;
+        }
+      }
+
+      .image-container {
+        align-self: flex-start;
+        flex-basis: 50%;
+        flex-shrink: 0;
+        margin-top: 0;
+        overflow: hidden;
+        position: relative;
+        @include breakpoint(small down) {
+          margin-left: -#{map-get($grid-column-gutter, small) / 2};
+          margin-right: -#{map-get($grid-column-gutter, small) / 2};
+        }
+        @include breakpoint(large) {
+          flex-basis: 25%;
+          margin-bottom: rem-calc(30);
+          min-width: 25%;
+        }
+
+        img {
+          width: 100%;
+        }
+
+        .activity-icon {
+          height: rem-calc(30);
+          left: rem-calc(10);
+          position: absolute;
+          top: rem-calc(10);
+          width: rem-calc(30);
+
+          &::after {
+            border: 2px solid $white;
+            border-radius: 1000px;
+            box-shadow: 0 2px 4px transparentize($black, 0.8);
+            content: '';
+            height: 100%;
+            left: 50%;
+            position: absolute;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            width: 100%;
+          }
+
+          @each $activity, $color in $activities {
+            &.#{$activity} {
+              &::after {
+                background-color: $color;
+              }
+            }
+          }
+        }
+
+        [class*='icon--activity'] {
+          height: 55%;
+          left: 50%;
+          position: absolute;
+          top: 50%;
+          transform: translate(-50%, -50%);
+          width: 55%;
+          z-index: 1;
+
+          * {
+            fill: $white;
+          }
+        }
+
+        .location {
+          @include link-inverted;
+          align-items: center;
+          background-color: $grey-lighter;
+          bottom: 0;
+          display: flex;
+          font-size: rem-calc(14);
+          line-height: 1.25em;
+          padding: rem-calc(10) rem-calc(10) rem-calc(10) rem-calc(15);
+          text-transform: uppercase;
+          width: 100%;
+          @include breakpoint(medium) {
+            padding-right: 20%;
+          }
+
+          .icon {
+            flex-shrink: 0;
+            margin-right: rem-calc(10);
+          }
+        }
+
+        &::after {
+          background-color: $white;
+          content: '';
+          display: none;
+          height: calc(100% + 2px);
+          left: 100%;
+          position: absolute;
+          top: -1px;
+          transform: skewX(-18deg);
+          transform-origin: left top;
+          width: 100%;
+          @include breakpoint(medium) {
+            display: block;
+          }
+        }
+      }
+
+      .name-and-address {
+        flex: 1 0 50%;
+        @include breakpoint(medium) {
+          padding: 0 0 0 rem-calc(40);
+        }
+        @include breakpoint(large) {
+          flex-basis: 20%;
+          padding: 0;
+        }
+
+        .item-title {
+          font-size: rem-calc(20);
+        }
+
+        .address {
+          @include link-inverted;
+        }
+      }
+
+      .intro-wrapper {
+        flex-basis: 100%;
+        position: relative;
+        @include breakpoint(large) {
+          flex-basis: auto;
+        }
+
+        .read-more {
+          @include link-standard;
+          color: $blue;
+          cursor: pointer;
+          display: none;
+
+          .less {
+            display: none;
+          }
+        }
+
+        &.processed {
+          @include breakpoint(large) {
+            .intro {
+              height: 4 * 1.5em;
+              margin-bottom: rem-calc(27);
+              overflow: hidden;
+              position: relative;
+              @include breakpoint(medium down) {
+                height: auto !important;
+              }
+
+              &::after {
+                background: linear-gradient(to bottom, transparentize($white, 1) 0%, $white 90%);
+                bottom: 0;
+                content: '';
+                display: block;
+                height: 2 * 1.5em;
+                position: absolute;
+                transition: all $transition-time;
+                width: 100%;
+              }
+            }
+
+            .read-more {
+              display: block;
+            }
+          }
+        }
+
+        &.open {
+          .intro {
+            &::after {
+              height: 0;
+            }
+          }
+
+          .read-more {
+            .less {
+              display: block;
+            }
+
+            .more {
+              display: none;
+            }
+          }
+        }
+      }
+
+      > .link {
+        flex-basis: 100%;
+        flex-shrink: 0;
+        @include breakpoint(large) {
+          flex-basis: auto;
+          margin-left: auto;
+          margin-top: rem-calc(60);
+        }
+      }
+    }
+  }
+
+  .pagination-links {
+    @include list-plain;
+    display: flex;
+    font-size: rem-calc(13);
+    margin-left: auto;
+    margin-right: auto;
+    @include breakpoint(medium) {
+      font-size: inherit;
+      margin-right: rem-calc(-7);
+    }
+
+    > li {
+      font-weight: bold;
+      line-height: 1em;
+      padding: 0 rem-calc(5);
+      @include breakpoint(medium) {
+        padding: 0 rem-calc(7);
+      }
+
+      span {
+        @include link-inverted;
+        color: $blue;
+        cursor: pointer;
+      }
+
+      &.active {
+        span {
+          color: $blue-light;
+          text-decoration: underline;
+        }
+      }
+    }
+
+    + .interactive-map-items-list__item {
+      margin-top: rem-calc(15);
+      @include breakpoint(medium) {
+        margin-top: rem-calc(30);
+      }
+    }
+  }
+}

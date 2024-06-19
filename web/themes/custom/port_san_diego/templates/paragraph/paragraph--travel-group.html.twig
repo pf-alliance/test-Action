@@ -1,0 +1,40 @@
+{% extends 'paragraph.html.twig' %}
+{#
+/**
+ * @file
+ * Default theme implementation to display a paragraph.
+ */
+#}
+{% block content %}
+  <section class="task__section">
+    <div class="section-divider">
+      <div class="section-divider__container">
+        <div class="section-divider__icon">
+          <svg class="icon icon--{{ icon }}"><use xlink:href="#icon-{{ icon }}"></use></svg>
+        </div>
+        <h3 class="section-divider__heading">{{ content.field_title }}</h3>
+        <div class="section-divider__text">
+          {{ content.field_intro }}
+        </div>
+      </div>
+    </div>
+    {% if content.field_body['#items'] or map is not empty or image %}
+      <div class="info-bullets">
+        <div class="info-bullets__media">
+          {% if map is not empty %}
+            <div class="info-bullets__map">
+              {{ map }}
+            </div>
+          {% else %}
+            <span class="info-bullets__image" style="background-image: url('{{ image }}'); {{ position }}"></span>
+          {% endif %}
+        </div>
+        <div class="info-bullets__text">
+          {{ content.field_body }}
+        </div>
+        <!-- /.info-bullets__text -->
+      </div>
+    {% endif %}
+    {{ content|without('field_body', 'field_icon', 'field_image', 'field_intro', 'field_place', 'field_title') }}
+  </section>
+{% endblock %}

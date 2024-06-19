@@ -1,0 +1,20 @@
+.region--content {
+  .field--name-field-paragraphs {
+    > .paragraph {
+      @include global-spacing;
+
+      @media screen {
+        &.paragraph--no-margin {
+          margin-bottom: 0;
+          margin-top: 0;
+        }
+
+        // Exceptions to the rules >:(
+        &.paragraph--type--collections,
+        &.paragraph--type--sub-categories {
+          margin-bottom: 0;
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,19 @@
+.field--name-description {
+  ul {
+    @include list-bullets-color;
+
+    .hero__text & {
+      li {
+        &::before {
+          background-color: $white;
+        }
+      }
+    }
+  }
+
+  p + dl,
+  p + ol,
+  p + ul {
+    margin-top: rem-calc(-18);
+  }
+}

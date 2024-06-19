@@ -1,0 +1,29 @@
+{% extends 'paragraph.html.twig' %}
+{#
+/**
+ * @file
+ * Theme override for a field.
+ */
+#}
+{% block content %}
+  {{ attach_library('port_timeline/port-timeline') }}
+  <section class="timeline">
+    <div class="timeline__container">
+      <div class="timeline__intro">
+        {% if content.field_title|render|striptags|trim is not empty %}
+          <h2 class="timeline__heading">{{ content.field_title }}</h2>
+        {% endif %}
+        {% if content.field_body|render|striptags|trim is not empty %}
+          <div class="timeline__subheading">
+            {{ content.field_body }}
+          </div>
+        {% endif %}
+        <button class="timeline__toggle-view">
+          <span class="as-list">{{ 'View as List'|t }}</span>
+          <span class="as-timeline">{{ 'View as Timeline'|t }}</span>
+        </button>
+      </div>
+      {{ content.field_milestone }}
+    </div>
+  </section>
+{% endblock %}

@@ -1,0 +1,296 @@
+// sass-lint:disable force-pseudo-nesting
+.timeline {
+  @include flex-grid-row;
+}
+
+.timeline__container {
+  @include flex-grid-column;
+  overflow: hidden;
+}
+
+.timeline__intro {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-width: rem-calc(600);
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
+}
+
+.timeline__heading {
+  color: $blue;
+}
+
+.timeline__toggle-view {
+  display: none;
+  @include breakpoint(large) {
+    display: block;
+    margin-top: rem-calc(30);
+
+    &:first-child {
+      margin-top: 0;
+    }
+
+    .no-js & {
+      display: none;
+    }
+
+    .as-list {
+      display: none;
+    }
+
+    .timeline--timeline-view & {
+      .as-list {
+        display: inline;
+      }
+
+      .as-timeline {
+        display: none;
+      }
+    }
+  }
+}
+
+.timeline__milestones {
+  @include breakpoint(medium down) {
+    margin-bottom: 0 !important;
+  }
+
+  @media screen {
+    .timeline:not(.timeline--timeline-view) & {
+      margin-bottom: 0 !important;
+    }
+  }
+
+  .timeline__milestone-toggle,
+  .timeline__top-date,
+  .timeline__dot {
+    display: none;
+  }
+}
+
+.timeline__milestone {
+  margin: rem-calc(30) rem-calc(15) 0;
+
+  .timeline__content {
+    @include breakpoint(medium down) {
+      transform: none !important;
+    }
+
+    @media screen {
+      .timeline:not(.timeline--timeline-view) & {
+        transform: none !important;
+      }
+    }
+  }
+}
+
+.timeline__milestone-date {
+  font-weight: bold;
+  margin-bottom: rem-calc(15);
+  padding-bottom: rem-calc(10);
+  position: relative;
+  @include breakpoint(large) {
+    font-size: rem-calc(18);
+  }
+
+  &::after {
+    border-bottom: 1px solid $sand;
+    bottom: 0;
+    content: '';
+    left: 0;
+    position: absolute;
+    width: 100%;
+  }
+}
+
+@media screen {
+  @include breakpoint(large) {
+    .timeline--timeline-view {
+      .timeline__milestones {
+        display: flex;
+        position: relative;
+        margin-top: rem-calc(70);
+        margin-bottom: rem-calc(100);
+        border-width: 0 1px;
+        border-style: solid;
+        border-color: $blue;
+        justify-content: space-around;
+        @include breakpoint(xxlarge) {
+          margin-left: rem-calc(-$global-padding);
+          margin-right: rem-calc(-$global-padding);
+        }
+
+        // Background line
+        &::before {
+          content: '';
+          position: absolute;
+          left: 0;
+          top: 50%;
+          transform: translateY(-50%);
+          height: 1px;
+          width: 100%;
+          background: $blue;
+        }
+      }
+
+      .timeline__milestone {
+        position: relative;
+        margin: auto;
+
+        .timeline__top-date {
+          background: $blue;
+          border-radius: rem-calc(3);
+          bottom: rem-calc(70);
+          color: $white;
+          display: block;
+          font-size: 1rem;
+          left: 50%;
+          opacity: 0;
+          padding: rem-calc(2) rem-calc(10);
+          position: absolute;
+          text-align: center;
+          transition: all $transition-time;
+          transform: translateX(-50%);
+          white-space: nowrap;
+          width: auto;
+          visibility: hidden;
+
+          &::after {
+            content: '';
+            border: rem-calc(7) solid transparent;
+            border-bottom-color: $blue;
+            left: 50%;
+            position: absolute;
+            top: 100%;
+            transform: translateX(-50%) rotate(180deg);
+          }
+        }
+
+        &:hover {
+          .timeline__top-date {
+            bottom: rem-calc(50);
+            opacity: 1;
+            visibility: visible;
+          }
+
+          .timeline__dot {
+            &:before {
+              height: 175%;
+              opacity: 1;
+              width: 175%;
+            }
+          }
+        }
+      }
+
+      .timeline__dot {
+        display: block;
+        position: relative;
+        padding: rem-calc(12);
+        border: rem-calc(2) solid $blue;
+        border-radius: 50%;
+        background: $blue;
+        transition: transform $transition-time ease, background $transition-time ease;
+        will-change: transform, background;
+        cursor: pointer;
+
+        &:before {
+          display: block;
+          content: '';
+          border: rem-calc(2) solid $blue;
+          border-radius: 50%;
+          height: 100%;
+          left: 50%;
+          opacity: 0;
+          position: absolute;
+          top: 50%;
+          transform: translate(-50%, -50%);
+          transition: all $transition-time;
+          width: 100%;
+          z-index: 1;
+        }
+      }
+
+      .timeline__content-wrapper {
+        visibility: hidden; // Visibly hide element
+        position: absolute;
+        z-index: -1000; // Visibly hide element
+        top: 50%;
+        left: 50%;
+        transform: translateX(-50%);
+        margin-left: 0;
+        margin-top: rem-calc(60);
+
+        &::before {
+          content: '';
+          position: absolute;
+          left: 50%;
+          top: 0;
+          transform: translateY(-100%) translateX(-50%);
+          border: rem-calc(25) solid transparent;
+          border-bottom-color: $blue;
+        }
+      }
+
+      .timeline__milestone-toggle {
+        display: none !important;
+
+        &:checked + .timeline__milestone {
+          .timeline__dot {
+            &::before {
+              background-color: $white;
+              height: 175%;
+              opacity: 1;
+              width: 175%;
+            }
+          }
+
+          .timeline__top-date {
+            opacity: 0;
+            visibility: hidden;
+          }
+
+          .timeline__content-wrapper {
+            visibility: visible; // Visibly show element
+            z-index: 10; // Visibly show element
+          }
+        }
+      }
+
+      .timeline__content {
+        background: $blue;
+        border-radius: $border-radius;
+        display: block;
+        color: $white;
+        max-width: rem-calc(560);
+        overflow: hidden;
+        padding: rem-calc(30);
+        position: absolute;
+        right: 0;
+        width: calc(100vw - #{rem-calc(30)});
+
+        @include not-btn {
+          @include white-link-on-dark;
+        }
+      }
+
+      .timeline__milestone-date {
+        font-weight: normal;
+        margin-bottom: rem-calc(15);
+        padding-bottom: rem-calc(10);
+        position: relative;
+
+        &::after {
+          border-bottom-color: $deep-blue;
+          width: 100vw;
+        }
+      }
+    }
+  }
+}
+
+.timeline__subheading {
+  width: 100%;
+}

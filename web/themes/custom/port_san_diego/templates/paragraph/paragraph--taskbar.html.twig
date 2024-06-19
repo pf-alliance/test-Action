@@ -1,0 +1,16 @@
+{% extends 'paragraph.html.twig' %}
+{#
+/**
+ * @file
+ * Theme override to display a Taskbar Paragraph.
+ */
+#}
+{% block content %}
+  <section class="taskbar">
+    <div class="taskbar__title"><p>{{ 'I need to...'|t }}</p></div>
+    <div class="taskbar__middle_elements"></div>
+    <div class="taskbar__tasks-wrap">
+      {{ content }}
+    </div>
+  </section>
+{% endblock %}

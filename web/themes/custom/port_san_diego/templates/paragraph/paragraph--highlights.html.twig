@@ -1,0 +1,57 @@
+{% extends 'paragraph.html.twig' %}
+{#
+/**
+ * @file
+ * Default theme implementation to display a paragraph.
+ */
+#}
+{% set wrapper_attributes = create_attribute() %}
+{%
+  set wrapper_classes = [
+    'highlights',
+    featured ? 'highlights__featured',
+  ]
+%}
+{% block content %}
+  <section{{ wrapper_attributes.addClass(wrapper_classes) }}>
+    <div class="highlights__intro-row">
+      <div class="highlights__intro-container">
+        <div class="highlights__intro">
+          <h3 class="highlights__intro-title">
+            {{ content.field_title }}
+          </h3>
+          {% if post_types %}
+            <div class="highlights__intro-links">
+              {% for term in post_types %}
+                <a href="{{ term.url }}" class="call-to-action">{{ 'All '|t ~ term.name }}
+                  <svg class="icon icon--chevron-right" alt="right chevron">
+                    <use xlink:href="#icon-chevron-right"></use>
+                  </svg>
+                  <svg class="icon icon--chevron-right" alt="right chevron">
+                    <use xlink:href="#icon-chevron-right"></use>
+                  </svg>
+                </a>
+                {% if not loop.last %}
+                  <span class="highlight__cta-separator"></span>
+                {% endif %}
+              {% endfor %}
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+      <div class="highlights__list">
+        {% if posts %}
+          {% for post in posts %}
+            <div class="views-row">
+              {{ post }}
+            </div>
+          {% endfor %}
+        {% else %}
+          <div class="views-row">
+            <p>{{ 'No Posts'|t }}</p>
+          </div>
+        {% endif %}
+      </div>
+  </section>
+{% endblock %}

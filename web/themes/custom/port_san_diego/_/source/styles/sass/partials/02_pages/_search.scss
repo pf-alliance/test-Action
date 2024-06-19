@@ -1,0 +1,34 @@
+.path-search {
+  .sidebar-enabled__sidebar {
+    + .sidebar-enabled__main {
+      padding-bottom: rem-calc(20);
+      padding-top: rem-calc(20);
+      @include breakpoint(medium) {
+        padding-bottom: rem-calc(40);
+        padding-top: rem-calc(40);
+      }
+      @include breakpoint(large) {
+        padding-bottom: rem-calc(60);
+      }
+      @include breakpoint($global-width) {
+        margin-right: 0;
+      }
+    }
+  }
+
+  .search__items {
+    + .view-footer {
+      margin-top: rem-calc(30);
+    }
+  }
+
+  [class*='--view-mode-teaser'] {
+    .teaser-link {
+      display: none;
+    }
+
+    .content {
+      padding-top: 0 !important;
+    }
+  }
+}

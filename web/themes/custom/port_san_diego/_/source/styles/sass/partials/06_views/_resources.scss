@@ -1,0 +1,120 @@
+.resources__main-content {
+  @include flex-grid-row;
+  margin-bottom: rem-calc(40);
+  padding-top: rem-calc(20);
+  @include breakpoint(medium) {
+    margin-bottom: rem-calc(60);
+    padding-top: rem-calc(40);
+  }
+  @include breakpoint(large) {
+    margin-bottom: rem-calc(80);
+  }
+
+  .view-empty {
+    @include flex-grid-column(12);
+  }
+
+  .pagination__row {
+    padding-left: rem-calc(15);
+    padding-right: rem-calc(15);
+    width: 100%;
+
+    .pagination__container {
+      width: 100%;
+    }
+  }
+}
+
+.resources__count-sort {
+  @include flex-grid-column(12);
+  display: flex;
+  align-items: center;
+}
+
+.resources__count {
+  flex-grow: 1;
+  margin-bottom: 0;
+}
+
+.resources__sort-form {
+  @include breakpoint(small only) {
+    display: none;
+  }
+}
+
+.resources__sort-options {
+  margin: 0;
+  border: none;
+  padding: 0 rem-calc(1em) 0 0;
+  font-size: rem-calc(14);
+  color: $deep-blue;
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 18.96 16.442"><path d="M3.965 0l5.48 12.307L14.962 0h4l-7.618 16.442H7.62L0 0h3.965z" fill="#{$deep-blue}"/></svg>');
+  background-position: right center;
+}
+
+.resources__sort-submit {
+  display: none;
+
+  .no-js & {
+    display: block;
+  }
+}
+
+.resources__resource-wrapper {
+  @include flex-grid-column(12);
+  display: flex;
+  margin-top: rem-calc(20);
+  @include breakpoint(medium) {
+    @include flex-grid-size(6);
+    margin-top: rem-calc(30);
+  }
+  @include breakpoint(large) {
+    @include flex-grid-size(4);
+  }
+}
+
+.resources__resource {
+  color: $blue;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  border: 1px solid $grey-light;
+  border-radius: $border-radius;
+  text-decoration: none;
+
+  &:hover,
+  &:focus {
+    .icon--chevron-right + .icon--chevron-right {
+      opacity: 1;
+      right: -0.8em;
+    }
+  }
+}
+
+.resources__title {
+  color: inherit;
+  flex-grow: 1;
+  margin: 0;
+  padding: rem-calc(30) rem-calc(20);
+}
+
+.resources__info {
+  display: flex;
+  justify-content: space-between;
+  padding: rem-calc(10) rem-calc(20);
+  background-color: $morning-clay-light;
+}
+
+.resources__link,
+.resources__type {
+  display: flex;
+  align-items: center;
+}
+
+.resources__type {
+  font-size: rem-calc(34);
+}
+
+.resources__pagination {
+  @include flex-grid-column(12);
+}

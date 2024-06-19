@@ -1,0 +1,342 @@
+.collections {
+  overflow: hidden;
+}
+
+.collections__intro {
+  @include flex-grid-row;
+}
+
+.collections__container {
+  @include flex-grid-column;
+}
+
+.collections__heading {
+  margin-bottom: rem-calc(20);
+  text-align: center;
+  @include breakpoint(medium) {
+    margin-bottom: rem-calc(25);
+  }
+}
+
+.collections__sub-heading {
+  margin-bottom: rem-calc(30);
+  color: $grey-dark;
+  @include breakpoint(medium) {
+    @include grid-column-size(9);
+    margin-bottom: rem-calc(40);
+    margin-left: auto;
+    margin-right: auto;
+    text-align: center;
+  }
+
+  p {
+    font-size: rem-calc(21);
+  }
+}
+
+.collections__tabs {
+  @include accordion-container;
+  border: none;
+  margin: 0;
+  @include breakpoint(medium) {
+    display: flex;
+    justify-content: center;
+    margin-bottom: rem-calc(30);
+  }
+}
+
+.collections__title {
+  display: block;
+  position: relative;
+  margin-bottom: rem-calc(5);
+  margin-top: rem-calc(5);
+  border-radius: $border-radius;
+  padding: rem-calc(13) rem-calc(18);
+  font-size: rem-calc(14);
+  line-height: 1;
+  text-transform: uppercase;
+  text-align: center;
+  color: $white;
+  background-color: $deep-blue;
+  text-decoration: none !important;
+  transition-property: border, color, background;
+  transition-duration: $transition-time;
+  transition-timing-function: ease;
+  will-change: border, color, background;
+
+  &:hover,
+  &:focus {
+    color: $white;
+    background-color: $blue;
+  }
+
+  .icon {
+    position: absolute;
+    right: rem-calc(10);
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 0.6em;
+    transition: transform $transition-time ease;
+    will-change: transform;
+  }
+
+  &[aria-selected='true'] {
+    &:hover {
+      background-color: $deep-blue;
+    }
+
+    .icon {
+      transform: translateY(-50%) rotateX(180deg);
+    }
+  }
+
+  @include breakpoint(medium) {
+    margin-left: rem-calc(5);
+    margin-right: rem-calc(5);
+    color: $highlight;
+    background: $white;
+
+    &::after {
+      content: '';
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      border: rem-calc(7) solid transparent;
+      border-top-color: $blue;
+      opacity: 0;
+      transition: opacity $transition-time ease;
+      will-change: opacity;
+    }
+
+    // sass-lint:disable force-pseudo-nesting
+    &:hover,
+    &:focus,
+    &[aria-selected='true'],
+    &[aria-selected='true']:hover {
+      color: $white;
+      background-color: $blue;
+    }
+    // sass-lint:enable force-pseudo-nesting
+
+    &[aria-selected='true'] {
+      &::after {
+        opacity: 1;
+      }
+    }
+
+    .icon {
+      display: none;
+    }
+  }
+}
+
+.collections__collection {
+  display: none;
+  position: relative;
+  margin-bottom: rem-calc(30);
+  margin-top: rem-calc(30);
+  @include breakpoint(large) {
+    margin-bottom: 0;
+  }
+
+  // sass-lint:disable force-pseudo-nesting
+  .collections_tab:last-child & {
+    margin-bottom: 0;
+  }
+  // sass-lint:enable force-pseudo-nesting
+
+  .no-js & {
+    display: block;
+  }
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    border-bottom: 1px solid $sand;
+    @include breakpoint(large) {
+      top: auto;
+      bottom: 0;
+    }
+  }
+
+  .tabs-content & {
+    .collections__container & {
+      display: none;
+
+      &.is-active {
+        display: block;
+      }
+    }
+  }
+}
+
+.collections__collection-container {
+  @include flex-grid-row(nest);
+  @include breakpoint(large) {
+    min-height: rem-calc(360);
+  }
+}
+
+.collections__main-text,
+.collections__interests-column {
+  @include flex-grid-column(100%);
+}
+
+.collections__main-text {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding-top: rem-calc(20);
+  padding-bottom: rem-calc(20);
+  @include breakpoint(large) {
+    @include flex-grid-size(40%);
+  }
+
+  .collections__content-img {
+    margin-bottom: rem-calc(15);
+    @include breakpoint(large) {
+      margin-bottom: rem-calc(30);
+    }
+  }
+
+  .field--name-field-cta {
+    margin-top: rem-calc(15);
+    @include breakpoint(large) {
+      margin-top: rem-calc(30);
+    }
+  }
+}
+
+.collections__content-img {
+  max-width: rem-calc(150);
+  @include breakpoint(large) {
+    max-width: rem-calc(200);
+  }
+
+  img {
+    height: auto;
+    width: 100%;
+  }
+}
+
+.collections__interests-column {
+  display: flex;
+  @include breakpoint(large) {
+    @include flex-grid-size(60%);
+  }
+}
+
+.collections__interests {
+  display: flex;
+  position: relative;
+  width: 100%;
+  margin-bottom: rem-calc(35);
+  overflow: hidden;
+  border-radius: $border-radius;
+  @include breakpoint(medium) {
+    margin-bottom: 0;
+    overflow: visible;
+    border-radius: 0;
+  }
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    border-radius: $border-radius;
+    background: $blue;
+    @include breakpoint(large) {
+      left: 33.333%;
+      width: 100vw; // stretch to edge of browser
+      border-radius: 0;
+    }
+  }
+
+  // sass-lint:disable force-pseudo-nesting
+  .collections__collection:last-of-type & {
+    margin-bottom: 0;
+  }
+  // sass-lint:enable force-pseudo-nesting
+}
+
+.collections__interests-img {
+  position: relative;
+  min-height: rem-calc(150);
+  flex: 1 0 40%;
+  background-size: cover;
+  background-position: center;
+  @include breakpoint(large) {
+    flex-basis: 60%;
+    width: 60%;
+
+    &::before,
+    &::after {
+      @include clip-angle;
+      background-image: url('../img/clip-white.svg');
+    }
+
+    &::after {
+      background-image: url('../img/clip.svg');
+      left: auto;
+      right: -1px;
+      transform: rotate(180deg);
+    }
+  }
+}
+
+.collections__interests-content {
+  position: relative; // position in front of background element
+  flex: 1 0 60%;
+  padding: rem-calc(15);
+  @include breakpoint(large) {
+    background: $blue;
+    flex-basis: 40%;
+    padding-top: rem-calc(60);
+  }
+}
+
+.collections__interests-heading,
+.collections__interest {
+  border-bottom: 1px solid $deep-blue;
+  color: $white;
+}
+
+.collections__interests-heading {
+  font-weight: normal;
+  padding-bottom: rem-calc(15);
+}
+
+.collections__interest {
+  padding: rem-calc(5) 0;
+  overflow: hidden;
+
+  &:last-child {
+    border: none;
+  }
+
+  a {
+    @include white-link-on-dark;
+    @include link-arrow-left;
+  }
+}
+
+.collections__interests-list {
+  @include list-plain;
+}
+
+.no-js {
+  .collections__tabs {
+    display: none;
+  }
+
+  .collections__title {
+    display: block;
+  }
+}

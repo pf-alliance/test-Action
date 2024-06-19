@@ -1,0 +1,37 @@
+{% extends 'node.html.twig' %}
+{#
+/**
+ * @file
+ * Theme override to display a node.
+ */
+#}
+{% block content %}
+  <section class="article-header">
+    <div class="article-header__container">
+      <div class="eyebrow">
+        {% if content.field_date %}
+          <div class="article-header__time">
+            <time datetime="2017-02-14">{{ content.field_date }}</time>
+          </div>
+        {% endif %}
+        {% if content.field_topic %}
+          {{ content.field_topic }}
+        {% endif %}
+      </div>
+      {{ title_prefix }}
+      <h1{{ title_attributes.addClass('article-title', 'h3') }}>{{ label }}</h1>
+      {{ title_suffix }}
+      <p{{ author_attributes.addClass('node__submitted') }}>
+        {% trans %}<strong>Contact:</strong> <em>{{ author }}</em>{% endtrans %}
+      </p>
+      {% if content.body or boilerplate %}
+        <div class="article-header__content">
+          {{ content.body }}
+          {{ boilerplate }}
+        </div>
+      {% endif %}
+    </div>
+    <!-- /.article-header__container -->
+  </section>
+  {{ content|without('body', 'field_date', 'field_press_release_category', 'field_topic') }}
+{% endblock %}

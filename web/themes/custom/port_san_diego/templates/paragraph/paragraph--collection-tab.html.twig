@@ -1,0 +1,43 @@
+{% extends 'paragraph.html.twig' %}
+{#
+/**
+ * @file
+ * Default theme implementation to display a paragraph.
+ */
+#}
+{% block paragraph %}
+  {% block content %}
+    <a href="#{{ id }}" class="collections__title accordion-title"> {{ content.field_title }}
+      <svg class="icon icon--chevron-down" alt="down chevron">
+        <use xlink:href="#icon-chevron-down"></use>
+      </svg>
+    </a>
+
+    <div class="collections__collection accordion-content" data-tab-content>
+      <div class="collections__collection-container">
+        <div class="collections__main-text">
+          {% if topic_logo %}
+            <div class="collections__content-img">
+              {{ topic_logo }}
+            </div>
+          {% else %}
+            <h3 class="collections__content-title">{{ content.field_title }}</h3>
+          {% endif %}
+          {{ content.field_body }}
+          {{ content.field_cta }}
+        </div>
+
+        <div class="collections__interests-column">
+          <div class="collections__interests">
+            {% if divider_image %}
+              <div class="collections__interests-img" style="background-image: url('{{ divider_image }}'); {{ position }}"></div>
+            {% endif %}
+            {{ content.field_common_interests }}
+          </div>
+          <!-- /.collections__interests-column -->
+        </div>
+      </div>
+      <!-- /.collections__collection-container -->
+    </div>
+  {% endblock %}
+{% endblock %}

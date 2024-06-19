@@ -1,0 +1,24 @@
+{% extends 'paragraph.html.twig' %}
+{#
+/**
+ * @file
+ * Default theme implementation to display a paragraph.
+ */
+#}
+{% block content %}
+  <section class="collections">
+    <div class="collections__intro">
+      <div class="collections__container">
+
+        <h2 class="collections__heading">{{ content.field_title }}</h2>
+        {% if content.field_body|render|striptags|trim is not empty %}
+          <div class="collections__sub-heading">
+            {{ content.field_body }}
+          </div>
+        {% endif %}
+
+        {{ content.field_tabs }}
+      </div>
+    </div>
+  </section>
+{% endblock %}

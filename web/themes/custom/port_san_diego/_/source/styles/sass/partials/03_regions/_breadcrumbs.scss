@@ -1,0 +1,124 @@
+.breadcrumbs {
+  display: none;
+  font-size: rem-calc(12);
+  overflow: hidden;
+  @include breakpoint(medium) {
+    display: block;
+  }
+}
+
+.breadcrumbs__container {
+  @include flex-grid-row($wrap: false);
+  justify-content: space-between;
+
+  > * {
+    @include grid-column-gutter;
+    flex: 0 1 auto;
+  }
+}
+
+.breadcrumbs__list,
+.breadcrumbs__filters {
+  @include breakpoint(medium) {
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      width: 100vw;
+      border-bottom: 1px solid $sand-dark;
+    }
+  }
+}
+
+.breadcrumbs__list {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  position: relative;
+  @include breakpoint(medium) {
+    padding-right: 0;
+    margin-left: rem-calc(-15px);
+    padding-left: rem-calc(30px);
+  }
+  @include breakpoint($global-width) {
+    margin-left: calc(-1 * ((100vw - #{$global-width}) / 2));
+    padding-left: calc(#{rem-calc(15px)} + ((100vw - #{$global-width}) / 2));
+  }
+
+  &::after {
+    right: 0;
+  }
+}
+
+.breadcrumbs__wrapper {
+  overflow: hidden;
+  padding-bottom: rem-calc(10);
+  padding-top: rem-calc(15);
+  position: relative;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.breadcrumbs__filters {
+  display: flex;
+  align-items: center;
+
+  &::after {
+    left: 0;
+  }
+}
+
+.breadcrumbs__filter {
+  margin-right: rem-calc(25);
+  color: $grey-light;
+
+  &:last-child {
+    margin-right: 0;
+  }
+
+  // sass-lint:disable force-pseudo-nesting
+  &--active,
+  &--active:hover {
+    color: $deep-blue;
+  }
+  // sass-lint:enable force-pseudo-nesting
+}
+
+.breadcrumb,
+.breadcrumb__link,
+.breadcrumb__separator {
+  display: inline;
+}
+
+.breadcrumb {
+  font-weight: 400;
+  position: relative;
+
+  &--current-page {
+    font-weight: 500;
+  }
+}
+
+.breadcrumb__link {
+  display: inline-block;
+  font-weight: inherit;
+  transform: translate3d(0, 0, 0);
+}
+
+.breadcrumb__separator {
+  padding-left: rem-calc(10);
+  padding-right: rem-calc(10);
+  color: $deep-blue;
+}
+
+.breadcrumb__title {
+  &--no-link {
+    color: $blue;
+  }
+}
+
+.breadcrumb--current-page {
+  .breadcrumb__title {
+    border-bottom: none;
+  }
+}

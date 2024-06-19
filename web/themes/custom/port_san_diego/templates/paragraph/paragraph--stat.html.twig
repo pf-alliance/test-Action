@@ -1,0 +1,14 @@
+{% extends 'paragraph.html.twig' %}
+{#
+/**
+ * @file
+ * Theme override to display a Taskbar Paragraph.
+ */
+#}
+{% block paragraph %}
+  {% block content %}
+    <h4 class="stats__stat">
+      <span class="stats__stat-number"><sup class="stats__stat-prefix">{{ field_prefix }}</sup>{{ field_value }}<sup class="stats__stat-prefix">{{ field_suffix }}</sup></span>{{ field_label }}
+    </h4>
+  {% endblock %}
+{% endblock paragraph %}

@@ -1,0 +1,39 @@
+{% extends 'paragraph.html.twig' %}
+{#
+/**
+ * @file
+ * Theme override to display a Taskbar Paragraph.
+ */
+#}
+{% block content %}
+  <section class="sub-category-list">
+    {% for node in nodes %}
+      <div class="sub-category">
+        <div class="sub-category__container">
+          {% if node.hero_images %}
+            <div class="sub-category__img">
+              {{ node.hero_images }}
+            </div>
+          {% endif %}
+
+          <div class="sub-category__content">
+            <h3 class="sub-category__title">{{ node.title }}</h3>
+            <div class="sub-category__text">
+              {{ node.intro }}
+            </div>
+            <p class="sub-category__link">
+              <a href="{{ node.url }}" class="call-to-action">View {{ node.title }}
+                <svg class="icon icon--chevron-right" alt="right chevron">
+                  <use xlink:href="#icon-chevron-right"></use>
+                </svg>
+                <svg class="icon icon--chevron-right" alt="right chevron">
+                  <use xlink:href="#icon-chevron-right"></use>
+                </svg>
+              </a>
+            </p>
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+  </section>
+{% endblock %}

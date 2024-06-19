@@ -1,0 +1,203 @@
+.home-hero {
+  position: relative;
+  overflow: hidden;
+  @include breakpoint(medium) {
+    background: linear-gradient($teal-gradient 0%, $blue-gradient 100%);
+  }
+
+  @include not-btn {
+    @include white-link-on-dark;
+  }
+
+  &__wrapper {
+    margin: 0 auto;
+    max-width: $global-width;
+    position: relative;
+  }
+
+  // IE11 and Edge hack
+  @include edge-ie-hack {
+    &::before {
+      min-height: 0;
+    }
+  }
+}
+
+.home-hero__img-slider-container {
+  position: relative;
+  width: 100%;
+  min-height: 170px;
+  overflow: hidden;
+  @include breakpoint(medium) {
+    left: 33.333%;
+    position: absolute;
+    top: 0;
+    z-index: 1;
+    width: 66.66667%;
+    height: 100%;
+  }
+  @include breakpoint($global-width) {
+    width: calc(66.66667% + ((100vw - #{$global-width}) / 2));
+  }
+
+  // IE11 and Edge hack
+  @include edge-ie-hack {
+    &::before {
+      @include clip-angle;
+      background-image: url('../img/clip-gradient.svg');
+      z-index: 10;
+    }
+  }
+}
+
+.home-hero__img-slide {
+  position: relative;
+  min-width: 100%;
+
+  @include breakpoint(large) {
+    &::after {
+      background-image: linear-gradient(transparent 0%, transparentize($black, 0.45) 100%);
+      bottom: 0;
+      content: '';
+      display: block;
+      left: 0;
+      position: absolute;
+      right: 0;
+      top: 75%;
+    }
+  }
+
+  .hero-img {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 0 !important;
+  }
+
+  .header-video--btn {
+    @include breakpoint($global-width) {
+      right: calc((100vw - #{$global-width}) / 2);
+    }
+  }
+}
+
+// Slick specific styles
+.home-hero__img-slider {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  position: absolute !important;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  z-index: 1;
+
+  &.slick-initialized {
+    .home-hero__img-slide {
+      min-width: 0;
+    }
+
+    .slick-list {
+      flex-grow: 1;
+    }
+
+    .slick-track {
+      height: 100%;
+    }
+
+    .slick-arrow {
+      position: absolute;
+      z-index: 1;
+      bottom: rem-calc(10);
+      font-size: rem-calc(28); // Determines the inner SVG's width and height;
+      border: none;
+      padding: 0;
+      color: $white;
+      background-color: transparent;
+      @include breakpoint(medium) {
+        bottom: rem-calc(50);
+      }
+      transition: transform $transition-time ease;
+
+      &:hover,
+      &:focus {
+        transform: scale(1.15);
+      }
+    }
+
+    .slick-prev {
+      left: rem-calc($global-padding);
+      @include breakpoint(medium) {
+        left: rem-calc(60);
+      }
+    }
+
+    .slick-next {
+      right: rem-calc($global-padding);
+      @include breakpoint(medium) {
+        right: rem-calc(50);
+      }
+    }
+  }
+}
+
+.home-hero__events-slider {
+  background: linear-gradient($teal-gradient 0%, $blue-gradient 100%);
+  color: $white;
+  overflow: hidden;
+  @include breakpoint(medium) {
+    background: none;
+    flex-direction: column;
+    overflow: visible;
+  }
+
+  a {
+    @include white-link-on-dark;
+  }
+}
+
+.home-hero__event {
+  display: none; // hide flash from Slick slider initializing. Show again on no-js below
+  outline: none;
+
+  &:first-child {
+    display: block;
+  }
+
+  &--wrapper {
+    @include grid-column-gutter;
+    padding-top: rem-calc(15);
+    padding-bottom: rem-calc(30);
+    text-align: center;
+    @include breakpoint(medium) {
+      max-width: 33.333%;
+      padding-top: rem-calc(45);
+      padding-bottom: rem-calc(60);
+      text-align: left;
+    }
+  }
+}
+
+.no-js {
+  .home-hero__event {
+    display: block;
+    border-bottom: 1px solid $blue-light;
+    padding-bottom: rem-calc(30);
+  }
+}
+
+.home-hero__title {
+  margin-bottom: rem-calc(15);
+  padding-bottom: rem-calc(30);
+  position: relative;
+  @include breakpoint(medium) {
+    font-size: calc(28px + (52 - 28) * ((100vw - 640px) / (1290 - 640)));
+    line-height: 1.055em;
+  }
+  @include breakpoint($global-width) {
+    font-size: rem-calc(52);
+  }
+}

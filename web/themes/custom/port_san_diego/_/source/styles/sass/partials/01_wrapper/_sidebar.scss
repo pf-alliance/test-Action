@@ -1,0 +1,228 @@
+.sidebar-enabled {
+  @include flex-grid-row;
+}
+
+.sidebar-enabled__sidebar,
+.sidebar-enabled__main {
+  @include flex-grid-column(12);
+}
+
+.sidebar-enabled__sidebar {
+  position: relative;
+  background-color: $morning-clay-light;
+  @include breakpoint(medium) {
+    @include flex-grid-size(30%);
+
+    &::before {
+      background-color: $morning-clay-light;
+      content: '';
+      height: 100%;
+      position: absolute;
+      right: 0;
+      top: 0;
+      width: 100vw;
+    }
+  }
+
+  @include breakpoint(large) {
+    @include flex-grid-size(20%);
+  }
+
+  + .sidebar-enabled__main {
+    @include breakpoint(medium) {
+      padding-left: 2rem;
+    }
+    @include breakpoint(large) {
+      padding-left: 3rem;
+    }
+  }
+}
+
+.sidebar-enabled__main {
+  padding: 0;
+  @include breakpoint(medium) {
+    @include flex-grid-size(expand);
+  }
+  @include breakpoint($global-width) {
+    margin-right: calc(-1 * ((100vw - #{$global-width}) / 2));
+  }
+
+  .field--name-field-paragraphs {
+    // TODO: Enable if per-paragraph full-width is required on sidebar pages.
+    //.paragraph--type--sub-categories {
+    //  @include breakpoint($global-width) {
+    //    margin-right: calc(-1 * ((100vw - #{$global-width} + #{map-get($grid-column-gutter, medium)}) / 2));
+    //  }
+    //}
+
+    .paragraph--type--basic-text {
+      .field--name-field-body {
+        > * {
+          max-width: none;
+        }
+      }
+    }
+  }
+}
+
+// sass-lint:disable force-element-nesting no-qualifying-elements
+input.sidebar__content-toggle-checkbox {
+  display: none;
+
+  &:checked {
+    + .sidebar__content-toggle {
+      .icon--chevron-down {
+        transform: rotateX(180deg);
+      }
+
+      + .sidebar__sidebar-content {
+        display: block;
+      }
+    }
+  }
+}
+// sass-lint:enable force-element-nesting no-qualifying-elements
+
+.sidebar__content-toggle {
+  @extend button;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  margin-left: auto;
+  border: none;
+  padding: rem-calc(10) 0;
+  color: $highlight;
+  background: transparent;
+  @include breakpoint(medium) {
+    display: none;
+  }
+
+  svg {
+    margin-left: rem-calc(5);
+    font-size: 0.8em;
+    transition: transform 0.25s ease;
+  }
+
+  &:hover,
+  &:focus {
+    background: transparent;
+  }
+}
+
+.sidebar__sidebar-content {
+  display: none;
+  padding-bottom: rem-calc(20);
+  padding-top: rem-calc(20);
+  @include breakpoint(medium) {
+    display: block;
+    padding-bottom: rem-calc(40);
+    padding-top: rem-calc(40);
+  }
+
+  legend,
+  label {
+    @extend h5;
+    width: 100%;
+    margin-bottom: 0;
+  }
+
+  fieldset {
+    label {
+      color: $highlight;
+    }
+  }
+
+  input,
+  select,
+  textarea {
+    background-color: $white;
+  }
+
+  input {
+    &[type='submit'] {
+      background-color: $deep-blue;
+
+      &:hover,
+      &:focus {
+        background-color: $white;
+      }
+    }
+
+    &[id='edit-reset'] {
+      margin-top: rem-calc(65);
+      margin-bottom: rem-calc(30);
+      background-color: transparent;
+
+      &:hover {
+        background-color: transparent;
+      }
+    }
+  }
+}
+
+.sidebar__section {
+  margin-bottom: rem-calc(45);
+}
+
+.sidebar__section-title {
+  margin-bottom: rem-calc(20);
+}
+
+.sidebar__fieldset {
+  &--expandable {
+    legend {
+      position: relative;
+      cursor: pointer;
+
+      &::before,
+      &::after {
+        content: '';
+        position: absolute;
+        right: 0;
+        top: 50%;
+        transform: translateY(-50%);
+        width: rem-calc(10);
+        height: rem-calc(2);
+        background: $deep-blue;
+      }
+
+      &::after {
+        transform: rotate(90deg) translateX(-1px);
+        transition: transform .15s ease;
+        will-change: transform;
+      }
+    }
+
+    .sidebar__input-group {
+      display: none;
+    }
+  }
+
+  &--open {
+    legend {
+      &::after {
+        transform: translateY(-50%);
+      }
+    }
+
+    .sidebar__input-group {
+      display: block;
+    }
+  }
+}
+
+.no-js {
+  .sidebar__content-toggle {
+    display: none;
+  }
+
+  .sidebar__sidebar-content {
+    display: block;
+  }
+
+  .sidebar__fieldset {
+    .sidebar__input-group {
+      display: block;
+    }
+  }
+}

@@ -1,0 +1,12 @@
+{#
+/**
+ * @file
+ * Custom theme template.
+ */
+#}
+{% for key, image in hero_images %}
+  <div class="hero-img responsive-bg-img responsive-bg-img--{{ key }}">
+    <span class="responsive-bg-img__child" style="background-image: url('{{ image }}'); {{ position }}"></span>
+  </div>
+{% endfor %}
+<img class="hero-image-social-image" src="{{ hero_images|last }}" alt="{{ alt }}">

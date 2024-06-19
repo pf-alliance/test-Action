@@ -1,0 +1,245 @@
+// Mixins and extendables
+// sass-lint:disable force-pseudo-nesting
+@mixin anonymous {
+  body:not(.user-logged-in) & {
+    @content;
+  }
+}
+
+@mixin clip-angle {
+  background-image: url('../img/clip.svg');
+  background-position: left top;
+  background-repeat: no-repeat;
+  background-size: auto 100%;
+  content: '';
+  height: 100%;
+  left: -1px;
+  pointer-events: none;
+  position: absolute;
+  top: 0;
+  width: 100%;
+  z-index: 1;
+}
+
+@mixin edge-ie-hack {
+  @include breakpoint(medium) {
+    @supports (-ms-ime-align: auto) {
+      @content;
+    }
+    @media screen and (-ms-high-contrast: none) {
+      @content;
+    }
+  }
+}
+
+@mixin flip-main-columns {
+  .main-wrapper {
+    &__content {
+      @include flex-order(1);
+    }
+
+    &__sidebar {
+      @include flex-order(0);
+    }
+  }
+}
+
+@mixin global-spacing {
+  margin-bottom: map-get($global-spacing, small);
+  margin-top: map-get($global-spacing, small);
+  @include breakpoint(medium) {
+    margin-bottom: map-get($global-spacing, medium);
+    margin-top: map-get($global-spacing, medium);
+  }
+  @include breakpoint(large) {
+    margin-bottom: map-get($global-spacing, large);
+    margin-top: map-get($global-spacing, large);
+  }
+}
+
+@mixin global-internal-spacing {
+  padding-bottom: map-get($global-spacing, small);
+  padding-top: map-get($global-spacing, small);
+  @include breakpoint(medium) {
+    padding-bottom: map-get($global-spacing, medium);
+    padding-top: map-get($global-spacing, medium);
+  }
+  @include breakpoint(large) {
+    padding-bottom: map-get($global-spacing, large);
+    padding-top: map-get($global-spacing, large);
+  }
+}
+
+@mixin list-plain {
+  margin-left: 0;
+  margin-bottom: 0;
+  list-style-type: none;
+}
+
+@mixin list-inline {
+  @include list-plain;
+
+  > li {
+    display: inline-block;
+  }
+}
+
+@mixin link-standard {
+  text-decoration: underline;
+
+  &:hover,
+  &:focus {
+    text-decoration: none;
+  }
+}
+
+@mixin link-inverted {
+  text-decoration: none;
+
+  &:hover,
+  &:focus {
+    text-decoration: underline;
+  }
+}
+
+@mixin location-w-icon {
+  display: flex;
+  justify-content: center;
+  @include breakpoint(medium) {
+    justify-content: flex-start;
+  }
+
+  svg {
+    margin-top: 0.4em;
+    margin-right: 0.4em;
+    font-size: 0.8em;
+    color: $yellow-light;
+  }
+
+  a {
+    @include link-inverted;
+    color: $white;
+
+    &:hover,
+    &:focus {
+      color: $white;
+    }
+  }
+}
+
+@mixin link-arrow-left {
+  display: block;
+  font-weight: bold;
+  text-decoration: none;
+  text-indent: -1rem;
+  transition: color $transition-time ease, text-indent $transition-time ease;
+
+  &::before {
+    content: '>';
+    display: inline-block;
+    width: 1rem;
+    height: 1.4em;
+    font-size: 0.9em;
+    transform: translateY(-0.1em);
+  }
+
+  &:hover,
+  &:focus {
+    text-decoration: none;
+    text-indent: 0;
+    font-weight: 700;
+  }
+}
+
+@mixin placeholder {
+  &::-webkit-input-placeholder {
+    @content;
+  }
+
+  &:-moz-placeholder {
+    @content;
+  }
+
+  &::-moz-placeholder {
+    @content;
+  }
+
+  &:-ms-input-placeholder {
+    @content;
+  }
+}
+
+@mixin white-link-border-top {
+  border-top: 1px solid transparent;
+  color: $white;
+  display: inline-block;
+  line-height: 1.5625em;
+  padding: rem-calc(4) 0;
+  text-decoration: none !important;
+  transition: all $transition-time;
+
+  &:hover,
+  &:focus {
+    border-top-color: $white;
+  }
+}
+
+@mixin white-link-on-dark {
+  color: $white;
+}
+
+@mixin map-loading-background {
+  background-color: $grey-light;
+  position: relative;
+
+  &::before {
+    background-image: url('../source/svg/theme/tasks/map.svg');
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: 10% auto;
+    bottom: 0;
+    content: '';
+    display: block;
+    left: 0;
+    opacity: 0.1;
+    position: absolute;
+    right: 0;
+    top: 0;
+    z-index: 0;
+  }
+}
+
+@mixin list-bullets-color($color: $blue) {
+  list-style-type: none;
+
+  li {
+    text-indent: -0.9375em;
+
+    > h1,
+    > h2,
+    > h3,
+    > h4,
+    > h5,
+    > h6,
+    > p {
+      display: inline;
+    }
+
+    &::before {
+      background-color: $color;
+      border-radius: 50%;
+      content: '';
+      display: inline-block;
+      height: 0.3125em;
+      margin-right: 0.625em;
+      margin-bottom: 0.15em;
+      width: 0.3125em;
+    }
+  }
+}
+
+@mixin not-btn {
+  a:not(.btn) {
+    @content;
+  }
+}

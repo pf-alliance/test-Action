@@ -1,0 +1,67 @@
+{#
+/**
+ * @file
+ * Theme override to display a node.
+ */
+#}
+{%
+  set classes = [
+    'node',
+    'node--type-' ~ node.bundle|clean_class,
+    node.isPromoted() ? 'node--promoted',
+    node.isSticky() ? 'node--sticky',
+    not node.isPublished() ? 'node--unpublished',
+    view_mode ? 'node--view-mode-' ~ view_mode|clean_class,
+    'home-hero',
+  ]
+%}
+<section{{ attributes.addClass(classes) }}>
+  <div class="home-hero__wrapper">
+    {{ title_prefix }}
+    {{ title_suffix }}
+    <div class="home-hero__img-slider-container" data-brand-angle="{&quot;breakpoints&quot;:[{ &quot;minWidth&quot;: 0, &quot;clipLeft&quot;: false, &quot;clipRight&quot;: false },{ &quot;minWidth&quot;: 640, &quot;clipLeft&quot;: true, &quot;clipRight&quot;: false }]}">
+      <div class="home-hero__img-slider">
+        {% for item in images %}
+          <div class="home-hero__img-slide">
+            {{ item }}
+            {% if item.video %}
+              <div class="reveal large header-video" id="header-video" data-reveal data-reset-on-close="true">
+                <button class="close-button" data-close aria-label="Close Video" type="button">
+                  <svg class="icon icon--close" alt="close icon"><use xlink:href="#icon-close"></use></svg>
+                </button>
+                {{ item.video }}
+              </div>
+              <div class="header-video--btn">
+                <button data-open="header-video">
+                  <svg class="icon icon--video-play" alt="video play icon"><use xlink:href="#icon-video-play"></use></svg>
+                </button>
+              </div>
+            {% endif %}
+          </div>
+        {% endfor %}
+      </div>
+      <!-- /.home-hero__img-slider -->
+    </div>
+    <!-- /.home-hero__img-slider-container -->
+
+    <div class="home-hero__events-slider">
+      {% for event in events %}
+        <div class="home-hero__event">
+          <div class="home-hero__event--wrapper">
+            <h1{{ title_attributes.addClass('home-hero__title') }}>{{ event.title }}</h1>
+            <div class="home-hero__event-description">
+              {{ event.information }}
+            </div>
+            {% if event.location %}
+              <p class="hero__location"><svg class="icon icon--location" alt="location icon"><use xlink:href="#icon-location"></use></svg>{{ event.location }}</p>
+            {% endif %}
+          </div>
+          <!-- /.home-hero__event--wrapper -->
+        </div>
+        <!-- /.home-hero__event -->
+      {% endfor %}
+    </div>
+    <!-- /.home-hero__events-slider -->
+    {{ content.links }}
+  </div>
+</section>

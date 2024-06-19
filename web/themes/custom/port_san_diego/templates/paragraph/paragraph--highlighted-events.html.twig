@@ -1,0 +1,33 @@
+{#
+/**
+ * @file
+ * Default theme implementation to display a paragraph.
+ */
+#}
+
+{% set wrapper_attributes = create_attribute() %}
+{%
+  set wrapper_classes = [
+  'highlights',
+  featured ? 'highlights__featured',
+]
+%}
+{% block content %}
+  <section{{ wrapper_attributes.addClass(wrapper_classes) }}>
+    <div class="highlights__intro-row">
+      <div class="highlights__intro-container">
+        <div class="highlights__intro">
+          <h3 class="highlights__intro-title">
+            {{ content.field_title }}
+          </h3>
+        </div>
+      </div>
+    </div>
+    <div class="highlights__list">
+
+      {{ events }}
+
+    </div>
+  </section>
+{% endblock %}
+

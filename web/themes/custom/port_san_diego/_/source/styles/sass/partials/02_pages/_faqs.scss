@@ -1,0 +1,27 @@
+.path-faqs {
+  .view-faqs {
+    @include flex-grid-row;
+    padding-bottom: rem-calc(40);
+    padding-top: rem-calc(40);
+    @include breakpoint(medium) {
+      padding-bottom: rem-calc(60);
+      padding-top: rem-calc(60);
+    }
+    @include breakpoint(large) {
+      padding-bottom: rem-calc(80);
+      padding-top: rem-calc(80);
+    }
+
+    .view-content {
+      @include flex-grid-column(12);
+    }
+
+    .views-row {
+      margin-bottom: rem-calc(30);
+
+      &:last-child {
+        margin-bottom: 0;
+      }
+    }
+  }
+}

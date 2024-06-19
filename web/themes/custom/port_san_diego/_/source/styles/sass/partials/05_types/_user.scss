@@ -1,0 +1,7 @@
+.block-system-main-block {
+  > .profile {
+    @include flex-grid-row;
+    @include grid-column-gutter;
+    @include global-spacing;
+  }
+}

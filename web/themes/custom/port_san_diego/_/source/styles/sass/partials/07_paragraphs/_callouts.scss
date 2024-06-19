@@ -1,0 +1,66 @@
+.callouts {
+  @include flex-grid-row;
+}
+
+.callout {
+  @include grid-column-gutter;
+  flex: 1 0 auto;
+  position: relative;
+  text-align: center;
+  width: 100%;
+  @include breakpoint(small only) {
+    min-width: 100%;
+    padding-bottom: rem-calc(30);
+    padding-top: rem-calc(30);
+
+    &:first-child {
+      padding-top: 0;
+    }
+
+    &:last-child {
+      padding-bottom: 0;
+    }
+  }
+  @include breakpoint(medium only) {
+    &:nth-child(2n + 1) {
+      &::before {
+        display: none;
+      }
+    }
+  }
+  @include breakpoint(medium) {
+    width: 50%;
+  }
+  @include breakpoint(large) {
+    width: 25%;
+  }
+
+  a {
+    @include link-inverted;
+    display: block;
+  }
+
+  &:hover {
+    .callout__icon {
+      transform: scale(1.1);
+    }
+  }
+}
+
+.callout__icon {
+  color: $teal;
+  height: rem-calc(60);
+  margin: 0 auto rem-calc(20);
+  transition: transform $transition-time;
+  width: rem-calc(60);
+
+  svg {
+    height: auto;
+    width: auto;
+  }
+}
+
+.callout__heading {
+  font-size: rem-calc(24);
+  margin-bottom: 0;
+}

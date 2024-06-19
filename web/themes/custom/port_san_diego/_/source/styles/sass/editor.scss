@@ -1,0 +1,341 @@
+@import 'all/variables';
+@import 'all/mixins';
+@import 'foundation-sites/scss/util/breakpoint';
+
+h1,
+.h1 {
+  margin-bottom: rem-calc(10);
+  font-size: rem-calc(28);
+  font-weight: normal;
+  line-height: 1.085em;
+  @include breakpoint(medium) {
+    margin-bottom: rem-calc(32);
+    font-size: rem-calc(48);
+  }
+}
+
+h2,
+.h2 {
+  color: $blue;
+  margin-bottom: rem-calc(20);
+  font-size: rem-calc(28);
+  font-weight: normal;
+  line-height: (40/35)*1em;
+  @include breakpoint(medium) {
+    font-size: rem-calc(35);
+  }
+}
+
+h3,
+.h3 {
+  margin-bottom: rem-calc(20);
+  font-size: rem-calc(28);
+  font-weight: normal;
+  line-height: (30/28)*1em;
+}
+
+h4,
+.h4 {
+  margin-bottom: rem-calc(10);
+  font-size: rem-calc(18);
+  font-weight: normal;
+  line-height: (28/20)*1em;
+}
+
+h5,
+.h5 {
+  font-size: rem-calc(14);
+  line-height: (20/14)*1em;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+h6,
+.h6 {
+  font-size: rem-calc(16);
+  line-height: (26/16)*1em;
+  font-weight: 500;
+}
+
+p,
+dl,
+ol,
+ul {
+  margin-bottom: rem-calc(27);
+}
+
+a {
+  @include link-standard;
+  font-weight: 600;
+  color: $highlight;
+  transition: color $transition-time ease;
+  will-change: color;
+
+  &:hover,
+  &:focus {
+    color: $blue-light;
+  }
+}
+
+button {
+  border: 1px solid $blue;
+  border-radius: $border-radius;
+  padding: rem-calc(10);
+  font-size: rem-calc(14);
+  font-weight: 700;
+  text-transform: uppercase;
+  color: $white;
+  background: $blue;
+  cursor: pointer;
+  transition-property: border, color, background;
+  transition-duration: $transition-time;
+  transition-timing-function: ease;
+  will-change: border, color, background;
+
+  &:hover,
+  &:focus {
+    border-color: currentColor;
+    color: $blue;
+    background-color: $white;
+  }
+}
+
+// Links that look like buttons
+.btn {
+  @extend button;
+  display: inline-block;
+  text-decoration: none;
+
+  &.btn--white {
+    border-color: $white;
+    color: $blue;
+    background: $white;
+
+    &:hover,
+    &:focus {
+      color: $white;
+      background: transparent;
+    }
+  }
+}
+
+@include breakpoint(medium) {
+  .two-col {
+    column-count: 2;
+  }
+}
+
+// sass-lint:disable force-element-nesting
+.media.media--type-image.media--view-mode-embed,
+.media.media--type-image.media--view-mode-slider {
+  .field--name-field-media-image {
+    > a {
+      border: none;
+      display: block;
+
+      > img {
+        display: block;
+        height: auto;
+        max-width: 100%;
+      }
+    }
+
+    .zoom-container {
+      position: relative;
+
+      &:hover {
+        .icon-zoom {
+          * {
+            fill: $blue-light;
+          }
+        }
+      }
+    }
+
+    .icon-zoom {
+      bottom: rem-calc(10);
+      cursor: pointer;
+      font-size: rem-calc(34);
+      pointer-events: none;
+      position: absolute;
+      right: rem-calc(10);
+
+      * {
+        fill: $white;
+        transition: fill $transition-time;
+      }
+    }
+  }
+
+  .download {
+    display: block;
+    margin-top: rem-calc(7);
+
+    a {
+      align-items: center;
+      display: flex;
+      text-decoration: none;
+
+      .icon {
+        margin-left: rem-calc(10);
+        margin-top: rem-calc(-2);
+      }
+    }
+  }
+
+  .field--name-field-caption-headline,
+  .field--name-field-caption-body {
+    display: none;
+  }
+}
+
+.embedded-entity {
+  &.align-left {
+    float: none !important;
+
+    @include breakpoint(medium) {
+      > img,
+      .media--type-image {
+        float: left;
+        padding-right: rem-calc(30);
+      }
+    }
+  }
+
+  &.align-right {
+    float: none !important;
+
+    @include breakpoint(medium) {
+      > img,
+      .media--type-image {
+        float: right;
+        padding-left: rem-calc(30);
+      }
+    }
+  }
+
+  &.align-center {
+    float: none !important;
+
+    @include breakpoint(medium) {
+      > img {
+        display: block;
+        margin-left: auto;
+        margin-right: auto;
+      }
+    }
+  }
+
+  .media--type-image {
+    padding-bottom: rem-calc(30);
+    @include breakpoint(small only) {
+      float: none !important;
+    }
+    @include breakpoint(medium) {
+      max-width: 40%;
+    }
+    @include breakpoint(large) {
+      max-width: 33.333%;
+    }
+  }
+}
+
+figure {
+  &.embedded-entity {
+    margin: 0;
+
+    figcaption {
+      caption-side: unset;
+      display: block;
+      font-size: 0.75em;
+      line-height: 1.25em;
+      margin-top: rem-calc(10);
+    }
+  }
+
+  &.caption {
+    &.embedded-entity {
+      padding-bottom: rem-calc(30);
+      @include breakpoint(small only) {
+        float: none !important;
+      }
+      @include breakpoint(medium) {
+        max-width: 40%;
+      }
+      @include breakpoint(large) {
+        max-width: 33.333%;
+      }
+
+      img {
+        width: 100%;
+        height: auto;
+      }
+
+      &.align-left {
+        float: left !important;
+        @include breakpoint(medium) {
+          padding-right: rem-calc(30);
+        }
+      }
+
+      &.align-right {
+        float: right !important;
+
+        @include breakpoint(medium) {
+          padding-left: rem-calc(30);
+        }
+      }
+
+      &.align-center {
+        float: none !important;
+        margin: auto;
+
+        > img {
+          @include breakpoint(medium) {
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+          }
+        }
+      }
+    }
+  }
+}
+
+.mfp-bg {
+  z-index: 94035;
+}
+
+.mfp-wrap {
+  z-index: 94036;
+
+  .mfp-close {
+    background-color: transparent;
+    border: none;
+    transition: opacity $transition-time;
+  }
+
+  .caption-wrapper {
+    background: transparentize($black, 0.3);
+    bottom: rem-calc(4);
+    padding: 1em;
+    position: absolute;
+    width: 100%;
+
+    .headline {
+      font-weight: bold;
+      margin-bottom: rem-calc(10);
+
+      + p {
+        font-size: 0.85em;
+      }
+    }
+  }
+}
+
+.cke_editable {
+  img {
+    height: auto;
+    max-width: 100%;
+  }
+}

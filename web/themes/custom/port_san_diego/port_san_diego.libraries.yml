@@ -1,0 +1,49 @@
+global:
+  css:
+    theme:
+      # //cloud.typography.com/7629016/6647192/css/fonts.css: {type: external}
+      //cloud.typography.com/7629016/7650032/css/fonts.css: {type: external}
+      _/css/port-san-diego.css: {}
+      _/css/print.css: {media: print}
+  js:
+    _/js/vendor/foundation.core.min.js: {minified: true}
+    _/js/vendor/foundation.util.box.min.js: {minified: true}
+    _/js/vendor/foundation.util.keyboard.min.js: {minified: true}
+    _/js/vendor/foundation.util.mediaQuery.min.js: {minified: true}
+    _/js/vendor/foundation.util.motion.min.js: {minified: true}
+    _/js/vendor/foundation.util.timer.min.js: {minified: true}
+    _/js/vendor/foundation.util.imageLoader.min.js: {minified: true}
+    _/js/vendor/foundation.util.triggers.min.js: {minified: true}
+    _/js/vendor/foundation.accordion.min.js: {minified: true}
+    _/js/vendor/foundation.reveal.min.js: {minified: true}
+    _/js/vendor/foundation.tabs.min.js: {minified: true}
+    _/js/vendor/foundation.tooltip.min.js: {minified: true}
+    _/js/vendor/foundation.responsiveAccordionTabs.min.js: {minified: true}
+    _/js/port-san-diego.js: {}
+  dependencies:
+    - core/jquery
+    - core/jquery.once
+    - core/drupal
+    - core/drupal.debounce
+    - port_san_diego/sharethis
+    - port_san_diego/sticky_sidebar
+
+sharethis:
+  js:
+    //platform-api.sharethis.com/js/sharethis.js#property=5a5e542b14c3d30012600c18&product=custom-share-buttons: {type: external}
+
+slick_slider:
+  css:
+    theme:
+      _/css/vendor/slick.css: {weight: -10}
+  js:
+    _/js/vendor/slick.min.js: {minified: true, weight: -10}
+
+sticky_sidebar:
+  js:
+    _/js/vendor/ResizeSensor.js: {minified: true, weight: -10}
+    _/js/vendor/jquery.sticky-sidebar.min.js: {minified: true, weight: -10}
+
+jquery_replace:
+  js:
+    _/js/vendor/jquery.min.js: {minified: true, weight: -20}

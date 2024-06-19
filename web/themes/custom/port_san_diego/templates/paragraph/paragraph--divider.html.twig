@@ -1,0 +1,12 @@
+{% extends 'paragraph.html.twig' %}
+{#
+/**
+ * @file
+ * Default theme implementation to display a paragraph.
+ */
+#}
+{% block content %}
+  <section class="divider">
+    <img width="{{ width }}" height="{{ height }}" src="{{ url }}" class="divider__img" alt="{{ alt }}" srcset="{{ srcset }}">
+  </section>
+{% endblock %}

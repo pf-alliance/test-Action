@@ -1,0 +1,132 @@
+.stats {
+  text-align: center;
+  @include breakpoint(medium) {
+    @include flex-grid-row;
+    align-items: center;
+    flex-direction: row-reverse;
+  }
+}
+
+.stats__details,
+.stats__media {
+  @include flex-grid-column(12);
+  @include breakpoint(small only) {
+    padding: rem-calc(15) 0;
+  }
+  @include breakpoint(medium) {
+    @include flex-grid-size(6);
+
+    &.stats_no_media {
+      flex: 0 0 100%;
+      max-width: 100%;
+    }
+  }
+}
+
+.stats__title {
+  color: $blue;
+  margin-bottom: rem-calc(15);
+  max-width: 100%;
+}
+
+.stats__list {
+  @include flex-grid-row;
+  color: $grey;
+  font-size: rem-calc(72);
+  justify-content: center;
+  width: 100%;
+  @include breakpoint(medium) {
+    font-size: rem-calc(36);
+  }
+
+  + .btn {
+    margin-top: rem-calc(30);
+  }
+}
+
+.stats__stat {
+  @include flex-grid-column(12);
+  position: relative;
+  padding-bottom: rem-calc(35);
+  padding-top: rem-calc(30);
+  @include breakpoint(small only) {
+    &:first-child {
+      padding-top: 0;
+    }
+
+    &:last-child {
+      padding-bottom: 0;
+    }
+  }
+  @include breakpoint(medium) {
+    @include flex-grid-size(4);
+  }
+  @include breakpoint(large) {
+    padding-left: rem-calc(30);
+    padding-right: rem-calc(30);
+  }
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    height: rem-calc(2);
+    width: 100%;
+    max-width: rem-calc(145);
+    background: $sand;
+    @include breakpoint(medium) {
+      top: 20%;
+      left: 0;
+      transform: rotate(15deg);
+      width: rem-calc(2);
+      height: 100%;
+      max-height: rem-calc(73);
+    }
+  }
+
+  &:first-child {
+    &::before {
+      display: none;
+    }
+  }
+}
+
+.stats__stat-number {
+  display: block;
+  font-size: rem-calc(36);
+  line-height: rem-calc(48);
+  color: $brown;
+
+  @include breakpoint(medium) {
+    font-size: rem-calc(24);
+  }
+
+  @include breakpoint(large) {
+    font-size: rem-calc(36);
+  }
+}
+
+.stats__stat-prefix {
+  top: -0.5em;
+  font-size: 0.6em;
+}
+
+.stats__fluid-embed {
+  position: relative;
+  width: 100%;
+  height: auto;
+  overflow: hidden;
+  max-width: 100%;
+
+  iframe,
+  object,
+  embed {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+  }
+}

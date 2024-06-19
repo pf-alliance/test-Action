@@ -1,0 +1,127 @@
+.node--type-event {
+  .article-header {
+    @include flex-grid-row;
+    @include global-spacing;
+    justify-content: center;
+
+    .jumplink {
+      @include link-inverted;
+      display: inline-block;
+      font-size: rem-calc(14);
+      margin-bottom: rem-calc(30);
+      text-transform: uppercase;
+
+      svg {
+        display: inline;
+        height: 0.7em;
+        margin-left: 0.5em;
+        width: 0.7em;
+      }
+    }
+  }
+
+  .article-header__container {
+    @include grid-column-gutter;
+    max-width: $narrow-content-width;
+  }
+
+  .article-header__time {
+    margin-bottom: rem-calc(15);
+    time {
+      font-weight: bold;
+    }
+    @include breakpoint(medium) {
+      display: flex;
+    }
+
+    .timerange {
+      @include breakpoint(medium) {
+        margin-left: rem-calc(30);
+        padding-left: rem-calc(30);
+        position: relative;
+
+        &::before {
+          background: $black;
+          content: '';
+          height: rem-calc(16);
+          left: 0;
+          position: absolute;
+          top: 50%;
+          transform: translateY(-50%);
+          width: 1px;
+        }
+      }
+    }
+  }
+
+  .article-header__content {
+    max-width: $narrow-content-width;
+
+    .field--name-field-cta {
+      @include global-spacing;
+      display: block;
+      margin-bottom: 0 !important;
+    }
+  }
+
+  .event-details {
+    background-color: $morning-clay-light;
+
+    &__container {
+      @include global-internal-spacing;
+      @include flex-grid-row;
+      align-items: center;
+
+      &--content,
+      &--map {
+        @include flex-grid-column(12);
+      }
+
+      &--content {
+        @include breakpoint(medium) {
+          padding-left: rem-calc(20);
+        }
+        @include breakpoint(large) {
+          @include flex-order(1);
+          @include flex-grid-size(4);
+          padding-left: rem-calc(40);
+        }
+      }
+
+      &--map {
+        margin-top: map-get($global-spacing, small);
+        @include breakpoint(large) {
+          @include flex-grid-size(8);
+          margin-top: 0;
+        }
+
+        > div {
+          @include map-loading-background;
+        }
+
+        .field--name-field-address {
+          position: relative;
+        }
+      }
+    }
+
+    .address {
+      @include breakpoint(medium) {
+        font-size: rem-calc(18);
+      }
+    }
+
+    .label {
+      font-size: rem-calc(14);
+      font-weight: 700;
+      margin-bottom: 0;
+      text-transform: uppercase;
+    }
+
+    .call-to-action {
+      @include breakpoint(medium) {
+        margin-top: rem-calc(50);
+      }
+    }
+  }
+}

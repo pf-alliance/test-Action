@@ -1,0 +1,42 @@
+{#
+/**
+ * @file
+ * Theme override to display a taxonomy term.
+ */
+#}
+{%
+  set classes = [
+    'taxonomy-term',
+    'vocabulary-' ~ term.bundle|clean_class,
+    view_mode ? 'taxonomy-term--view-mode-' ~ view_mode|clean_class,
+  ]
+%}
+<div{{ attributes.setAttribute('id', 'taxonomy-term-' ~ term.id).addClass(classes) }}>
+  <div class="content-wrapper">
+    {% if content.field_hero_image|render is not empty %}
+      <a href="{{ url }}" class="teaser-link">
+        {{ content.field_hero_image }}
+      </a>
+    {% endif %}
+    <div class="content">
+      {{ title_prefix }}
+      <div{{ title_attributes.addClass('title') }}>
+        <a href="{{ url }}">{{ name }}</a>
+      </div>
+      {{ title_suffix }}
+      <div class="body">
+        {{ content.field_intro }}
+        {{ content.description }}
+        <a href="{{ url }}" class="call-to-action">Read More
+          <span class="screen-reader-text">About {{ label }}</span>
+          <svg class="icon icon--chevron-right" alt="right chevron">
+            <use xlink:href="#icon-chevron-right"></use>
+          </svg>
+          <svg class="icon icon--chevron-right" alt="right chevron">
+            <use xlink:href="#icon-chevron-right"></use>
+          </svg>
+        </a>
+      </div>
+    </div>
+  </div>
+</div>

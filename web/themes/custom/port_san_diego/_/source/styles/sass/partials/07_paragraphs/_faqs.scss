@@ -1,0 +1,133 @@
+.faqs {
+  background-color: $morning-clay-light;
+}
+
+.faqs__container,
+.faqs__questions {
+  @include flex-grid-row;
+}
+
+.faqs__questions {
+  @include breakpoint(large) {
+    padding-top: rem-calc(10);
+    padding-bottom: rem-calc(30);
+  }
+}
+
+.faqs__heading-section {
+  background-color: transparentize($morning-clay, 0.8);
+}
+
+.faqs__heading {
+  @include flex-grid-column(100%);
+  align-items: center;
+  color: $black;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  padding-bottom: rem-calc(15);
+  padding-top: rem-calc(15);
+}
+
+.faqs__status-icon {
+  font-size: rem-calc(18);
+  transition: transform $transition-time ease;
+}
+
+.faqs__heading--open {
+  .faqs__status-icon {
+    transform: rotateX(180deg);
+  }
+}
+
+.no-js {
+  .faqs__heading {
+    cursor: default;
+  }
+
+  .faqs__status-icon {
+    display: none;
+  }
+}
+
+.faqs__question-block {
+  @include flex-grid-column(100%);
+  position: relative;
+  padding-top: rem-calc(25);
+  padding-bottom: rem-calc(25);
+
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    border-bottom: 1px solid $sand;
+  }
+
+  &:last-child {
+    &::after {
+      content: none;
+    }
+  }
+}
+
+.faqs__question {
+  @include link-inverted;
+  cursor: pointer;
+  font-weight: 600;
+  margin: 0;
+  padding-right: rem-calc(30);
+  position: relative;
+
+  &::before,
+  &::after {
+    background-color: $black;
+    content: '';
+    display: block;
+    height: rem-calc(3);
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    transition: transform $transition-time;
+    width: rem-calc(15);
+    will-change: transform;
+  }
+
+  &:not(.faqs__question--open) {
+    &::after {
+      transform: translateY(-50%) rotate(90deg);
+    }
+  }
+}
+
+.faqs__answer {
+  &:before {
+    content: '';
+    display: block;
+    height: 1em;
+  }
+}
+
+.field.field--name-field-faqs-title.field--type-string.field--label-hidden.field__item {
+  color: #006298;
+  margin-bottom: 1.25rem;
+  margin-top: 1.25rem;
+  font-size: 1.75rem;
+  font-weight: normal;
+  line-height: 1.1428571429em;
+  text-align: center;
+  font-size: 2.1875rem;
+}
+
+.clearfix.text-formatted.field.field--name-field-faqs-description.field--type-text-long.field--label-hidden.field__item {
+  max-width: 80.625rem;
+  margin-right: auto;
+  margin-left: auto;
+  display: flex;
+  flex-flow: row wrap;
+  p {
+    padding: rem-calc(15)
+  }
+}

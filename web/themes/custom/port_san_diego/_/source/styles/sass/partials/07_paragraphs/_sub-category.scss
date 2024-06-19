@@ -1,0 +1,106 @@
+.sub-category {
+  position: relative;
+  overflow: hidden;
+  margin-bottom: map-get($global-spacing, small);
+  @include breakpoint(medium) {
+    margin-bottom: map-get($global-spacing, medium);
+  }
+  @include breakpoint(large) {
+    margin-bottom: map-get($global-spacing, large);
+  }
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.sub-category__container {
+  @include flex-grid-row;
+  position: relative;
+  @include breakpoint(large) {
+    flex-direction: row-reverse;
+    justify-content: flex-end;
+
+    &::before {
+      border-top: 1px solid $sand;
+      content: '';
+      left: 0;
+      margin: 0 $global-padding;
+      position: absolute;
+      width: 100vw;
+      z-index: 2;
+    }
+  }
+}
+
+.sub-category__img {
+  @include flex-grid-column(expand);
+  position: relative;
+  min-height: rem-calc(190);
+  @include breakpoint(large) {
+    min-height: rem-calc(270);
+
+    &::before {
+      @include clip-angle;
+      background-image: url('../img/clip-white.svg');
+    }
+  }
+  @include breakpoint($global-width) {
+    // Negative right margin to touch edge of browser:
+    // Start with the max width ($global-width)
+    // Subtract the width of the screen (-100vw) to get the inverse of the default margin left and right
+    // Devide by 2 to get the margin left for one side.
+    // BOOYAAH!!!
+    margin-right: calc((#{$global-width} - 100vw) / 2);
+  }
+
+  .responsive-bg-img {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+  }
+}
+
+.sub-category__content {
+  @include flex-grid-column(100%);
+  padding-top: rem-calc(20);
+  @include breakpoint(large) {
+    @include flex-grid-column(50%);
+    padding-bottom: rem-calc(25);
+    padding-top: rem-calc(25);
+  }
+}
+
+.sub-category__title {
+  margin-bottom: map-get($global-spacing, small);
+  @include breakpoint(medium) {
+    margin-bottom: map-get($global-spacing, medium);
+  }
+  @include breakpoint(large) {
+    margin-bottom: map-get($global-spacing, large);
+  }
+
+  &::after {
+    display: block;
+    content: '';
+    height: 1px;
+    width: calc(100% + #{$global-padding});
+    margin-top: rem-calc(10);
+    background-color: $sand;
+    @include breakpoint(large) {
+      content: none;
+    }
+  }
+}
+
+.sub-category__text {
+  margin-bottom: map-get($global-spacing, small);
+  @include breakpoint(medium) {
+    margin-bottom: map-get($global-spacing, medium);
+  }
+  @include breakpoint(large) {
+    margin-bottom: map-get($global-spacing, large);
+  }
+}

@@ -1,0 +1,59 @@
+{% extends 'node.html.twig' %}
+{#
+/**
+ * @file
+ * Theme override to display a node.
+ */
+#}
+{% block content %}
+  <section class="article-header">
+    <div class="article-header__container">
+      {% if content.field_date %}
+        <div class="article-header__time">
+          <time datetime="2017-02-14">{{ content.field_date }}</time>
+          {% if time %}
+            <p class="timerange">{{ time }}</p>
+          {% endif %}
+        </div>
+      {% endif %}
+      {{ title_prefix }}
+      <h1{{ title_attributes.addClass('article-title', 'h3') }}>{{ label }}</h1>
+      {{ title_suffix }}
+      {% if event_details %}
+        <a href="#event-details" class="jumplink">Location Information
+          <svg class="icon icon--chevron-down" alt="down chevron">
+            <use xlink:href="#icon-chevron-down"></use>
+          </svg>
+        </a>
+      {% endif %}
+      {% if content.body %}
+        <div class="article-header__content">
+          {{ content.body }}
+          {{ content.field_cta }}
+        </div>
+      {% endif %}
+    </div>
+    <!-- /.article-header__container -->
+  </section>
+  {% if event_details %}
+    <a id="event-details" name="event-details"></a>
+    <section class="event-details">
+      <div class="event-details__container">
+        <div class="event-details__container--content">
+          <h3>{{ event_details.name }}</h3>
+          {% if event_details.address %}
+            <p>{{ event_details.address }}</p>
+          {% endif %}
+        </div>
+        {% if event_details.map %}
+          <div class="event-details__container--map">
+            <div>
+              {{ event_details.map }}
+            </div>
+          </div>
+        {% endif %}
+      </div>
+    </section>
+  {% endif %}
+  {{ content|without('body', 'field_cta', 'field_date', 'field_topic') }}
+{% endblock %}

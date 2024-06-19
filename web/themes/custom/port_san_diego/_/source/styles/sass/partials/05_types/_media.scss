@@ -1,0 +1,9 @@
+.block-system-main-block {
+  > article {
+    &[class*='media--type-'] {
+      @include grid-column-row;
+      margin-bottom: rem-calc(30);
+      margin-top: rem-calc(30);
+    }
+  }
+}

@@ -1,0 +1,23 @@
+.view-id-businesses {
+  &.view-display-id-block_1 {
+    @include global-spacing;
+
+    .view-content {
+      @include flex-grid-row;
+      @include flex-grid-layout(2, '.views-row');
+
+      .views-row {
+        @include grid-column-gutter;
+        @include breakpoint(medium) {
+          @include flex-grid-size(1/3);
+        }
+
+        .views-field-title {
+          border-bottom: 1px solid $sand;
+          height: 100%;
+          padding: rem-calc(10) 0;
+        }
+      }
+    }
+  }
+}

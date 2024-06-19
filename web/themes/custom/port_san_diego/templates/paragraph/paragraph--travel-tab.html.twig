@@ -1,0 +1,28 @@
+{% extends 'paragraph.html.twig' %}
+{#
+/**
+ * @file
+ * Default theme implementation to display a paragraph.
+ */
+#}
+{% block content %}
+  <a class="page-anchor" name="{{ anchor }}" tabindex="-1"></a>
+
+  <div class="sub-task">
+    <div class="sub-task__container">
+      <div class="sub-task__main">
+        <h3 class="sub-task__title">{{ content.field_title }}</h3>
+        <div class="sub-task__content">
+          {{ content.field_body }}
+        </div>
+      </div>
+      <!-- /.sub-task__main -->
+
+      {{ content.field_related_tasks }}
+      <!-- /.sub-task__related -->
+    </div>
+    <!-- /.sub-task__container -->
+  </div>
+  <!-- /.sub-task -->
+  {{ content.field_paragraphs }}
+{% endblock %}

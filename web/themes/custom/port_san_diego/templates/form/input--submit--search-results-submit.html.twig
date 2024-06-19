@@ -1,0 +1,13 @@
+{#
+/**
+ * @file
+ * Theme override for an 'input' #type form element.
+ */
+#}
+<button{{ attributes.removeAttribute('value') }}>
+  {{ children }}
+  <span class="screen-reader-text">Search</span>
+  <svg class="icon icon--search" alt="search icon">
+    <use xlink:href="#icon-search"></use>
+  </svg>
+</button>

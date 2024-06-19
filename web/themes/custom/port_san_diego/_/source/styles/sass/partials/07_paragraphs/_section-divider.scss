@@ -1,0 +1,34 @@
+.section-divider {
+  @include flex-grid-row(null, expand);
+  color: $white;
+  background-color: $deep-blue;
+
+  @include not-btn {
+    @include white-link-on-dark;
+  }
+}
+
+.section-divider__container {
+  @include flex-grid-column;
+  max-width: $narrow-content-width;
+  margin-left: auto;
+  margin-right: auto;
+  padding-top: rem-calc(35);
+  padding-bottom: rem-calc(40);
+  text-align: center;
+}
+
+.section-divider__icon {
+  display: inline-block;
+  margin: 0 auto rem-calc(20);
+  font-size: rem-calc(45);
+  width: rem-calc(45);
+  height: rem-calc(45);
+  background-color: $white;
+  border-radius: 100vw;
+  padding: rem-calc(7);
+
+  svg {
+    fill: $deep-blue;
+  }
+}

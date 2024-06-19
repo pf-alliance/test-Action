@@ -1,0 +1,33 @@
+{#
+/**
+ * @file
+ * Theme override for a breadcrumb trail.
+ */
+#}
+{% if breadcrumb %}
+    <div class="breadcrumbs__wrapper">
+      <h2 id="system-breadcrumb" class="visually-hidden">{{ 'Breadcrumb'|t }}</h2>
+      <div itemscope itemtype="http://data-vocabulary.org/Breadcrumb" class="breadcrumb">
+        {% for item in breadcrumb %}
+          {% if not loop.first %}
+            <div itemprop="child" itemscope itemtype="http://data-vocabulary.org/Breadcrumb" class="breadcrumb">
+          {% endif %}
+          {% if item.url %}
+            <a href="{{ item.url }}" itemprop="url" class="breadcrumb__link">
+              <span itemprop="title" class="breadcrumb__title">{{ item.text }}</span>
+            </a>
+          {% else %}
+            <span itemprop="title" class="breadcrumb__title--no-link">{{ item.text }}</span>
+          {% endif %}
+          {% if not loop.last %}
+            <span class="breadcrumb__separator">/</span>
+          {% endif %}
+        {% endfor %}
+        {% for item in breadcrumb %}
+          {% if not loop.first %}
+            </div>
+          {% endif %}
+        {% endfor %}
+      </div>
+    </div>
+{% endif %}

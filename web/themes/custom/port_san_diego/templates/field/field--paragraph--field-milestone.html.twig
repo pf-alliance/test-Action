@@ -1,0 +1,44 @@
+{#
+/**
+ * @file
+ * Theme override for a field.
+ */
+#}
+{%
+  set classes = [
+    'field',
+    'field--name-' ~ field_name|clean_class,
+    'field--type-' ~ field_type|clean_class,
+    'field--label-' ~ label_display,
+  ]
+%}
+{%
+  set title_classes = [
+    'field__label',
+    label_display == 'visually_hidden' ? 'visually-hidden',
+  ]
+%}
+<div{{ attributes.addClass(classes, 'timeline__milestones') }}>
+  {% set milestones = items|length %}
+  {% set gaps = milestones + 1 %}
+
+  {% for key, item in items %}
+    {% set i = key + 1 %}
+    {% set percentage_offset = (i * (100 / gaps) * -1) + 100 %}
+
+    <input type="radio" class="timeline__milestone-toggle" name="timeline-{{ paragraph_id }}__milestone-toggle" id="timeline-{{ paragraph_id }}__milestone-{{ i }}" {{  key == 0 ? 'checked' : '' }}>
+    <div class="timeline__milestone">
+      {% if dates_formated[key] %}
+        <div class="timeline__top-date">{{ dates_formated[key] }}</div>
+      {% endif %}
+      <label for="timeline-{{ paragraph_id }}__milestone-{{ i }}" class="timeline__dot" tabindex="0">
+        <span class="screen-reader-text">{{ 'Toggle Milestone'|t }}</span>
+      </label>
+      <div class="timeline__content-wrapper">
+        <div class="timeline__content" style="transform: translateX({{ percentage_offset }}%);">
+         {{ item.content }}
+        </div>
+      </div>
+    </div>
+  {% endfor %}
+</div>

@@ -1,0 +1,20 @@
+.field--name-field-intro {
+  ul {
+    @include list-bullets-color;
+
+    .hero__text &,
+    .paragraph--type--travel-group & {
+      li {
+        &::before {
+          background-color: $white;
+        }
+      }
+    }
+  }
+
+  p + dl,
+  p + ol,
+  p + ul {
+    margin-top: rem-calc(-18);
+  }
+}

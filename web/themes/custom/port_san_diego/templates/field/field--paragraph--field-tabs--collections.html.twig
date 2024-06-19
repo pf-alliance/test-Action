@@ -1,0 +1,25 @@
+{#
+/**
+ * @file
+ * Theme override for a Paragraph field.
+ */
+#}
+<ul class="collections__tabs accordion" data-responsive-accordion-tabs="accordion medium-tabs" data-deep-link="true">
+  {% for item in items %}
+    {%
+      set item_classes = [
+        'collections__tab',
+        'accordion-item',
+      ]
+    %}
+    {% if loop.first %}
+      <li{{ item.attributes.addClass(item_classes, 'is-active') }} data-accordion-item>
+        {{ item.content }}
+      </li>
+    {% else %}
+      <li{{ item.attributes.addClass(item_classes) }} data-accordion-item>
+        {{ item.content }}
+      </li>
+    {% endif %}
+  {% endfor %}
+</ul>

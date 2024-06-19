@@ -1,0 +1,52 @@
+{#
+/**
+ * @file
+ * Theme override to display a block.
+ */
+#}
+{%
+  set classes = [
+    'block',
+    'block-' ~ configuration.provider|clean_class,
+    'block-' ~ plugin_id|clean_class,
+    'hero',
+    hero_menu or not hero_images ? 'hero--submenu',
+  ]
+%}
+<div{{ attributes.addClass(classes) }}>
+  <div class="hero__container">
+    <div class="hero__content">
+      {{ wonderfront_logo }}
+      {{ wonderfront_logo }}
+      {{ content }}
+      {% if intro|render|striptags|trim %}
+        <div class="hero__text">
+          {{ intro }}
+        </div>
+      {% endif %}
+      {% if location %}
+        <p class="hero__location"><svg class="icon icon--location" alt="location icon"><use xlink:href="#icon-location"></use></svg>{{ location }}</p>
+      {% endif %}
+      {{ wonderfront_logo }}
+    </div>
+    {% if hero_images %}
+      <div class="hero__img" data-brand-angle="{&quot;breakpoints&quot;:[{ &quot;minWidth&quot;: 0, &quot;clipLeft&quot;: false, &quot;clipRight&quot;: false },{ &quot;minWidth&quot;: 640, &quot;clipLeft&quot;: true, &quot;clipRight&quot;: false }]}">
+        {{ hero_images }}
+        {{ watermark }}
+      </div>
+      {% if video %}
+        <div class="reveal large header-video" id="header-video" data-reveal data-reset-on-close="true">
+          <button class="close-button" data-close aria-label="Close Video" type="button">
+            <svg class="icon icon--close" alt="close icon"><use xlink:href="#icon-close"></use></svg>
+          </button>
+          {{ video }}
+        </div>
+        <div class="header-video--btn">
+          <button data-open="header-video">
+            <svg class="icon icon--video-play" alt="video play icon"><use xlink:href="#icon-video-play"></use></svg>
+          </button>
+        </div>
+      {% endif %}
+    {% endif %}
+  </div>
+</div>

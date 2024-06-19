@@ -1,0 +1,115 @@
+// TODO: come back and finish slider
+.slider {
+  padding-top: rem-calc(15);
+  padding-bottom: rem-calc(15);
+  background-color: $deep-blue;
+  @include breakpoint(medium) {
+    padding-top: rem-calc(30);
+    padding-bottom: rem-calc(30);
+  }
+}
+
+.slider__wrapper {
+  @include flex-grid-row;
+}
+
+.slider__container {
+  @include flex-grid-size(100%);
+}
+
+// Styles when slick is active
+.slider__slides {
+  display: flex;
+  flex-wrap: nowrap;
+  padding-left: rem-calc(40);
+  padding-right: rem-calc(40);
+  @include breakpoint($global-width + 2.5rem) {
+    padding-left: $global-padding;
+    padding-right: $global-padding;
+  }
+
+  &.slick-initialized {
+    position: relative;
+
+    .slick-list {
+      width: 100%;
+    }
+
+    .slick-arrow {
+      position: absolute;
+      z-index: 1;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: rem-calc(28); // Determines the inner SVG's width and height;
+      border: none;
+      padding: 0;
+      color: $white;
+      background-color: transparent;
+      transition: all $transition-time ease;
+
+      &:hover,
+      &:focus {
+        transform: translateY(-50%) scale(1.15);
+      }
+
+      &.slick-disabled {
+        opacity: 0;
+      }
+    }
+
+    .slick-prev {
+      left: rem-calc(10);
+      @include breakpoint($global-width + 2.5rem) {
+        left: -$global-padding;
+      }
+    }
+
+    .slick-next {
+      right: rem-calc(10);
+      @include breakpoint($global-width + 2.5rem) {
+        right: -$global-padding;
+      }
+    }
+  }
+}
+
+.slider__slide {
+  cursor: pointer;
+  width: 50%;
+  padding: rem-calc(5);
+  @include breakpoint(medium) {
+    width: 1/3 * 100%;
+    transition: all .3s ease-in-out;
+
+    &:hover {
+      transform: scale(1.05);
+      z-index: 100;
+      position: relative;
+    }
+  }
+  @include breakpoint(large) {
+    width: 20%;
+  }
+}
+
+
+.paragraph--type--slider {
+  background-color: $deep-blue;
+  text-align: center;
+  color: $white;
+
+  .field--name-field-slider-title {
+    font-size: 2.1875rem;
+    font-weight: normal;
+    line-height: 1.1428571429em;
+    padding-top: 1.875rem;
+    padding-bottom: 0.875rem;
+    padding-left: 2.5rem;
+    padding-right: 2.5rem;
+  }
+
+  .field--name-field-slider-description {
+    padding-left: 2.5rem;
+    padding-right: 2.5rem;
+  }
+}

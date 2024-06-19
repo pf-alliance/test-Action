@@ -1,0 +1,44 @@
+.task__jumplinks-group {
+  margin-bottom: rem-calc(35);
+  // TODO: Ask about width of border
+  border-bottom: 1px solid;
+  padding-bottom: rem-calc(10);
+  position: relative;
+
+  &:last-child {
+    margin-bottom: 0;
+    border-bottom: none;
+    padding-bottom: 0;
+  }
+}
+
+.task__jumplinks-icon {
+  margin-bottom: rem-calc(15);
+  font-size: rem-calc(25);
+  color: $deep-blue;
+  position: relative;
+}
+
+.task__jumplinks-title {
+  margin-bottom: rem-calc(25);
+  position: relative;
+}
+
+.task__jumplinks-list {
+  @include list-plain;
+  line-height: rem-calc(20);
+}
+
+.task__jumplink {
+  margin-bottom: rem-calc(20);
+  overflow: hidden;
+
+  a {
+    @include link-arrow-left;
+  }
+
+  .icon {
+    width: 1em;
+    margin-right: .5em;
+  }
+}

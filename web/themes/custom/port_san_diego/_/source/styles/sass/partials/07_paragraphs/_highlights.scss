@@ -1,0 +1,93 @@
+.highlights {
+  padding-top: rem-calc(40);
+  padding-bottom: rem-calc(40 - 15);
+  background: $morning-clay-light;
+  @include breakpoint(medium) {
+    padding-bottom: rem-calc(40);
+  }
+}
+
+.highlights__intro-row,
+.highlights__list {
+  @include flex-grid-row;
+}
+
+.highlights__list {
+  .views-row {
+    @include flex-grid-column(12);
+    padding-top: rem-calc(15);
+    padding-bottom: rem-calc(15);
+    @include breakpoint(medium) {
+      @include flex-grid-size(4);
+      padding-top: rem-calc(30);
+
+      // sass-lint:disable force-pseudo-nesting
+      &:first-child:last-child {
+        @include flex-grid-size(12);
+      }
+      // sass-lint:enable force-pseudo-nesting
+    }
+  }
+}
+
+.highlights__intro-container {
+  @include flex-grid-column;
+}
+
+.highlights__intro {
+  display: flex;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  border-bottom: 1px solid transparentize($black, 0.8);
+  padding-bottom: rem-calc(10);
+}
+
+.highlights__intro-title {
+  flex-grow: 1;
+  margin-bottom: 0;
+  @include breakpoint(small only) {
+    align-self: flex-end;
+    flex-basis: 50%;
+  }
+
+  span {
+    @include breakpoint(small only) {
+      clip: rect(1px, 1px, 1px, 1px);
+      position: absolute;
+      height: 1px;
+      width: 1px;
+      overflow: hidden;
+    }
+  }
+}
+
+// sass-lint:disable force-pseudo-nesting
+.highlights__intro-links {
+  display: flex;
+  align-items: center;
+  font-size: rem-calc(14);
+  @include breakpoint(small only) {
+    align-self: flex-start;
+    flex-direction: column;
+
+    > a:not(:last-child) {
+      margin-bottom: rem-calc(10);
+    }
+  }
+
+
+  > a:not(:last-child) {
+    margin-right: 1.3em;
+  }
+}
+
+.highlight__cta-separator {
+  width: 1px;
+  height: 1em;
+  margin-left: rem-calc(5);
+  margin-right: rem-calc(20);
+  background: $blue;
+  @include breakpoint(small only) {
+    display: none;
+  }
+}

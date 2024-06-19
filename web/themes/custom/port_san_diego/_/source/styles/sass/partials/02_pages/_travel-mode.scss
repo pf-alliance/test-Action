@@ -1,0 +1,27 @@
+.page-node-type-travel-mode {
+  .sidebar-enabled__sidebar {
+    + .sidebar-enabled__main {
+      padding-left: 0;
+    }
+  }
+
+  .field--name-field-travel-tabs {
+    @include breakpoint(large) {
+      overflow: hidden;
+      padding: 0 2rem;
+    }
+  }
+
+  .paragraph--type--travel-tab {
+    margin-bottom: rem-calc(20);
+    margin-top: rem-calc(20);
+    @include breakpoint(medium) {
+      margin-bottom: rem-calc(40);
+      margin-top: rem-calc(40);
+    }
+    @include breakpoint(large) {
+      margin-bottom: rem-calc(60);
+      margin-top: rem-calc(60);
+    }
+  }
+}

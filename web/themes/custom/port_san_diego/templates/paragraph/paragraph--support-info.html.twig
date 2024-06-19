@@ -1,0 +1,27 @@
+{% extends 'paragraph.html.twig' %}
+{#
+/**
+ * @file
+ * Theme override to display a Taskbar Paragraph.
+ */
+#}
+{% block paragraph %}
+  {% block content %}
+    {% if image %}
+      <span class="supporting-info__tumbnail" style="background-image: url( '{{ image }}'); {{ position }}"></span>
+    {% endif %}
+    <div class="supporting-info__content">
+      <h4 class="supporting-info__title">{{ content.field_title }}</h4>
+      {% if content.field_body %}
+        <div class="supporting-info__text">
+          {{ content.field_body }}
+        </div>
+      {% endif %}
+      {% if content.field_cta %}
+        <div class="supporting-info__link">
+          {{ content.field_cta }}
+        </div>
+      {% endif %}
+    </div>
+  {% endblock %}
+{% endblock paragraph %}

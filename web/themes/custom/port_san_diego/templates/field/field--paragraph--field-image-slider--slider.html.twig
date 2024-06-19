@@ -1,0 +1,27 @@
+{#
+/**
+ * @file
+ * Theme override for a field.
+ */
+#}
+{%
+  set classes = [
+    'field',
+    'field--name-' ~ field_name|clean_class,
+    'field--type-' ~ field_type|clean_class,
+    'field--label-' ~ label_display,
+  ]
+%}
+<section{{ attributes.addClass(classes, 'slider') }}>
+  <div class="slider__wrapper">
+    <div class="slider__container">
+      <div class="slider__slides">
+        {% for key, item in items %}
+          <div{{ item.attributes.addClass('slider__slide') }}>
+            {{ item.content }}
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</section>

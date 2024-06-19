@@ -1,0 +1,77 @@
+.promo {
+  position: relative;
+  color: $white;
+  background-color: $blue;
+  overflow: hidden;
+}
+
+.promo__container {
+  @include flex-grid-row;
+}
+
+.promo__content {
+  @include flex-grid-column(100%);
+  position: relative;
+  padding-top: rem-calc(20);
+  padding-bottom: rem-calc(20);
+  @include breakpoint(medium) {
+    max-width: rem-calc(300);
+    padding-top: rem-calc(75);
+    padding-bottom: rem-calc(75);
+  }
+
+  .promo__topic-logo {
+    margin-bottom: rem-calc(27);
+    max-width: rem-calc(160);
+
+    > img {
+      height: auto;
+      width: 100%;
+    }
+  }
+
+  .promo__location {
+    @include location-w-icon;
+    justify-content: flex-start;
+    margin-top: rem-calc(20);
+    @include breakpoint(medium) {
+      margin-bottom: rem-calc(-40);
+      margin-top: rem-calc(27);
+    }
+  }
+
+  .promo__text {
+    @include not-btn {
+      @include white-link-on-dark;
+    }
+  }
+}
+
+.promo__img {
+  @include flex-grid-column(expand);
+  position: relative;
+  @include breakpoint(small down) {
+    display: none;
+  }
+  @include breakpoint(medium) {
+    &::before {
+      @include clip-angle;
+    }
+  }
+  @include breakpoint($global-width) {
+    // Negative right margin to touch edge of browser:
+    // Start with the max width ($global-width)
+    // Subtract the width of the screen (-100vw) to get the inverse of the default margin left and right
+    // Devide by 2 to get the margin left for one side.
+    // BOOYAAH!!!
+    margin-right: calc((#{$global-width} - 100vw) / 2);
+  }
+
+  .responsive-bg-img {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+  }
+}

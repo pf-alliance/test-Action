@@ -1,0 +1,307 @@
+// Print Styles.
+@import 'all/variables';
+@import 'all/mixins';
+@import 'foundation-sites/scss/foundation';
+
+@include foundation-print-styles;
+
+@mixin expand-flex-column {
+  flex-grow: 1;
+  max-width: 100%;
+}
+
+html {
+  font-size: 80%;
+}
+
+.region--help {
+  display: none;
+}
+
+.hero {
+  color: $black;
+
+  &::before {
+    display: none;
+  }
+
+  &__heading {
+    color: $deep-blue !important;
+
+    * {
+      color: $deep-blue !important;
+    }
+  }
+
+  &__container {
+    .hero__content {
+      max-width: 100%;
+
+      .wonderfront-logo {
+        display: none;
+      }
+    }
+
+    .hero__img {
+      display: none !important;
+    }
+  }
+}
+
+.header__logo {
+  img {
+    height: auto;
+  }
+}
+
+.menus-wrapper {
+  .header__primary {
+    height: auto;
+    padding-top: $global-padding;
+
+    > nav {
+      display: none;
+    }
+  }
+
+  .header__secondary {
+    display: none;
+  }
+}
+
+a {
+  &.header__logo,
+  &.teaser-link,
+  .zoom-container & {
+    &::after {
+      display: none;
+    }
+  }
+}
+
+.breadcrumbs {
+  display: none;
+}
+
+.region--content {
+  .article-header {
+    margin-top: 0;
+
+    &__container {
+      display: block;
+      max-width: unset;
+    }
+
+    &__content {
+      max-width: unset;
+    }
+
+    &__img {
+      float: left;
+      height: auto;
+      margin: 0 1rem 1rem 0;
+      padding: 0;
+    }
+  }
+}
+
+.node--type-press-release {
+  .article-header__container {
+    max-width: unset;
+  }
+}
+
+.paragraph--type--callouts {
+  display: none;
+}
+
+.paragraph--type--collections {
+  .collections__tabs {
+    display: block;
+
+    .collections__tab {
+      a {
+        display: none;
+      }
+
+      .collections__collection {
+        display: block;
+      }
+    }
+  }
+}
+
+.paragraph--type--documents {
+  .documents__heading {
+    padding-bottom: 0;
+    padding-top: 0;
+
+    .documents__status-icon {
+      display: none;
+    }
+  }
+
+  .resources__info {
+    flex-shrink: 0;
+  }
+
+  .resources__resource {
+    &::after {
+      display: none;
+    }
+  }
+}
+
+.paragraph--type--faqs {
+  .faqs__heading {
+    padding-bottom: 0;
+    padding-top: 0;
+
+    .faqs__status-icon {
+      display: none;
+    }
+  }
+
+  .faqs__questions {
+    padding-bottom: 0;
+  }
+
+  .faqs__question {
+    &::before,
+    &::after {
+      display: none;
+    }
+  }
+
+  .faqs__answer {
+    display: block !important;
+    height: auto !important;
+  }
+}
+
+.paragraph--type--fifty-fifty {
+  .paragraph--type--basic-image {
+    display: none;
+  }
+
+  .paragraph--type--basic-text {
+    @include expand-flex-column;
+    padding-bottom: 0 !important;
+    padding-top: 0 !important;
+
+    .content {
+      padding: 0 !important;
+    }
+  }
+}
+
+.paragraph--type--slider {
+  .slider {
+    padding: 0;
+
+    &__slides {
+      @include grid-column-gutter;
+      margin: rem-calc(-5);
+    }
+
+    &__slide {
+      width: 20% !important;
+
+      a {
+        &::after {
+          display: none;
+        }
+      }
+    }
+  }
+}
+
+.paragraph--type--stats {
+  .stats__media {
+    display: none;
+  }
+
+  .stats__details {
+    @include expand-flex-column;
+  }
+}
+
+.paragraph--type--taskbar {
+  display: none;
+}
+
+.paragraph--type--timeline {
+  .timeline__intro {
+    display: block;
+    max-width: 100%;
+    text-align: left;
+  }
+
+  .timeline__toggle-view {
+    display: none;
+  }
+
+  .timeline__milestones {
+    margin-bottom: 0 !important;
+  }
+
+  .timeline__milestone {
+    margin-left: 0;
+    margin-right: 0;
+  }
+
+  .timeline__content {
+    transform: none !important;
+  }
+}
+
+.field--name-field-paragraphs {
+  .paragraph {
+    &:first-child {
+      margin-top: 0;
+    }
+  }
+
+  > .paragraph--type--basic-text {
+    > .content {
+      @include expand-flex-column;
+    }
+  }
+}
+
+.field--type-text-with-summary,
+.field--type-text-long {
+  .text-align-center {
+    text-align: left;
+  }
+}
+
+.slick-slider {
+  .slick-track {
+    max-width: 100%;
+  }
+
+  .slick-arrow {
+    display: none !important;
+  }
+}
+
+// sass-lint:disable force-element-nesting
+.embedded-entity {
+  .media--type-image {
+    .zoom-container .icon,
+    .download {
+      display: none !important;
+    }
+  }
+}
+
+iframe {
+  &[src*='youtube.com'] {
+    display: none !important;
+  }
+}
+
+.footer {
+  display: none;
+}

@@ -1,0 +1,13 @@
+#block-sharethis {
+  align-self: center;
+  color: $white;
+  min-width: rem-calc(175);
+
+  .st-inline-share-buttons {
+    .st-btn {
+      &:hover {
+        top: 0;
+      }
+    }
+  }
+}

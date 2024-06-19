@@ -1,0 +1,40 @@
+name: Port of San Diego
+type: theme
+description: Custom D8 Theme for The Port of San Diego.
+package: Custom
+core_version_requirement: '^8.9 || ^9 || ^10'
+version: 2.0.0
+base theme: classy
+
+libraries:
+  - port_san_diego/global
+libraries-override:
+  core/jquery: port_san_diego/jquery_replace
+  classy/base: false # Disabling parent theme styles
+
+ckeditor_stylesheets:
+  - _/css/editor.css
+
+regions:
+  header_secondary: 'Header Secondary'
+  header_primary: 'Header Primary'
+  menu: Menu
+  hero: Hero
+  breadcrumbs: Breadcrumbs
+  help: Help
+  sidebar: Sidebar
+  content: Content
+  footer_left: 'Footer Left'
+  footer_right: 'Footer Right'
+  footer_copyright: 'Footer Copyright'
+
+stylesheets-remove:
+  - core/themes/classy/css/components/breadcrumb.css
+  - core/themes/classy/css/components/button.css
+  - core/themes/classy/css/components/form.css
+  - core/themes/classy/css/components/inline-form.css
+  - core/themes/classy/css/components/item-list.css
+  - core/themes/classy/css/components/menu.css
+  - core/themes/classy/css/components/tabs.css
+  - core/themes/classy/css/components/textarea.css
+  - core/themes/stable/css/system/components/resize.module.css

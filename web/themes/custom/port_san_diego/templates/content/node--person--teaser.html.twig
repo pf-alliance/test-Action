@@ -1,0 +1,33 @@
+{% extends "node.html.twig" %}
+{#
+/**
+ * @file
+ * Theme override to display a node teaser.
+ */
+#}
+{% block content %}
+  <div class="content-wrapper">
+    {% if content.field_headshot|render is not empty %}
+      <a href="{{ url }}" class="teaser-link">
+        {{ content.field_headshot }}
+      </a>
+    {% endif %}
+    <div class="content">
+      <div class="content__top">
+        {% if eyebrow %}
+          <p class="category">{{ eyebrow }}</p>
+        {% endif %}
+        {{ title_prefix }}
+        <div{{ title_attributes.addClass('title', 'h5') }}>
+          <a href="{{ url }}">{{ label }}</a>
+        </div>
+        {{ title_suffix }}
+        {{ content.field_title }}
+      </div>
+      <div class="content__bottom">
+        {{ content|without('field_headshot', 'field_title') }}
+      </div>
+    </div>
+  </div>
+  {{ content.links }}
+{% endblock %}

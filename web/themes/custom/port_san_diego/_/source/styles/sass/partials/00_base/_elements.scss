@@ -1,0 +1,116 @@
+// Header, link, paragraph, global font weight, etc.
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+.h1,
+.h2,
+.h3,
+.h4,
+.h5,
+.h6,
+span,
+p,
+ul,
+ol,
+dl {
+  &:last-child {
+    // Make paddding and margin sizing more predictable
+    margin-bottom: 0;
+  }
+}
+
+// Forms
+fieldset {
+  margin: 0 0 rem-calc(20);
+  border: none;
+  padding: 0;
+  @include breakpoint(medium) {
+    margin-bottom: rem-calc(25);
+  }
+}
+
+label,
+input,
+select,
+textarea {
+  display: block;
+  cursor: pointer;
+}
+
+input,
+select,
+textarea {
+  width: 100%;
+  max-width: 100%;
+  margin-top: rem-calc(10);
+  margin-bottom: rem-calc(20);
+  border: 1px solid $sand-dark;
+  border-radius: $border-radius;
+  padding: rem-calc(8) rem-calc(10);
+  background-color: transparentize($white, 0.25);
+  color: $black;
+  transition: background-color $transition-time ease;
+  height: rem-calc(40);
+  @include breakpoint(medium) {
+    margin-bottom: rem-calc(25);
+  }
+
+  &:focus {
+    background-color: $white;
+  }
+}
+
+select {
+  appearance: none; // Hides the default dropdown arrow
+  padding-right: 30px; // So text doesn't overlap image
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 18.96 16.442"><path d="M3.965 0l5.48 12.307L14.962 0h4l-7.618 16.442H7.62L0 0h3.965z" fill="#{$black}"/></svg>');
+  background-size: 0.7em;
+  background-repeat: no-repeat;
+  background-position: right .5em center;
+
+  &::-ms-expand {
+    display: none; // Hides the default dropdown arrow in IE11
+  }
+}
+
+input {
+  &[type='checkbox'],
+  &[type='radio'] {
+    display: inline-block;
+    height: auto;
+    width: auto;
+    margin-bottom: rem-calc(10);
+  }
+
+  &[type='submit'],
+  &[type='button'] {
+    @extend button;
+    width: auto;
+  }
+
+  &[id^='edit-reset'] {
+    @extend h5;
+    color: $black;
+    width: auto;
+    border: none;
+    padding: 0;
+    text-decoration: underline;
+    background-color: transparent !important;
+  }
+}
+
+svg {
+  display: inherit; // Fixes some weird spacing bug
+  max-width: 100%;
+  max-height: 100%;
+  fill: currentColor;
+
+  &.icon {
+    // Match icon SVG's width and height to parent's font size
+    width: 1em;
+    height: 1em;
+  }
+}
