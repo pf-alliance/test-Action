@@ -1,0 +1,77 @@
+name: Deploy to Pantheon D10 Multidev Environment
+on:
+  push:
+    branches:
+      - 'main'
+
+env:
+  php_version: '8.2'
+  # Environment to deploy to:
+  pantheon_env: 'd10'
+  # pantheon_repo: ${{ secrets.PANTHEON_REPO }}
+  # pantheon_site_name: ${{ secrets.PANTHEON_SITE_NAME }}
+
+jobs:
+  build-and-deploy:
+    name: Build and Deploy to Pantheon D10 Multidev Environment
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup PHP with Composer
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ env.php_version }}
+          tools: composer:v2
+
+      - name: Cache Composer dependencies
+        uses: actions/cache@v3
+        with:
+          node-version: '20'
+          path: ${{ github.workspace }}/vendor
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: ${{ runner.os }}-composer-
+
+      - name: Composer install
+        run: composer install --prefer-dist --no-progress --no-suggest
+
+      # - name: Setup Node.js
+      #   uses: actions/setup-node@v4
+      #   with:
+      #     node-version: '20'
+      #     cache: 'npm'
+      #     cache-dependency-path: 'web/themes/custom/port_san_diego/package-lock.json'
+
+
+      # - name: Install Node dependencies and Build CSS
+      #   run: |
+      #     cd web/themes/custom/port_san_diego
+      #     npm install
+      #     npm run build
+
+      # - uses: shimataro/ssh-key-action@v2
+      #   with:
+      #     key: ${{ secrets.PANTHEON_SSH_KEY }}
+      #     config: ${{ secrets.SSH_CONFIG }}
+      #     known_hosts: ${{ secrets.KNOWN_HOSTS }}
+
+      # - name: Add and Commit Compiled CSS and JS
+      #   run: |
+      #     git config --global user.email "github-actions@example.com"
+      #     git config --global user.name "GitHub Actions"
+      #     git add -f web/themes/custom/port_san_diego/_/css/
+      #     git add -f web/themes/custom/port_san_diego/_/js/
+      #     git add -f web/themes/custom/port_san_diego/_/source/styles/editor.css
+      #     git add -f web/themes/custom/port_san_diego/_/source/styles/print.css
+      #     git add -f web/themes/custom/port_san_diego/_/source/styles/style.css
+      #     git add -f web/themes/custom/port_san_diego/svg-defs.svg
+      #     git commit -m "Add Compiled files"
+
+      # - name: Deploy to Pantheon to D10 Multidev Environment.
+      #   run: |
+      #     git config --global user.email "github-actions@example.com"
+      #     git config --global user.name "GitHub Actions"
+      #     git remote add pantheon $pantheon_repo
+      #     git push --force pantheon HEAD:$pantheon_env

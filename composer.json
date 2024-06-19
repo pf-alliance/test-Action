@@ -1,0 +1,363 @@
+{
+    "name": "pantheon-upstreams/drupal-composer-managed",
+    "description": "Install Drupal 9 with Composer on Pantheon.",
+    "type": "project",
+    "license": "MIT",
+    "repositories": [
+        {
+            "type": "composer",
+            "url": "https://packages.drupal.org/8"
+        },
+        {
+            "type": "path",
+            "url": "upstream-configuration"
+        },
+        {
+            "type": "package",
+            "package": {
+            "name": "js/choices",
+            "version": "9.0.1",
+            "type": "drupal-library",
+            "extra": {
+                "installer-name": "choices"
+            },
+            "dist": {
+                "url": "https://github.com/Choices-js/Choices/archive/refs/tags/v9.0.1.zip",
+                "type": "zip"
+                }
+            }
+        },
+        {
+            "type": "package",
+            "package": {
+            "name": "jquery/inputmask",
+            "version": "5.0.8",
+            "type": "drupal-library",
+            "extra": {
+                "installer-name": "jquery.inputmask"
+            },
+            "dist": {
+                "url": "https://github.com/RobinHerbots/Inputmask/archive/refs/tags/5.0.8.zip",
+                "type": "zip"
+                }
+            }
+        },
+        {
+            "type": "package",
+            "package": {
+            "name": "jquery/intl_tel_input",
+            "version": "17.0.19",
+            "type": "drupal-library",
+            "extra": {
+                "installer-name": "jquery.intl-tel-input"
+            },
+            "dist": {
+                "url": "https://github.com/jackocnr/intl-tel-input/archive/refs/tags/v17.0.19.zip",
+                "type": "zip"
+                }
+            }
+        },
+        {
+            "type": "package",
+            "package": {
+            "name": "jquery/rateit",
+            "version": "1.1.5",
+            "type": "drupal-library",
+            "extra": {
+                "installer-name": "jquery.rateit"
+            },
+            "dist": {
+                "url": "https://github.com/gjunge/rateit.js/archive/refs/tags/1.1.5.zip",
+                "type": "zip"
+                }
+            }
+        },
+        {
+            "type": "package",
+            "package": {
+            "name": "jquery/textcounter",
+            "version": "0.9.1",
+            "type": "drupal-library",
+            "extra": {
+                "installer-name": "jquery.textcounter"
+            },
+            "dist": {
+                "url": "https://github.com/ractoon/jQuery-Text-Counter/archive/refs/tags/0.9.1.zip",
+                "type": "zip"
+                }
+            }
+        },
+        {
+            "type": "package",
+            "package": {
+            "name": "jquery/timepicker",
+            "version": "1.14.0",
+            "type": "drupal-library",
+            "extra": {
+                "installer-name": "jquery.timepicker"
+            },
+            "dist": {
+                "url": "https://github.com/jonthornton/jquery-timepicker/archive/refs/tags/1.14.0.zip",
+                "type": "zip"
+                }
+            }
+        },
+        {
+            "type": "package",
+            "package": {
+            "name": "jquery/popperjs",
+            "version": "2.11.6",
+            "type": "drupal-library",
+            "extra": {
+                "installer-name": "popperjs"
+            },
+            "dist": {
+                "url": "https://unpkg.com/@popperjs/core@2.11.6/dist/umd/popper.min.js",
+                "type": "file"
+                }
+            }
+        },
+        {
+            "type": "package",
+            "package": {
+            "name": "progress/tracker",
+            "version": "2.0.7",
+            "type": "drupal-library",
+            "extra": {
+                "installer-name": "progress-tracker"
+            },
+            "dist": {
+                "url": "https://github.com/NigelOToole/progress-tracker/archive/refs/tags/2.0.7.zip",
+                "type": "zip"
+                }
+            }
+        },
+        {
+            "type": "package",
+            "package": {
+            "name": "signature/pad",
+            "version": "2.3.0",
+            "type": "drupal-library",
+            "extra": {
+                "installer-name": "signature_pad"
+            },
+            "dist": {
+                "url": "https://github.com/szimek/signature_pad/archive/refs/tags/v2.3.0.zip",
+                "type": "zip"
+                }
+            }
+        },
+        {
+            "type": "package",
+            "package": {
+            "name": "jquery/tabby",
+            "version": "12.0.3",
+            "type": "drupal-library",
+            "extra": {
+                "installer-name": "tabby"
+            },
+            "dist": {
+                "url": "https://github.com/cferdinandi/tabby/archive/refs/tags/v12.0.3.zip",
+                "type": "zip"
+                }
+            }
+        },
+        {
+            "type": "package",
+            "package": {
+            "name": "jquery/tippyjs",
+            "version": "6.3.7",
+            "type": "drupal-library",
+            "extra": {
+                "installer-name": "tippyjs"
+            },
+            "dist": {
+                "url": "https://github.com/atomiks/tippyjs/archive/refs/tags/v6.3.7.zip",
+                "type": "zip"
+                }
+            }
+        }
+    ],
+    "require": {
+        "composer/installers": "^1.9",
+        "cweagans/composer-patches": "^1.7",
+        "drupal/address": "^2.0",
+        "drupal/admin_toolbar": "^3.0",
+        "drupal/auto_entitylabel": "^3.2",
+        "drupal/better_exposed_filters": "^7.0@beta",
+        "drupal/ckeditor": "^1.0",
+        "drupal/ckeditor_font": "^1.0",
+        "drupal/classy": "^1.0",
+        "drupal/config_ignore": "^3.3",
+        "drupal/config_update": "^2.0@alpha",
+        "drupal/core-composer-scaffold": "10.2.7",
+        "drupal/core-project-message": "10.2.7",
+        "drupal/core-recommended": "10.2.7",
+        "drupal/crop": "^2.2",
+        "drupal/csp": "^1.32",
+        "drupal/ctools": "^4.1",
+        "drupal/date_popup": "^2.0",
+        "drupal/easy_breadcrumb": "^2.0",
+        "drupal/editor_advanced_link": "^2.0",
+        "drupal/email_registration": "^1.1",
+        "drupal/embed": "^1.5",
+        "drupal/entity_browser": "^2.6",
+        "drupal/entity_clone": "^2.0@beta",
+        "drupal/entity_embed": "^1.2",
+        "drupal/entity_reference_revisions": "^1.9",
+        "drupal/entityqueue": "^1.2",
+        "drupal/features": "^3.12",
+        "drupal/file_mdm": "^3.0",
+        "drupal/focal_point": "^2.1",
+        "drupal/geocoder": "^4.23",
+        "drupal/geolocation": "^3.9",
+        "drupal/google_tag": "^2.0",
+        "drupal/honeypot": "^2.1",
+        "drupal/imagemagick": "^3.7",
+        "drupal/improved_multi_select": "^1.3",
+        "drupal/inline_entity_form": "^3.0@RC",
+        "drupal/jquery_ui_datepicker": "^2.1",
+        "drupal/link_attributes": "^2.1",
+        "drupal/magnific_popup": "^2.0",
+        "drupal/mailsystem": "^4.3",
+        "drupal/menu_block": "^1.8",
+        "drupal/menu_item_extras": "^3.0",
+        "drupal/menu_trail_by_path": "^2.0",
+        "drupal/metatag": "^2.0",
+        "drupal/migrate_file": "^2.1",
+        "drupal/migrate_plus": "^6.0",
+        "drupal/migrate_source_csv": "^3.5",
+        "drupal/migrate_tools": "^6.0",
+        "drupal/pantheon_advanced_page_cache": "^2.2",
+        "drupal/paragraphs": "^1.14",
+        "drupal/pathauto": "^1.9",
+        "drupal/rdf": "^2.1",
+        "drupal/redirect": "^1.9",
+        "drupal/redis": "^1.5",
+        "drupal/scheduler": "^2.0",
+        "drupal/search_api": "^1.34",
+        "drupal/search_api_attachments": "^9.0",
+        "drupal/search_api_exclude": "^2.0",
+        "drupal/search_api_pantheon": "^8.1",
+        "drupal/search_api_solr": "^4.3",
+        "drupal/search_api_spellcheck": "^4.0",
+        "drupal/sendgrid_integration": "^2.2",
+        "drupal/smart_trim": "^2.1",
+        "drupal/sophron": "^2.1",
+        "drupal/svg_image": "^3.0",
+        "drupal/token": "^1.9",
+        "drupal/token_filter": "^2.2",
+        "drupal/ultimate_cron": "^2.0@alpha",
+        "drupal/upgrade_status": "^4.3",
+        "drupal/username_enumeration_prevention": "^1.2",
+        "drupal/verf": "^2.0",
+        "drupal/video_embed_field": "^2.4",
+        "drupal/webform": "^6.1",
+        "drupal/workbench_moderation": "^1.6",
+        "drupal/xmlsitemap": "^1.1",
+        "drush/drush": "^11 || ^12",
+        "geocoder-php/google-maps-provider": "^4.6",
+        "jquery/inputmask": "^5.0",
+        "jquery/intl_tel_input": "^17.0",
+        "jquery/popperjs": "^2.11",
+        "jquery/rateit": "^1.1",
+        "jquery/tabby": "^12.0",
+        "jquery/textcounter": "^0.9.1",
+        "jquery/timepicker": "^1.14",
+        "jquery/tippyjs": "^6.3",
+        "js/choices": "^9.0",
+        "pantheon-systems/drupal-integrations": "^9",
+        "pantheon-upstreams/upstream-configuration": "dev-main",
+        "progress/tracker": "^2.0",
+        "signature/pad": "^2.3",
+        "zaporylie/composer-drupal-optimizations": "^1.2"
+    },
+    "require-dev": {
+        "brainmaestro/composer-git-hooks": "^3.0.0-alpha.1",
+        "dealerdirect/phpcodesniffer-composer-installer": "^0.7.1",
+        "drupal/core-dev": "^10",
+        "squizlabs/php_codesniffer": "^3.6"
+    },
+    "conflict": {
+        "drupal/drupal": "*"
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true,
+    "extra": {
+        "drupal-scaffold": {
+            "locations": {
+                "web-root": "./web"
+            },
+            "allowed-packages": [
+                "pantheon-systems/drupal-integrations"
+            ],
+            "file-mapping": {
+                "[project-root]/.editorconfig": false,
+                "[project-root]/pantheon.upstream.yml": false,
+                "[project-root]/.gitattributes": false
+            }
+        },
+        "installer-paths": {
+            "web/core": ["type:drupal-core"],
+            "web/libraries/{$name}": ["type:drupal-library"],
+            "web/modules/contrib/{$name}": ["type:drupal-module"],
+            "web/profiles/contrib/{$name}": ["type:drupal-profile"],
+            "web/themes/contrib/{$name}": ["type:drupal-theme"],
+            "drush/Commands/contrib/{$name}": ["type:drupal-drush"],
+            "web/modules/custom/{$name}": ["type:drupal-custom-module"],
+            "web/profiles/custom/{$name}": ["type:drupal-custom-profile"],
+            "web/themes/custom/{$name}": ["type:drupal-custom-theme"],
+            "web/private/scripts/quicksilver/{$name}/": ["type:quicksilver-script"]
+        },
+        "composer-exit-on-patch-failure": true,
+        "patchLevel": {
+            "drupal/core": "-p2"
+        },
+        "enable-patching": true,
+        "patches": {
+            "drupal/core": {
+                "Log an error message when library definitions have a license with no URL defined": "https://www.drupal.org/files/issues/2023-10-07/fix-license-missing-url.patch"
+            }
+        },
+        "hooks": {
+            "post-merge": [
+                "hooks/post-merge.sh"
+            ]
+        }
+    },
+    "autoload": {
+        "classmap": [
+            "upstream-configuration/scripts/ComposerScripts.php"
+        ]
+    },
+    "scripts": {
+        "pre-update-cmd": [
+            "DrupalComposerManaged\\ComposerScripts::preUpdate"
+        ],
+        "upstream-require": [
+            "DrupalComposerManaged\\ComposerScripts::upstreamRequire"
+        ]
+    },
+    "scripts-descriptions": {
+        "upstream-require": "Add a dependency to an upstream. See https://pantheon.io/docs/create-custom-upstream for information on creating custom upstreams."
+    },
+    "config": {
+        "preferred-install": "dist",
+        "sort-packages": true,
+        "process-timeout": 90,
+        "platform": {
+            "php": "8.2"
+        },
+        "allow-plugins": {
+            "composer/installers": true,
+            "cweagans/composer-patches": true,
+            "drupal/core-composer-scaffold": true,
+            "dealerdirect/phpcodesniffer-composer-installer": true,
+            "zaporylie/composer-drupal-optimizations": true,
+            "php-http/discovery": true,
+            "drupal/console-extend-plugin": true,
+            "phpstan/extension-installer": true,
+            "drupal/core-project-message": true
+        }
+    }
+}

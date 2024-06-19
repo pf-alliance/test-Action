@@ -1,0 +1,40 @@
+name: port-of-san-diego
+recipe: pantheon
+config:
+  framework: drupal8
+  site: port-of-san-diego
+  id: 0ddccaa9-e7e9-469d-8c20-09ebcc214fc0
+  xdebug: false
+  edge: false
+
+services:
+  node:
+    type: node:20
+    globals:
+      gulp-cli: latest
+  patterns:
+    type: php:8.2
+    run_as_root:
+      - curl -sL https://deb.nodesource.com/setup_20.x | bash -
+      - apt-get install -y nodejs
+    xdebug: "debug,develop"
+    overrides:
+      ports:
+        - 3003:3003
+tooling:
+  install:
+    service: patterns
+    dir: /app/web/themes/custom/port_san_diego
+    cmd: npm install
+  build:
+    service: patterns
+    dir: /app/web/themes/custom/port_san_diego
+    cmd: npm run build
+  watch:
+    service: patterns
+    dir: /app/web/themes/custom/port_san_diego
+    cmd: npm run watch
+  npm:
+    service: patterns
+    dir: /app/web/themes/custom/port_san_diego
+    cmd: npm
